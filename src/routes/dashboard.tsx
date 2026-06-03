@@ -76,11 +76,11 @@ function Dashboard() {
             <Bell size={16} />
             <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-primary-glow" />
           </button>
-          <button className="flex items-center gap-2 rounded-full bg-card border border-border pl-1 pr-3 py-1">
-            <div className="h-8 w-8 rounded-full bg-gradient-primary flex items-center justify-center font-bold text-sm">JV</div>
-            <ChevronDown size={14} />
-          </button>
+          <UserMenu />
         </header>
+
+        {/* Stats row */}
+        {null}
 
         {/* Stats row */}
         <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">

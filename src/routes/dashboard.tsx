@@ -31,6 +31,45 @@ import {
 import { Sidebar } from "@/components/shapeup/Sidebar";
 import { StatCard } from "@/components/shapeup/StatCard";
 import workoutImg from "@/assets/workout-pulldown.jpg";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+
+function UserMenu() {
+  const navigate = useNavigate();
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button className="flex items-center gap-2 rounded-full bg-card border border-border pl-1 pr-3 py-1 hover:border-primary/50 transition">
+          <div className="h-8 w-8 rounded-full bg-gradient-primary flex items-center justify-center font-bold text-sm">JV</div>
+          <ChevronDown size={14} />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-52">
+        <DropdownMenuLabel>
+          <div className="font-semibold">João Victor</div>
+          <div className="text-xs text-muted-foreground font-normal">Nível 12</div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem>
+          <User size={14} className="mr-2" /> Meu perfil
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onClick={() => navigate({ to: "/" })}
+          className="text-destructive focus:text-destructive"
+        >
+          <LogOut size={14} className="mr-2" /> Sair
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({

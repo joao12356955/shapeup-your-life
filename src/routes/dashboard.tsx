@@ -40,6 +40,12 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import {
+  HoverCard,
+  HoverCardTrigger,
+  HoverCardContent,
+} from "@/components/ui/hover-card";
+import { Trophy, Dumbbell as DumbbellIcon, Flame as FlameIcon } from "lucide-react";
 
 function UserMenu() {
   const navigate = useNavigate();

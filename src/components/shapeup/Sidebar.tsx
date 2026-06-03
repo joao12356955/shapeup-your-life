@@ -10,7 +10,7 @@ import {
   Settings,
   Crown,
 } from "lucide-react";
-import { Logo } from "./Logo";
+import sidebarLogo from "@/assets/shapeup-logo-sidebar.png.asset.json";
 
 const nav = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },

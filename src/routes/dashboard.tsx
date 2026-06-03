@@ -112,7 +112,14 @@ function Dashboard() {
               className="w-full rounded-full bg-card border border-border pl-10 pr-4 py-2 text-sm outline-none focus:border-primary"
             />
           </div>
-          <button className="relative h-10 w-10 rounded-full bg-card border border-border flex items-center justify-center">
+          <button
+            onClick={() =>
+              toast("🔥 Novo desafio para você!", {
+                description: "Complete 5 treinos esta semana e ganhe XP bônus.",
+              })
+            }
+            className="relative h-10 w-10 rounded-full bg-card border border-border flex items-center justify-center hover:border-primary/50 hover:bg-primary/10 transition"
+          >
             <Bell size={16} />
             <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-primary-glow" />
           </button>

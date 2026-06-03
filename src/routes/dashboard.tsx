@@ -31,6 +31,7 @@ import {
 import { Sidebar } from "@/components/shapeup/Sidebar";
 import { StatCard } from "@/components/shapeup/StatCard";
 import workoutImg from "@/assets/workout-pulldown.jpg";
+import { toast } from "sonner";
 import {
   DropdownMenu,
   DropdownMenuTrigger,

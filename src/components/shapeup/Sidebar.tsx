@@ -10,7 +10,7 @@ import {
   Settings,
   Crown,
 } from "lucide-react";
-import { Logo } from "./Logo";
+import sidebarLogo from "@/assets/shapeup-logo-sidebar.png.asset.json";
 
 const nav = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -27,7 +27,7 @@ export function Sidebar() {
   const location = useLocation();
   return (
     <aside className="hidden lg:flex w-64 shrink-0 flex-col bg-sidebar border-r border-border p-6 gap-8">
-      <Logo />
+      <img src={sidebarLogo.url} alt="ShapeUp" className="h-16 w-auto self-start" />
 
       <nav className="flex-1 flex flex-col gap-1">
         {nav.map((item, i) => {

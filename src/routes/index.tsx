@@ -1,7 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Mail, Lock, Eye, EyeOff, ArrowRight, TrendingUp, Dumbbell, Target } from "lucide-react";
-import bgAsset from "@/assets/shapeup-bg.png.asset.json";
+import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
+import bgAsset from "@/assets/shapeup-bg-dashboard.png.asset.json";
+import heroLogo from "@/assets/shapeup-logo-hero.png.asset.json";
+import featuresImg from "@/assets/shapeup-features.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -27,33 +29,18 @@ function LoginPage() {
       <div className="min-h-screen bg-background/40 backdrop-blur-[2px]">
         <div className="grid lg:grid-cols-2 min-h-screen">
           {/* Left — Brand */}
-          <div className="flex flex-col justify-center items-center p-10 lg:p-16">
-            <div className="max-w-md text-center space-y-8">
-              <div className="space-y-3">
-                <h1 className="font-display text-5xl md:text-6xl font-black tracking-wider">
-                  SHAPE<span className="text-gradient-primary">UP</span>
-                </h1>
-                <p className="text-lg text-foreground/90">
-                  Track your progress.{" "}
-                  <span className="text-gradient-primary font-semibold">Shape your future.</span>
-                </p>
-              </div>
-
-              <div className="grid grid-cols-3 gap-4 pt-6">
-                {[
-                  { icon: TrendingUp, title: "TRACK", desc: "Monitor your workouts and progress" },
-                  { icon: Dumbbell, title: "IMPROVE", desc: "Plan better. Train smarter." },
-                  { icon: Target, title: "ACHIEVE", desc: "Stay consistent. Reach your goals." },
-                ].map(({ icon: Icon, title, desc }) => (
-                  <div key={title} className="space-y-2">
-                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-card/60 border border-primary/40 shadow-glow">
-                      <Icon size={22} className="text-primary-glow" />
-                    </div>
-                    <div className="text-xs font-bold tracking-widest">{title}</div>
-                    <p className="text-xs text-muted-foreground leading-snug">{desc}</p>
-                  </div>
-                ))}
-              </div>
+          <div className="flex flex-col justify-center items-center p-6 lg:p-12">
+            <div className="max-w-lg w-full space-y-8">
+              <img
+                src={heroLogo.url}
+                alt="ShapeUp — Track your progress. Shape your future."
+                className="w-full h-auto drop-shadow-[0_0_40px_oklch(0.55_0.25_295/40%)]"
+              />
+              <img
+                src={featuresImg.url}
+                alt="Track. Improve. Achieve."
+                className="w-full h-auto"
+              />
             </div>
           </div>
 

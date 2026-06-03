@@ -2,8 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 import bgAsset from "@/assets/shapeup-bg-dashboard.png.asset.json";
-import heroLogo from "@/assets/shapeup-logo-hero.png.asset.json";
-import featuresImg from "@/assets/shapeup-features.png.asset.json";
+import loginArt from "@/assets/shapeup-login-v3.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({

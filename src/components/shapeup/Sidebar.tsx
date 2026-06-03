@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useLocation } from "@tanstack/react-router";
 import {
   LayoutDashboard,
@@ -10,7 +11,7 @@ import {
   Settings,
   Crown,
 } from "lucide-react";
-import sidebarLogo from "@/assets/shapeup-logo-sidebar.png.asset.json";
+import sidebarLogo from "@/assets/shapeup-logo-menu.png.asset.json";
 
 const nav = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -25,22 +26,24 @@ const nav = [
 
 export function Sidebar() {
   const location = useLocation();
+  const [activeIdx, setActiveIdx] = useState(0);
   return (
     <aside className="hidden lg:flex w-64 shrink-0 flex-col bg-sidebar border-r border-border p-6 gap-8">
-      <img src={sidebarLogo.url} alt="ShapeUp" className="h-16 w-auto self-start" />
+      <img src={sidebarLogo.url} alt="ShapeUp" className="h-20 w-auto self-start" />
 
       <nav className="flex-1 flex flex-col gap-1">
         {nav.map((item, i) => {
-          const active = i === 0 && location.pathname === "/dashboard";
+          const active = activeIdx === i && location.pathname === "/dashboard";
           const Icon = item.icon;
           return (
             <Link
               key={item.label}
               to={item.to}
-              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+              onClick={() => setActiveIdx(i)}
+              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
                 active
                   ? "bg-sidebar-active text-foreground shadow-glow"
-                  : "text-sidebar-foreground hover:bg-secondary hover:text-foreground"
+                  : "text-sidebar-foreground hover:bg-primary/15 hover:text-foreground hover:translate-x-0.5"
               }`}
             >
               <Icon size={18} />

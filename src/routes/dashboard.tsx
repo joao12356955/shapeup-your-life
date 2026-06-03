@@ -45,7 +45,7 @@ import {
   HoverCardTrigger,
   HoverCardContent,
 } from "@/components/ui/hover-card";
-import { Trophy, Dumbbell as DumbbellIcon, Flame as FlameIcon } from "lucide-react";
+import { Trophy } from "lucide-react";
 
 function UserMenu() {
   const navigate = useNavigate();

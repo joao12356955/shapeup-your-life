@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 import bgAsset from "@/assets/shapeup-bg-dashboard.png.asset.json";
-import loginArt from "@/assets/shapeup-login-v3.png.asset.json";
+import loginArt from "@/assets/shapeup-login-v4.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -28,21 +28,19 @@ function LoginPage() {
       <div className="min-h-screen bg-background/40 backdrop-blur-[2px]">
         <div className="grid lg:grid-cols-2 min-h-screen">
           {/* Left — Brand */}
-          <div className="flex flex-col justify-center items-center p-6 lg:p-12">
-            <div className="max-w-xl w-full">
-              <img
-                src={loginArt.url}
-                alt="ShapeUp — Track your progress. Shape your future."
-                className="w-full h-auto"
-                style={{
-                  WebkitMaskImage:
-                    "radial-gradient(ellipse 70% 70% at 50% 50%, #000 55%, transparent 92%)",
-                  maskImage:
-                    "radial-gradient(ellipse 70% 70% at 50% 50%, #000 55%, transparent 92%)",
-                  mixBlendMode: "screen",
-                }}
-              />
-            </div>
+          <div className="flex justify-center items-center p-6 lg:p-12">
+            <img
+              src={loginArt.url}
+              alt="ShapeUp — Track your progress. Shape your future."
+              className="w-auto max-w-full h-[640px] object-contain"
+              style={{
+                WebkitMaskImage:
+                  "radial-gradient(ellipse 65% 70% at 50% 50%, #000 50%, transparent 92%)",
+                maskImage:
+                  "radial-gradient(ellipse 65% 70% at 50% 50%, #000 50%, transparent 92%)",
+                mixBlendMode: "screen",
+              }}
+            />
           </div>
 
           {/* Right — Login */}

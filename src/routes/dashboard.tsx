@@ -40,6 +40,12 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import {
+  HoverCard,
+  HoverCardTrigger,
+  HoverCardContent,
+} from "@/components/ui/hover-card";
+import { Trophy } from "lucide-react";
 
 function UserMenu() {
   const navigate = useNavigate();
@@ -112,17 +118,51 @@ function Dashboard() {
               className="w-full rounded-full bg-card border border-border pl-10 pr-4 py-2 text-sm outline-none focus:border-primary"
             />
           </div>
-          <button
-            onClick={() =>
-              toast("🔥 Novo desafio para você!", {
-                description: "Complete 5 treinos esta semana e ganhe XP bônus.",
-              })
-            }
-            className="relative h-10 w-10 rounded-full bg-card border border-border flex items-center justify-center hover:border-primary/50 hover:bg-primary/10 transition"
-          >
-            <Bell size={16} />
-            <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-primary-glow" />
-          </button>
+          <HoverCard openDelay={100} closeDelay={150}>
+            <HoverCardTrigger asChild>
+              <button
+                onClick={() =>
+                  toast("🔥 Novo desafio para você!", {
+                    description: "Complete 5 treinos esta semana e ganhe XP bônus.",
+                  })
+                }
+                className="relative h-10 w-10 rounded-full bg-card border border-border flex items-center justify-center hover:border-primary/50 hover:bg-primary/10 transition"
+              >
+                <Bell size={16} />
+                <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-primary-glow" />
+              </button>
+            </HoverCardTrigger>
+            <HoverCardContent align="end" className="w-80 p-0 overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+                <div className="font-semibold text-sm">Notificações</div>
+                <span className="text-[10px] uppercase tracking-wider text-primary-glow">3 novas</span>
+              </div>
+              <div className="divide-y divide-border">
+                {[
+                  { icon: Trophy, title: "Novo desafio para você!", desc: "Complete 5 treinos esta semana e ganhe XP bônus.", time: "agora" },
+                  { icon: Dumbbell, title: "Treino B amanhã", desc: "Costas • Bíceps • Posterior — 60 min", time: "2h" },
+                  { icon: Flame, title: "Sequência de 8 dias 🔥", desc: "Continue assim para bater seu recorde!", time: "ontem" },
+                ].map((n) => {
+                  const Icon = n.icon;
+                  return (
+                    <div key={n.title} className="flex gap-3 px-4 py-3 hover:bg-primary/10 transition cursor-pointer">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/20 text-primary-glow">
+                        <Icon size={16} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium">{n.title}</div>
+                        <div className="text-xs text-muted-foreground truncate">{n.desc}</div>
+                      </div>
+                      <div className="text-[10px] text-muted-foreground shrink-0">{n.time}</div>
+                    </div>
+                  );
+                })}
+              </div>
+              <button className="w-full py-2.5 text-xs font-medium text-primary-glow hover:bg-primary/10 transition border-t border-border">
+                Ver todas as notificações
+              </button>
+            </HoverCardContent>
+          </HoverCard>
           <UserMenu />
         </header>
 

@@ -29,16 +29,18 @@ function LoginPage() {
         <div className="grid lg:grid-cols-2 min-h-screen">
           {/* Left — Brand */}
           <div className="flex flex-col justify-center items-center p-6 lg:p-12">
-            <div className="max-w-lg w-full space-y-8">
+            <div className="max-w-xl w-full">
               <img
-                src={heroLogo.url}
+                src={loginArt.url}
                 alt="ShapeUp — Track your progress. Shape your future."
-                className="w-full h-auto drop-shadow-[0_0_40px_oklch(0.55_0.25_295/40%)]"
-              />
-              <img
-                src={featuresImg.url}
-                alt="Track. Improve. Achieve."
                 className="w-full h-auto"
+                style={{
+                  WebkitMaskImage:
+                    "radial-gradient(ellipse 70% 70% at 50% 50%, #000 55%, transparent 92%)",
+                  maskImage:
+                    "radial-gradient(ellipse 70% 70% at 50% 50%, #000 55%, transparent 92%)",
+                  mixBlendMode: "screen",
+                }}
               />
             </div>
           </div>

@@ -28,11 +28,11 @@ function LoginPage() {
       <div className="min-h-screen bg-background/40 backdrop-blur-[2px]">
         <div className="grid lg:grid-cols-2 min-h-screen">
           {/* Left — Brand */}
-          <div className="flex justify-center lg:justify-end items-center p-6 lg:pl-12 lg:pr-0">
+          <div className="flex justify-center lg:justify-end items-center p-6 lg:pl-12 lg:pr-0 overflow-hidden">
             <img
               src={loginArt.url}
               alt="ShapeUp — Track your progress. Shape your future."
-              className="w-auto max-w-none h-[800px] object-contain -mr-24"
+              className="w-auto h-auto max-h-[85vh] max-w-full object-contain"
               style={{
                 WebkitMaskImage:
                   "radial-gradient(ellipse 60% 65% at 50% 50%, #000 50%, transparent 92%)",

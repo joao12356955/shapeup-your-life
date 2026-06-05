@@ -32,7 +32,7 @@ function LoginPage() {
             <img
               src={loginArt.url}
               alt="ShapeUp — Track your progress. Shape your future."
-              className="w-auto h-auto max-h-[85vh] max-w-full object-contain"
+              className="w-auto max-w-none h-[850px] object-contain"
               style={{
                 WebkitMaskImage:
                   "radial-gradient(ellipse 60% 65% at 50% 50%, #000 50%, transparent 92%)",

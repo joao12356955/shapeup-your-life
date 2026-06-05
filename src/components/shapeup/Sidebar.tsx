@@ -15,14 +15,14 @@ import sidebarLogo from "@/assets/shapeup-logo-menu.png.asset.json";
 
 const nav = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/dashboard", label: "Treinos", icon: Dumbbell },
+  { to: "/treinos", label: "Treinos", icon: Dumbbell },
   { to: "/dashboard", label: "Dieta", icon: UtensilsCrossed },
   { to: "/dashboard", label: "Evolução", icon: TrendingUp },
   { to: "/dashboard", label: "Desafios", icon: Trophy },
   { to: "/dashboard", label: "Calendário", icon: Calendar },
   { to: "/dashboard", label: "Relatórios", icon: BarChart3 },
   { to: "/dashboard", label: "Configurações", icon: Settings },
-];
+] as const;
 
 export function Sidebar() {
   const location = useLocation();

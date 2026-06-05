@@ -26,7 +26,6 @@ const nav = [
 
 export function Sidebar() {
   const location = useLocation();
-  const [activeIdx, setActiveIdx] = useState(0);
   return (
     <aside className="hidden lg:flex w-64 shrink-0 flex-col bg-sidebar border-r border-border p-6 gap-8">
       <img src={sidebarLogo.url} alt="ShapeUp" className="h-32 w-auto self-start -ml-2" />

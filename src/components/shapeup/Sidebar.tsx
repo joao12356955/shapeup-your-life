@@ -32,13 +32,13 @@ export function Sidebar() {
 
       <nav className="flex-1 flex flex-col gap-1">
         {nav.map((item, i) => {
-          const active = activeIdx === i && location.pathname === "/dashboard";
+          const active = location.pathname === item.to && (i === 0 || item.to !== "/dashboard");
           const Icon = item.icon;
           return (
             <Link
-              key={item.label}
+              key={`${item.label}-${i}`}
               to={item.to}
-              onClick={() => setActiveIdx(i)}
+
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
                 active
                   ? "bg-sidebar-active text-foreground shadow-glow"

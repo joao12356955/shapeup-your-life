@@ -1,4 +1,4 @@
-import { useState } from "react";
+
 import { Link, useLocation } from "@tanstack/react-router";
 import {
   LayoutDashboard,
@@ -15,31 +15,30 @@ import sidebarLogo from "@/assets/shapeup-logo-menu.png.asset.json";
 
 const nav = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/dashboard", label: "Treinos", icon: Dumbbell },
+  { to: "/treinos", label: "Treinos", icon: Dumbbell },
   { to: "/dashboard", label: "Dieta", icon: UtensilsCrossed },
   { to: "/dashboard", label: "Evolução", icon: TrendingUp },
   { to: "/dashboard", label: "Desafios", icon: Trophy },
   { to: "/dashboard", label: "Calendário", icon: Calendar },
   { to: "/dashboard", label: "Relatórios", icon: BarChart3 },
   { to: "/dashboard", label: "Configurações", icon: Settings },
-];
+] as const;
 
 export function Sidebar() {
   const location = useLocation();
-  const [activeIdx, setActiveIdx] = useState(0);
   return (
     <aside className="hidden lg:flex w-64 shrink-0 flex-col bg-sidebar border-r border-border p-6 gap-8">
       <img src={sidebarLogo.url} alt="ShapeUp" className="h-32 w-auto self-start -ml-2" />
 
       <nav className="flex-1 flex flex-col gap-1">
         {nav.map((item, i) => {
-          const active = activeIdx === i && location.pathname === "/dashboard";
+          const active = location.pathname === item.to && (i === 0 || item.to !== "/dashboard");
           const Icon = item.icon;
           return (
             <Link
-              key={item.label}
+              key={`${item.label}-${i}`}
               to={item.to}
-              onClick={() => setActiveIdx(i)}
+
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
                 active
                   ? "bg-sidebar-active text-foreground shadow-glow"

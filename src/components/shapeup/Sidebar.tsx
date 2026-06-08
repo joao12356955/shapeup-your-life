@@ -16,7 +16,7 @@ import sidebarLogo from "@/assets/shapeup-logo-menu.png.asset.json";
 const nav = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/treinos", label: "Treinos", icon: Dumbbell },
-  { to: "/dashboard", label: "Dieta", icon: UtensilsCrossed },
+  { to: "/dieta", label: "Dieta", icon: UtensilsCrossed },
   { to: "/dashboard", label: "Evolução", icon: TrendingUp },
   { to: "/dashboard", label: "Desafios", icon: Trophy },
   { to: "/dashboard", label: "Calendário", icon: Calendar },

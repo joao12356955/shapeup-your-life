@@ -33,6 +33,15 @@ import { StatCard } from "@/components/shapeup/StatCard";
 import workoutImg from "@/assets/workout-pulldown.jpg";
 import { toast } from "sonner";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,

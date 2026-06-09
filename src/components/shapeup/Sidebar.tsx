@@ -18,8 +18,8 @@ const nav = [
   { to: "/treinos", label: "Treinos", icon: Dumbbell },
   { to: "/dieta", label: "Dieta", icon: UtensilsCrossed },
   { to: "/evolucao", label: "Evolução", icon: TrendingUp },
-  { to: "/dashboard", label: "Desafios", icon: Trophy },
-  { to: "/dashboard", label: "Calendário", icon: Calendar },
+  { to: "/desafios", label: "Desafios", icon: Trophy },
+  { to: "/calendario", label: "Calendário", icon: Calendar },
   { to: "/dashboard", label: "Relatórios", icon: BarChart3 },
   { to: "/dashboard", label: "Configurações", icon: Settings },
 ] as const;

@@ -12,7 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TreinosRouteImport } from './routes/treinos'
 import { Route as EvolucaoRouteImport } from './routes/evolucao'
 import { Route as DietaRouteImport } from './routes/dieta'
+import { Route as DesafiosRouteImport } from './routes/desafios'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CalendarioRouteImport } from './routes/calendario'
 import { Route as IndexRouteImport } from './routes/index'
 
 const TreinosRoute = TreinosRouteImport.update({
@@ -30,9 +32,19 @@ const DietaRoute = DietaRouteImport.update({
   path: '/dieta',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DesafiosRoute = DesafiosRouteImport.update({
+  id: '/desafios',
+  path: '/desafios',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CalendarioRoute = CalendarioRouteImport.update({
+  id: '/calendario',
+  path: '/calendario',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -43,14 +55,18 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/calendario': typeof CalendarioRoute
   '/dashboard': typeof DashboardRoute
+  '/desafios': typeof DesafiosRoute
   '/dieta': typeof DietaRoute
   '/evolucao': typeof EvolucaoRoute
   '/treinos': typeof TreinosRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/calendario': typeof CalendarioRoute
   '/dashboard': typeof DashboardRoute
+  '/desafios': typeof DesafiosRoute
   '/dieta': typeof DietaRoute
   '/evolucao': typeof EvolucaoRoute
   '/treinos': typeof TreinosRoute
@@ -58,22 +74,48 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/calendario': typeof CalendarioRoute
   '/dashboard': typeof DashboardRoute
+  '/desafios': typeof DesafiosRoute
   '/dieta': typeof DietaRoute
   '/evolucao': typeof EvolucaoRoute
   '/treinos': typeof TreinosRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/dieta' | '/evolucao' | '/treinos'
+  fullPaths:
+    | '/'
+    | '/calendario'
+    | '/dashboard'
+    | '/desafios'
+    | '/dieta'
+    | '/evolucao'
+    | '/treinos'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/dieta' | '/evolucao' | '/treinos'
-  id: '__root__' | '/' | '/dashboard' | '/dieta' | '/evolucao' | '/treinos'
+  to:
+    | '/'
+    | '/calendario'
+    | '/dashboard'
+    | '/desafios'
+    | '/dieta'
+    | '/evolucao'
+    | '/treinos'
+  id:
+    | '__root__'
+    | '/'
+    | '/calendario'
+    | '/dashboard'
+    | '/desafios'
+    | '/dieta'
+    | '/evolucao'
+    | '/treinos'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CalendarioRoute: typeof CalendarioRoute
   DashboardRoute: typeof DashboardRoute
+  DesafiosRoute: typeof DesafiosRoute
   DietaRoute: typeof DietaRoute
   EvolucaoRoute: typeof EvolucaoRoute
   TreinosRoute: typeof TreinosRoute
@@ -102,11 +144,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DietaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/desafios': {
+      id: '/desafios'
+      path: '/desafios'
+      fullPath: '/desafios'
+      preLoaderRoute: typeof DesafiosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/calendario': {
+      id: '/calendario'
+      path: '/calendario'
+      fullPath: '/calendario'
+      preLoaderRoute: typeof CalendarioRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -121,7 +177,9 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CalendarioRoute: CalendarioRoute,
   DashboardRoute: DashboardRoute,
+  DesafiosRoute: DesafiosRoute,
   DietaRoute: DietaRoute,
   EvolucaoRoute: EvolucaoRoute,
   TreinosRoute: TreinosRoute,

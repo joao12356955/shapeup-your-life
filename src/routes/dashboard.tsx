@@ -33,6 +33,15 @@ import { StatCard } from "@/components/shapeup/StatCard";
 import workoutImg from "@/assets/workout-pulldown.jpg";
 import { toast } from "sonner";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
@@ -325,9 +334,58 @@ function Dashboard() {
                 <span className="flex items-center gap-1"><Flame size={12} /> Avançado</span>
               </div>
             </div>
-            <button className="mt-4 w-full rounded-lg bg-gradient-primary py-2.5 text-sm font-semibold shadow-glow hover:opacity-90 transition">
-              Ver detalhes
-            </button>
+            <Dialog>
+              <DialogTrigger asChild>
+                <button className="mt-4 w-full rounded-lg bg-gradient-primary py-2.5 text-sm font-semibold shadow-glow hover:opacity-90 transition">
+                  Ver detalhes
+                </button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl bg-gradient-card border-border">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2 text-xl">
+                    <Dumbbell size={20} className="text-primary-glow" /> Treino B — Costas • Bíceps • Posterior
+                  </DialogTitle>
+                  <DialogDescription className="flex items-center gap-4 text-xs">
+                    <span className="flex items-center gap-1"><Clock size={12} /> 60 min</span>
+                    <span className="flex items-center gap-1"><Flame size={12} /> Avançado</span>
+                    <span className="rounded-full bg-primary/20 text-primary-glow px-2 py-0.5">Amanhã</span>
+                  </DialogDescription>
+                </DialogHeader>
+
+                <div className="relative rounded-xl overflow-hidden">
+                  <img src={workoutImg} alt="Treino B" className="w-full h-48 object-cover" />
+                </div>
+
+                <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+                  {[
+                    { name: "Puxada frente", sets: "4 x 12", rest: "60s" },
+                    { name: "Remada curvada", sets: "4 x 10", rest: "75s" },
+                    { name: "Remada baixa", sets: "3 x 12", rest: "60s" },
+                    { name: "Pulldown corda", sets: "3 x 15", rest: "45s" },
+                    { name: "Rosca direta", sets: "4 x 10", rest: "60s" },
+                    { name: "Rosca martelo", sets: "3 x 12", rest: "45s" },
+                    { name: "Stiff", sets: "4 x 12", rest: "75s" },
+                  ].map((ex, i) => (
+                    <div key={ex.name} className="flex items-center gap-3 rounded-xl bg-secondary/40 border border-border p-3">
+                      <div className="h-8 w-8 rounded-lg bg-primary/20 text-primary-glow flex items-center justify-center text-xs font-bold">
+                        {i + 1}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-semibold">{ex.name}</div>
+                        <div className="text-xs text-muted-foreground">{ex.sets} • descanso {ex.rest}</div>
+                      </div>
+                      <ChevronRight size={16} className="text-muted-foreground" />
+                    </div>
+                  ))}
+                </div>
+
+                <DialogFooter>
+                  <button className="w-full rounded-lg bg-gradient-primary py-2.5 text-sm font-semibold shadow-glow hover:opacity-90 transition">
+                    Iniciar treino
+                  </button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
 
           {/* Macros + Água */}

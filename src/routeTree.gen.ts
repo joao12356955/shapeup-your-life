@@ -14,6 +14,7 @@ import { Route as EvolucaoRouteImport } from './routes/evolucao'
 import { Route as DietaRouteImport } from './routes/dieta'
 import { Route as DesafiosRouteImport } from './routes/desafios'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CalendarioRouteImport } from './routes/calendario'
 import { Route as IndexRouteImport } from './routes/index'
 
 const TreinosRoute = TreinosRouteImport.update({
@@ -41,6 +42,11 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CalendarioRoute = CalendarioRouteImport.update({
+  id: '/calendario',
+  path: '/calendario',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -49,6 +55,7 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/calendario': typeof CalendarioRoute
   '/dashboard': typeof DashboardRoute
   '/desafios': typeof DesafiosRoute
   '/dieta': typeof DietaRoute
@@ -57,6 +64,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/calendario': typeof CalendarioRoute
   '/dashboard': typeof DashboardRoute
   '/desafios': typeof DesafiosRoute
   '/dieta': typeof DietaRoute
@@ -66,6 +74,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/calendario': typeof CalendarioRoute
   '/dashboard': typeof DashboardRoute
   '/desafios': typeof DesafiosRoute
   '/dieta': typeof DietaRoute
@@ -76,16 +85,25 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/calendario'
     | '/dashboard'
     | '/desafios'
     | '/dieta'
     | '/evolucao'
     | '/treinos'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/desafios' | '/dieta' | '/evolucao' | '/treinos'
+  to:
+    | '/'
+    | '/calendario'
+    | '/dashboard'
+    | '/desafios'
+    | '/dieta'
+    | '/evolucao'
+    | '/treinos'
   id:
     | '__root__'
     | '/'
+    | '/calendario'
     | '/dashboard'
     | '/desafios'
     | '/dieta'
@@ -95,6 +113,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CalendarioRoute: typeof CalendarioRoute
   DashboardRoute: typeof DashboardRoute
   DesafiosRoute: typeof DesafiosRoute
   DietaRoute: typeof DietaRoute
@@ -139,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/calendario': {
+      id: '/calendario'
+      path: '/calendario'
+      fullPath: '/calendario'
+      preLoaderRoute: typeof CalendarioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -151,6 +177,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CalendarioRoute: CalendarioRoute,
   DashboardRoute: DashboardRoute,
   DesafiosRoute: DesafiosRoute,
   DietaRoute: DietaRoute,

@@ -12,6 +12,7 @@ import {
   Crown,
 } from "lucide-react";
 import sidebarLogo from "@/assets/shapeup-logo-menu.png.asset.json";
+import { PricingDialog } from "@/components/shapeup/PricingDialog";
 
 const nav = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -20,8 +21,8 @@ const nav = [
   { to: "/evolucao", label: "Evolução", icon: TrendingUp },
   { to: "/desafios", label: "Desafios", icon: Trophy },
   { to: "/calendario", label: "Calendário", icon: Calendar },
-  { to: "/dashboard", label: "Relatórios", icon: BarChart3 },
-  { to: "/dashboard", label: "Configurações", icon: Settings },
+  { to: "/relatorios", label: "Relatórios", icon: BarChart3 },
+  { to: "/configuracoes", label: "Configurações", icon: Settings },
 ] as const;
 
 export function Sidebar() {
@@ -62,9 +63,11 @@ export function Sidebar() {
             Acesse recursos exclusivos e potencialize seus resultados.
           </p>
         </div>
-        <button className="w-full rounded-lg bg-gradient-primary py-2 text-sm font-semibold text-primary-foreground shadow-glow hover:opacity-90 transition">
-          Assinar agora
-        </button>
+        <PricingDialog>
+          <button className="w-full rounded-lg bg-gradient-primary py-2 text-sm font-semibold text-primary-foreground shadow-glow hover:opacity-90 transition">
+            Assinar agora
+          </button>
+        </PricingDialog>
       </div>
 
       <div className="flex items-center gap-3 border-t border-border pt-4">

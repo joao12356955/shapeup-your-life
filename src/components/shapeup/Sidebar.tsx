@@ -12,6 +12,7 @@ import {
   Crown,
 } from "lucide-react";
 import sidebarLogo from "@/assets/shapeup-logo-menu.png.asset.json";
+import { PricingDialog } from "@/components/shapeup/PricingDialog";
 
 const nav = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },

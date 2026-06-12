@@ -20,8 +20,8 @@ const nav = [
   { to: "/evolucao", label: "Evolução", icon: TrendingUp },
   { to: "/desafios", label: "Desafios", icon: Trophy },
   { to: "/calendario", label: "Calendário", icon: Calendar },
-  { to: "/dashboard", label: "Relatórios", icon: BarChart3 },
-  { to: "/dashboard", label: "Configurações", icon: Settings },
+  { to: "/relatorios", label: "Relatórios", icon: BarChart3 },
+  { to: "/configuracoes", label: "Configurações", icon: Settings },
 ] as const;
 
 export function Sidebar() {

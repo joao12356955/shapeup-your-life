@@ -62,9 +62,11 @@ export function Sidebar() {
             Acesse recursos exclusivos e potencialize seus resultados.
           </p>
         </div>
-        <button className="w-full rounded-lg bg-gradient-primary py-2 text-sm font-semibold text-primary-foreground shadow-glow hover:opacity-90 transition">
-          Assinar agora
-        </button>
+        <PricingDialog>
+          <button className="w-full rounded-lg bg-gradient-primary py-2 text-sm font-semibold text-primary-foreground shadow-glow hover:opacity-90 transition">
+            Assinar agora
+          </button>
+        </PricingDialog>
       </div>
 
       <div className="flex items-center gap-3 border-t border-border pt-4">

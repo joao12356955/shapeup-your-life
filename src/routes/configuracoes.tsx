@@ -157,6 +157,9 @@ function Configuracoes() {
               </div>
             </section>
 
+            {/* Vínculo com academia */}
+            <GymSection />
+
             {/* Personal info */}
             <section className="rounded-2xl bg-gradient-card border border-border p-5 shadow-card">
               <h2 className="font-semibold">Informações pessoais</h2>

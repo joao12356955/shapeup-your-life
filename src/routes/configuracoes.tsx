@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import {
   User as UserIcon,
@@ -13,10 +13,14 @@ import {
   CheckCircle2,
   Clock,
   Crown,
+  Building2,
+  PlusCircle,
 } from "lucide-react";
 import { Sidebar } from "@/components/shapeup/Sidebar";
 import { TopBar } from "@/components/shapeup/TopBar";
 import { PricingDialog } from "@/components/shapeup/PricingDialog";
+import { useGym } from "@/lib/gym-store";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/configuracoes")({
   head: () => ({ meta: [{ title: "Configurações — ShapeUp" }] }),

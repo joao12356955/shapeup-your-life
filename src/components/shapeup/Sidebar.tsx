@@ -10,6 +10,7 @@ import {
   BarChart3,
   Settings,
   Crown,
+  Building2,
 } from "lucide-react";
 import sidebarLogo from "@/assets/shapeup-logo-menu.png.asset.json";
 import { PricingDialog } from "@/components/shapeup/PricingDialog";
@@ -21,6 +22,7 @@ const nav = [
   { to: "/evolucao", label: "Evolução", icon: TrendingUp },
   { to: "/desafios", label: "Desafios", icon: Trophy },
   { to: "/calendario", label: "Calendário", icon: Calendar },
+  { to: "/academia", label: "Academia", icon: Building2 },
   { to: "/relatorios", label: "Relatórios", icon: BarChart3 },
   { to: "/configuracoes", label: "Configurações", icon: Settings },
 ] as const;

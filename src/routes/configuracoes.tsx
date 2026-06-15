@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import {
   User as UserIcon,
@@ -13,10 +13,14 @@ import {
   CheckCircle2,
   Clock,
   Crown,
+  Building2,
+  PlusCircle,
 } from "lucide-react";
 import { Sidebar } from "@/components/shapeup/Sidebar";
 import { TopBar } from "@/components/shapeup/TopBar";
 import { PricingDialog } from "@/components/shapeup/PricingDialog";
+import { useGym } from "@/lib/gym-store";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/configuracoes")({
   head: () => ({ meta: [{ title: "Configurações — ShapeUp" }] }),
@@ -153,6 +157,9 @@ function Configuracoes() {
               </div>
             </section>
 
+            {/* Vínculo com academia */}
+            <GymSection />
+
             {/* Personal info */}
             <section className="rounded-2xl bg-gradient-card border border-border p-5 shadow-card">
               <h2 className="font-semibold">Informações pessoais</h2>
@@ -276,6 +283,91 @@ function Configuracoes() {
         </div>
       </main>
     </div>
+  );
+}
+
+function GymSection() {
+  const { gym, isLinked, link, unlink } = useGym();
+  return (
+    <section className="rounded-2xl bg-gradient-card border border-border p-5 shadow-card">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="h-11 w-11 rounded-xl bg-primary/20 border border-primary/40 flex items-center justify-center shadow-glow">
+            <Building2 size={20} className="text-primary-glow" />
+          </div>
+          <div>
+            <h2 className="font-semibold">Vínculo com academia</h2>
+            <p className="text-xs text-muted-foreground">
+              {isLinked
+                ? "Você está vinculado a uma academia parceira."
+                : "Vincule-se a uma academia para acessar comunidade e desafios."}
+            </p>
+          </div>
+        </div>
+        <label className="inline-flex items-center gap-2 cursor-pointer select-none">
+          <span className="text-xs text-muted-foreground">{isLinked ? "Vinculado" : "Sem vínculo"}</span>
+          <span className="relative inline-flex h-6 w-11 items-center">
+            <input
+              type="checkbox"
+              className="peer sr-only"
+              checked={isLinked}
+              onChange={(e) => {
+                if (e.target.checked) {
+                  link();
+                  toast.success("Academia vinculada!");
+                } else {
+                  unlink();
+                  toast("Vínculo removido.");
+                }
+              }}
+            />
+            <span className="absolute inset-0 rounded-full bg-secondary border border-border transition peer-checked:bg-primary/40 peer-checked:border-primary/60" />
+            <span className="absolute left-0.5 h-5 w-5 rounded-full bg-foreground/80 transition peer-checked:translate-x-5 peer-checked:bg-primary-glow" />
+          </span>
+        </label>
+      </div>
+
+      <div className="mt-4 rounded-xl bg-secondary/40 border border-border p-4">
+        {isLinked ? (
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-primary/30 to-pink-500/20 border border-primary/40 flex items-center justify-center">
+              <Building2 size={18} className="text-primary-glow" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-semibold truncate">{gym!.name}</div>
+              <div className="text-[11px] text-muted-foreground truncate">
+                {gym!.unit} {gym!.city ? "• " + gym!.city : ""} {gym!.code ? "• " + gym!.code : ""}
+              </div>
+            </div>
+            <Link to="/academia" className="text-xs text-primary-glow hover:underline">
+              Abrir
+            </Link>
+          </div>
+        ) : (
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            <input
+              placeholder="Código da academia"
+              className="flex-1 rounded-lg bg-background/60 border border-border px-3 py-2 text-sm outline-none focus:border-primary"
+            />
+            <button
+              onClick={() => {
+                link();
+                toast.success("Academia vinculada!");
+              }}
+              className="rounded-lg bg-gradient-primary px-4 py-2 text-sm font-semibold shadow-glow hover:opacity-90 transition"
+            >
+              Vincular
+            </button>
+            <Link
+              to="/cadastrar-academia"
+              className="inline-flex items-center justify-center gap-1 rounded-lg bg-secondary border border-border px-4 py-2 text-sm font-semibold text-muted-foreground hover:text-foreground transition"
+            >
+              <PlusCircle size={14} /> Cadastrar
+            </Link>
+          </div>
+        )}
+      </div>
+    </section>
   );
 }
 

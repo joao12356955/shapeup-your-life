@@ -131,8 +131,7 @@ const ranking = [
   { n: "Felipe M.", lv: 8, t: 22, xp: "1.420" },
 ];
 
-function LinkedView() {
-  const { gym } = useGym();
+function LinkedView({ gym }: { gym: NonNullable<ReturnType<typeof useGym>["gym"]> }) {
   return (
     <>
       {/* gym header */}

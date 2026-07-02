@@ -37,7 +37,7 @@ function AcademiaPage() {
           }
         />
 
-        {isLinked ? <LinkedView /> : <UnlinkedView onQuickLink={() => link()} />}
+        {isLinked && gym ? <LinkedView gym={gym} /> : <UnlinkedView onQuickLink={() => link()} />}
       </main>
     </div>
   );

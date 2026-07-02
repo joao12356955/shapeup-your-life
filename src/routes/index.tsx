@@ -118,7 +118,7 @@ function LoginPage() {
 
               <p className="text-center text-sm text-muted-foreground">
                 New here?{" "}
-                <Link to="/dashboard" className="text-primary-glow font-medium hover:underline">
+                <Link to="/cadastro" className="text-primary-glow font-medium hover:underline">
                   Create an account →
                 </Link>
               </p>

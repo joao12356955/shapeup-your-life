@@ -17,6 +17,7 @@ import { Route as DesafiosRouteImport } from './routes/desafios'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as CalendarioRouteImport } from './routes/calendario'
+import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as CadastrarAcademiaRouteImport } from './routes/cadastrar-academia'
 import { Route as AcademiaRouteImport } from './routes/academia'
 import { Route as IndexRouteImport } from './routes/index'
@@ -61,6 +62,11 @@ const CalendarioRoute = CalendarioRouteImport.update({
   path: '/calendario',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CadastroRoute = CadastroRouteImport.update({
+  id: '/cadastro',
+  path: '/cadastro',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CadastrarAcademiaRoute = CadastrarAcademiaRouteImport.update({
   id: '/cadastrar-academia',
   path: '/cadastrar-academia',
@@ -81,6 +87,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/academia': typeof AcademiaRoute
   '/cadastrar-academia': typeof CadastrarAcademiaRoute
+  '/cadastro': typeof CadastroRoute
   '/calendario': typeof CalendarioRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/dashboard': typeof DashboardRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/academia': typeof AcademiaRoute
   '/cadastrar-academia': typeof CadastrarAcademiaRoute
+  '/cadastro': typeof CadastroRoute
   '/calendario': typeof CalendarioRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/dashboard': typeof DashboardRoute
@@ -108,6 +116,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/academia': typeof AcademiaRoute
   '/cadastrar-academia': typeof CadastrarAcademiaRoute
+  '/cadastro': typeof CadastroRoute
   '/calendario': typeof CalendarioRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/dashboard': typeof DashboardRoute
@@ -123,6 +132,7 @@ export interface FileRouteTypes {
     | '/'
     | '/academia'
     | '/cadastrar-academia'
+    | '/cadastro'
     | '/calendario'
     | '/configuracoes'
     | '/dashboard'
@@ -136,6 +146,7 @@ export interface FileRouteTypes {
     | '/'
     | '/academia'
     | '/cadastrar-academia'
+    | '/cadastro'
     | '/calendario'
     | '/configuracoes'
     | '/dashboard'
@@ -149,6 +160,7 @@ export interface FileRouteTypes {
     | '/'
     | '/academia'
     | '/cadastrar-academia'
+    | '/cadastro'
     | '/calendario'
     | '/configuracoes'
     | '/dashboard'
@@ -163,6 +175,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AcademiaRoute: typeof AcademiaRoute
   CadastrarAcademiaRoute: typeof CadastrarAcademiaRoute
+  CadastroRoute: typeof CadastroRoute
   CalendarioRoute: typeof CalendarioRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   DashboardRoute: typeof DashboardRoute
@@ -231,6 +244,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CalendarioRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cadastro': {
+      id: '/cadastro'
+      path: '/cadastro'
+      fullPath: '/cadastro'
+      preLoaderRoute: typeof CadastroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cadastrar-academia': {
       id: '/cadastrar-academia'
       path: '/cadastrar-academia'
@@ -259,6 +279,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AcademiaRoute: AcademiaRoute,
   CadastrarAcademiaRoute: CadastrarAcademiaRoute,
+  CadastroRoute: CadastroRoute,
   CalendarioRoute: CalendarioRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
   DashboardRoute: DashboardRoute,
@@ -271,13 +292,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

@@ -402,15 +402,17 @@ function Dashboard() {
           <div className="rounded-2xl bg-gradient-card border border-border p-5 shadow-card">
             <h2 className="font-semibold mb-4">Próximo treino</h2>
             <div className="relative rounded-xl overflow-hidden">
-              <img src={workoutImg} alt="Treino B" className="w-full h-44 object-cover" loading="lazy" width={768} height={512} />
-              <span className="absolute top-3 left-3 rounded-full bg-primary px-3 py-1 text-xs font-medium">Amanhã</span>
+              <img src={workoutImg} alt={tomorrowsWorkout.name} className="w-full h-44 object-cover" loading="lazy" width={768} height={512} />
+              <span className="absolute top-3 left-3 rounded-full bg-primary px-3 py-1 text-xs font-medium capitalize">
+                Amanhã · {tomorrowLabel}
+              </span>
             </div>
             <div className="mt-4 space-y-2">
-              <div className="text-lg font-bold">Treino B</div>
-              <div className="text-sm text-muted-foreground">Costas • Bíceps • Posterior</div>
+              <div className="text-lg font-bold">{tomorrowsWorkout.name}</div>
+              <div className="text-sm text-muted-foreground">{tomorrowsWorkout.focus}</div>
               <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1"><Clock size={12} /> 60 min</span>
-                <span className="flex items-center gap-1"><Flame size={12} /> Avançado</span>
+                <span className="flex items-center gap-1"><Clock size={12} /> {tomorrowsWorkout.duration}</span>
+                <span className="flex items-center gap-1"><Flame size={12} /> {tomorrowsWorkout.level}</span>
               </div>
             </div>
             <Dialog>
@@ -422,29 +424,21 @@ function Dashboard() {
               <DialogContent className="max-w-2xl bg-gradient-card border-border">
                 <DialogHeader>
                   <DialogTitle className="flex items-center gap-2 text-xl">
-                    <Dumbbell size={20} className="text-primary-glow" /> Treino B — Costas • Bíceps • Posterior
+                    <Dumbbell size={20} className="text-primary-glow" /> {tomorrowsWorkout.name} — {tomorrowsWorkout.focus}
                   </DialogTitle>
                   <DialogDescription className="flex items-center gap-4 text-xs">
-                    <span className="flex items-center gap-1"><Clock size={12} /> 60 min</span>
-                    <span className="flex items-center gap-1"><Flame size={12} /> Avançado</span>
-                    <span className="rounded-full bg-primary/20 text-primary-glow px-2 py-0.5">Amanhã</span>
+                    <span className="flex items-center gap-1"><Clock size={12} /> {tomorrowsWorkout.duration}</span>
+                    <span className="flex items-center gap-1"><Flame size={12} /> {tomorrowsWorkout.level}</span>
+                    <span className="rounded-full bg-primary/20 text-primary-glow px-2 py-0.5 capitalize">Amanhã · {tomorrowLabel}</span>
                   </DialogDescription>
                 </DialogHeader>
 
                 <div className="relative rounded-xl overflow-hidden">
-                  <img src={workoutImg} alt="Treino B" className="w-full h-48 object-cover" />
+                  <img src={workoutImg} alt={tomorrowsWorkout.name} className="w-full h-48 object-cover" />
                 </div>
 
                 <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
-                  {[
-                    { name: "Puxada frente", sets: "4 x 12", rest: "60s" },
-                    { name: "Remada curvada", sets: "4 x 10", rest: "75s" },
-                    { name: "Remada baixa", sets: "3 x 12", rest: "60s" },
-                    { name: "Pulldown corda", sets: "3 x 15", rest: "45s" },
-                    { name: "Rosca direta", sets: "4 x 10", rest: "60s" },
-                    { name: "Rosca martelo", sets: "3 x 12", rest: "45s" },
-                    { name: "Stiff", sets: "4 x 12", rest: "75s" },
-                  ].map((ex, i) => (
+                  {tomorrowsWorkout.exercises.map((ex, i) => (
                     <div key={ex.name} className="flex items-center gap-3 rounded-xl bg-secondary/40 border border-border p-3">
                       <div className="h-8 w-8 rounded-lg bg-primary/20 text-primary-glow flex items-center justify-center text-xs font-bold">
                         {i + 1}
@@ -457,6 +451,7 @@ function Dashboard() {
                     </div>
                   ))}
                 </div>
+
 
                 <DialogFooter>
                   <button className="w-full rounded-lg bg-gradient-primary py-2.5 text-sm font-semibold shadow-glow hover:opacity-90 transition">

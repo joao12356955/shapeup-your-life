@@ -264,18 +264,22 @@ function Dashboard() {
               <div className="font-semibold">Desafio 30D</div>
               <CalendarDays size={16} className="text-muted-foreground" />
             </div>
-            <div className="mt-2 text-xs text-muted-foreground">Agosto 2024</div>
+            <div className="mt-2 text-xs text-muted-foreground capitalize">{monthLabel}</div>
             <div className="mt-3 grid grid-cols-7 gap-1 text-center text-[10px] text-muted-foreground">
               {["D","S","T","Q","Q","S","S"].map((d, i) => <div key={i}>{d}</div>)}
-              {[4,5,6,7,8,9,10].map((n) => (
-                <div
-                  key={n}
-                  className={`py-1 rounded-md text-xs ${n === 8 ? "bg-gradient-primary text-primary-foreground font-bold" : "text-foreground/80"}`}
-                >
-                  {n}
-                </div>
-              ))}
+              {weekDays.map((d) => {
+                const isToday = d.toDateString() === today.toDateString();
+                return (
+                  <div
+                    key={d.toISOString()}
+                    className={`py-1 rounded-md text-xs ${isToday ? "bg-gradient-primary text-primary-foreground font-bold" : "text-foreground/80"}`}
+                  >
+                    {d.getDate()}
+                  </div>
+                );
+              })}
             </div>
+
           </div>
         </div>
 

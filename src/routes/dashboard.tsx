@@ -372,11 +372,12 @@ function Dashboard() {
             <h2 className="font-semibold mb-4">Seu plano de hoje</h2>
             <div className="space-y-3">
               {[
-                { icon: Dumbbell, title: "Treino A", sub: "Peito • Ombro • Tríceps", action: "Concluído", done: true },
+                { icon: Dumbbell, title: todaysWorkout.name, sub: todaysWorkout.focus, action: todaysWorkout.rest ? "Descanso" : "Pendente", done: !!todaysWorkout.rest },
                 { icon: UtensilsCrossed, title: "Alimentação", sub: "2/4 refeições registradas", action: "Registrar" },
                 { icon: Droplet, title: "Ingestão de água", sub: "6 / 7 copos", action: "Registrar" },
                 { icon: Scale, title: "Peso", sub: "78.4 kg registrado hoje", action: "Ver histórico" },
               ].map((it) => {
+
                 const Icon = it.icon;
                 return (
                   <div key={it.title} className="flex items-center gap-3 rounded-xl bg-secondary/40 border border-border p-3 hover:border-primary/50 transition">

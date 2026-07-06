@@ -106,14 +106,88 @@ const macroData = [
   { name: "Gorduras", value: 25, color: "oklch(0.78 0.17 70)" },
 ];
 
+const WORKOUT_SPLIT = [
+  { name: "Descanso ativo", focus: "Mobilidade • Alongamento", duration: "30 min", level: "Recuperação", rest: true, exercises: [
+    { name: "Alongamento dinâmico", sets: "3 x 30s", rest: "20s" },
+    { name: "Caminhada leve", sets: "20 min", rest: "-" },
+    { name: "Mobilidade de quadril", sets: "3 x 10", rest: "30s" },
+  ] },
+  { name: "Treino A", focus: "Peito • Ombro • Tríceps", duration: "60 min", level: "Intermediário", exercises: [
+    { name: "Supino reto", sets: "4 x 10", rest: "75s" },
+    { name: "Supino inclinado halteres", sets: "4 x 10", rest: "60s" },
+    { name: "Desenvolvimento militar", sets: "4 x 10", rest: "75s" },
+    { name: "Elevação lateral", sets: "3 x 15", rest: "45s" },
+    { name: "Tríceps corda", sets: "4 x 12", rest: "45s" },
+    { name: "Tríceps francês", sets: "3 x 12", rest: "60s" },
+  ] },
+  { name: "Treino B", focus: "Costas • Bíceps • Posterior", duration: "60 min", level: "Avançado", exercises: [
+    { name: "Puxada frente", sets: "4 x 12", rest: "60s" },
+    { name: "Remada curvada", sets: "4 x 10", rest: "75s" },
+    { name: "Remada baixa", sets: "3 x 12", rest: "60s" },
+    { name: "Pulldown corda", sets: "3 x 15", rest: "45s" },
+    { name: "Rosca direta", sets: "4 x 10", rest: "60s" },
+    { name: "Rosca martelo", sets: "3 x 12", rest: "45s" },
+    { name: "Stiff", sets: "4 x 12", rest: "75s" },
+  ] },
+  { name: "Treino C", focus: "Pernas • Glúteo • Panturrilha", duration: "70 min", level: "Avançado", exercises: [
+    { name: "Agachamento livre", sets: "4 x 10", rest: "90s" },
+    { name: "Leg press", sets: "4 x 12", rest: "75s" },
+    { name: "Cadeira extensora", sets: "3 x 15", rest: "45s" },
+    { name: "Mesa flexora", sets: "3 x 12", rest: "45s" },
+    { name: "Elevação de quadril", sets: "4 x 12", rest: "60s" },
+    { name: "Panturrilha em pé", sets: "4 x 20", rest: "30s" },
+  ] },
+  { name: "Treino A", focus: "Peito • Ombro • Tríceps", duration: "60 min", level: "Intermediário", exercises: [
+    { name: "Supino reto", sets: "4 x 10", rest: "75s" },
+    { name: "Crucifixo halteres", sets: "3 x 12", rest: "60s" },
+    { name: "Desenvolvimento halteres", sets: "4 x 10", rest: "75s" },
+    { name: "Tríceps testa", sets: "4 x 12", rest: "60s" },
+  ] },
+  { name: "Treino B", focus: "Costas • Bíceps", duration: "55 min", level: "Intermediário", exercises: [
+    { name: "Barra fixa", sets: "4 x AMRAP", rest: "90s" },
+    { name: "Remada cavalinho", sets: "4 x 10", rest: "75s" },
+    { name: "Pulldown", sets: "3 x 12", rest: "60s" },
+    { name: "Rosca scott", sets: "3 x 12", rest: "60s" },
+  ] },
+  { name: "Cardio & Core", focus: "HIIT • Abdômen", duration: "40 min", level: "Moderado", exercises: [
+    { name: "Corrida intervalada", sets: "10 x 1min", rest: "1min" },
+    { name: "Prancha", sets: "3 x 45s", rest: "30s" },
+    { name: "Abdominal remador", sets: "4 x 15", rest: "30s" },
+    { name: "Mountain climbers", sets: "4 x 40s", rest: "20s" },
+  ] },
+];
+
+const workoutForDay = (dayIdx: number) => WORKOUT_SPLIT[dayIdx % 7];
+
+
 function Dashboard() {
+  const today = new Date();
+  const dayOfWeek = today.getDay();
+  const todayNum = today.getDate();
+  const monthLabel = today.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+  // week starts Sunday
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(todayNum - dayOfWeek);
+  const weekDays = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(startOfWeek);
+    d.setDate(startOfWeek.getDate() + i);
+    return d;
+  });
+
+  const todaysWorkout = workoutForDay(dayOfWeek);
+  const tomorrow = new Date(today);
+  tomorrow.setDate(todayNum + 1);
+  const tomorrowsWorkout = workoutForDay(tomorrow.getDay());
+  const tomorrowLabel = tomorrow.toLocaleDateString("pt-BR", { weekday: "long" });
+
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar />
 
-      <main className="flex-1 min-w-0 p-6 lg:p-8 space-y-6">
+      <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 space-y-6">
         {/* Top bar */}
-        <header className="flex items-center gap-4">
+        <header className="flex items-center gap-3 sm:gap-4 pl-14 lg:pl-0">
+
           <div className="flex-1">
             <h1 className="text-2xl lg:text-3xl font-bold flex items-center gap-2">
               Olá, João! <span className="text-2xl">👋</span>
@@ -190,18 +264,22 @@ function Dashboard() {
               <div className="font-semibold">Desafio 30D</div>
               <CalendarDays size={16} className="text-muted-foreground" />
             </div>
-            <div className="mt-2 text-xs text-muted-foreground">Agosto 2024</div>
+            <div className="mt-2 text-xs text-muted-foreground capitalize">{monthLabel}</div>
             <div className="mt-3 grid grid-cols-7 gap-1 text-center text-[10px] text-muted-foreground">
               {["D","S","T","Q","Q","S","S"].map((d, i) => <div key={i}>{d}</div>)}
-              {[4,5,6,7,8,9,10].map((n) => (
-                <div
-                  key={n}
-                  className={`py-1 rounded-md text-xs ${n === 8 ? "bg-gradient-primary text-primary-foreground font-bold" : "text-foreground/80"}`}
-                >
-                  {n}
-                </div>
-              ))}
+              {weekDays.map((d) => {
+                const isToday = d.toDateString() === today.toDateString();
+                return (
+                  <div
+                    key={d.toISOString()}
+                    className={`py-1 rounded-md text-xs ${isToday ? "bg-gradient-primary text-primary-foreground font-bold" : "text-foreground/80"}`}
+                  >
+                    {d.getDate()}
+                  </div>
+                );
+              })}
             </div>
+
           </div>
         </div>
 
@@ -294,11 +372,12 @@ function Dashboard() {
             <h2 className="font-semibold mb-4">Seu plano de hoje</h2>
             <div className="space-y-3">
               {[
-                { icon: Dumbbell, title: "Treino A", sub: "Peito • Ombro • Tríceps", action: "Concluído", done: true },
+                { icon: Dumbbell, title: todaysWorkout.name, sub: todaysWorkout.focus, action: todaysWorkout.rest ? "Descanso" : "Pendente", done: !!todaysWorkout.rest },
                 { icon: UtensilsCrossed, title: "Alimentação", sub: "2/4 refeições registradas", action: "Registrar" },
                 { icon: Droplet, title: "Ingestão de água", sub: "6 / 7 copos", action: "Registrar" },
                 { icon: Scale, title: "Peso", sub: "78.4 kg registrado hoje", action: "Ver histórico" },
               ].map((it) => {
+
                 const Icon = it.icon;
                 return (
                   <div key={it.title} className="flex items-center gap-3 rounded-xl bg-secondary/40 border border-border p-3 hover:border-primary/50 transition">
@@ -323,15 +402,17 @@ function Dashboard() {
           <div className="rounded-2xl bg-gradient-card border border-border p-5 shadow-card">
             <h2 className="font-semibold mb-4">Próximo treino</h2>
             <div className="relative rounded-xl overflow-hidden">
-              <img src={workoutImg} alt="Treino B" className="w-full h-44 object-cover" loading="lazy" width={768} height={512} />
-              <span className="absolute top-3 left-3 rounded-full bg-primary px-3 py-1 text-xs font-medium">Amanhã</span>
+              <img src={workoutImg} alt={tomorrowsWorkout.name} className="w-full h-44 object-cover" loading="lazy" width={768} height={512} />
+              <span className="absolute top-3 left-3 rounded-full bg-primary px-3 py-1 text-xs font-medium capitalize">
+                Amanhã · {tomorrowLabel}
+              </span>
             </div>
             <div className="mt-4 space-y-2">
-              <div className="text-lg font-bold">Treino B</div>
-              <div className="text-sm text-muted-foreground">Costas • Bíceps • Posterior</div>
+              <div className="text-lg font-bold">{tomorrowsWorkout.name}</div>
+              <div className="text-sm text-muted-foreground">{tomorrowsWorkout.focus}</div>
               <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1"><Clock size={12} /> 60 min</span>
-                <span className="flex items-center gap-1"><Flame size={12} /> Avançado</span>
+                <span className="flex items-center gap-1"><Clock size={12} /> {tomorrowsWorkout.duration}</span>
+                <span className="flex items-center gap-1"><Flame size={12} /> {tomorrowsWorkout.level}</span>
               </div>
             </div>
             <Dialog>
@@ -343,29 +424,21 @@ function Dashboard() {
               <DialogContent className="max-w-2xl bg-gradient-card border-border">
                 <DialogHeader>
                   <DialogTitle className="flex items-center gap-2 text-xl">
-                    <Dumbbell size={20} className="text-primary-glow" /> Treino B — Costas • Bíceps • Posterior
+                    <Dumbbell size={20} className="text-primary-glow" /> {tomorrowsWorkout.name} — {tomorrowsWorkout.focus}
                   </DialogTitle>
                   <DialogDescription className="flex items-center gap-4 text-xs">
-                    <span className="flex items-center gap-1"><Clock size={12} /> 60 min</span>
-                    <span className="flex items-center gap-1"><Flame size={12} /> Avançado</span>
-                    <span className="rounded-full bg-primary/20 text-primary-glow px-2 py-0.5">Amanhã</span>
+                    <span className="flex items-center gap-1"><Clock size={12} /> {tomorrowsWorkout.duration}</span>
+                    <span className="flex items-center gap-1"><Flame size={12} /> {tomorrowsWorkout.level}</span>
+                    <span className="rounded-full bg-primary/20 text-primary-glow px-2 py-0.5 capitalize">Amanhã · {tomorrowLabel}</span>
                   </DialogDescription>
                 </DialogHeader>
 
                 <div className="relative rounded-xl overflow-hidden">
-                  <img src={workoutImg} alt="Treino B" className="w-full h-48 object-cover" />
+                  <img src={workoutImg} alt={tomorrowsWorkout.name} className="w-full h-48 object-cover" />
                 </div>
 
                 <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
-                  {[
-                    { name: "Puxada frente", sets: "4 x 12", rest: "60s" },
-                    { name: "Remada curvada", sets: "4 x 10", rest: "75s" },
-                    { name: "Remada baixa", sets: "3 x 12", rest: "60s" },
-                    { name: "Pulldown corda", sets: "3 x 15", rest: "45s" },
-                    { name: "Rosca direta", sets: "4 x 10", rest: "60s" },
-                    { name: "Rosca martelo", sets: "3 x 12", rest: "45s" },
-                    { name: "Stiff", sets: "4 x 12", rest: "75s" },
-                  ].map((ex, i) => (
+                  {tomorrowsWorkout.exercises.map((ex, i) => (
                     <div key={ex.name} className="flex items-center gap-3 rounded-xl bg-secondary/40 border border-border p-3">
                       <div className="h-8 w-8 rounded-lg bg-primary/20 text-primary-glow flex items-center justify-center text-xs font-bold">
                         {i + 1}
@@ -378,6 +451,7 @@ function Dashboard() {
                     </div>
                   ))}
                 </div>
+
 
                 <DialogFooter>
                   <button className="w-full rounded-lg bg-gradient-primary py-2.5 text-sm font-semibold shadow-glow hover:opacity-90 transition">

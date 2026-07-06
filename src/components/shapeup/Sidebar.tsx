@@ -1,4 +1,4 @@
-
+import { useState } from "react";
 import { Link, useLocation } from "@tanstack/react-router";
 import {
   LayoutDashboard,
@@ -11,9 +11,11 @@ import {
   Settings,
   Crown,
   Building2,
+  Menu,
 } from "lucide-react";
 import sidebarLogo from "@/assets/shapeup-logo-menu.png.asset.json";
 import { PricingDialog } from "@/components/shapeup/PricingDialog";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 const nav = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -27,13 +29,13 @@ const nav = [
   { to: "/configuracoes", label: "Configurações", icon: Settings },
 ] as const;
 
-export function Sidebar() {
+function SidebarInner({ onNavigate }: { onNavigate?: () => void }) {
   const location = useLocation();
   return (
-    <aside className="hidden lg:flex w-64 shrink-0 flex-col bg-sidebar border-r border-border p-6 gap-8">
+    <div className="flex h-full flex-col gap-8">
       <img src={sidebarLogo.url} alt="ShapeUp" className="h-32 w-auto self-start -ml-2" />
 
-      <nav className="flex-1 flex flex-col gap-1">
+      <nav className="flex-1 flex flex-col gap-1 overflow-y-auto">
         {nav.map((item, i) => {
           const active = location.pathname === item.to && (i === 0 || item.to !== "/dashboard");
           const Icon = item.icon;
@@ -41,7 +43,7 @@ export function Sidebar() {
             <Link
               key={`${item.label}-${i}`}
               to={item.to}
-
+              onClick={onNavigate}
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
                 active
                   ? "bg-sidebar-active text-foreground shadow-glow"
@@ -84,6 +86,34 @@ export function Sidebar() {
           </div>
         </div>
       </div>
-    </aside>
+    </div>
+  );
+}
+
+export function Sidebar() {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <aside className="hidden lg:flex w-64 shrink-0 flex-col bg-sidebar border-r border-border p-6 gap-8">
+        <SidebarInner />
+      </aside>
+
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetTrigger asChild>
+          <button
+            aria-label="Abrir menu"
+            className="lg:hidden fixed top-4 left-4 z-40 h-11 w-11 rounded-xl bg-card/90 backdrop-blur border border-border shadow-elegant flex items-center justify-center hover:border-primary/50 transition"
+          >
+            <Menu size={20} />
+          </button>
+        </SheetTrigger>
+        <SheetContent
+          side="left"
+          className="w-72 bg-sidebar border-r border-border p-6 [&>button]:text-foreground"
+        >
+          <SidebarInner onNavigate={() => setOpen(false)} />
+        </SheetContent>
+      </Sheet>
+    </>
   );
 }

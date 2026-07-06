@@ -161,13 +161,33 @@ const workoutForDay = (dayIdx: number) => WORKOUT_SPLIT[dayIdx % 7];
 
 
 function Dashboard() {
+  const today = new Date();
+  const dayOfWeek = today.getDay();
+  const todayNum = today.getDate();
+  const monthLabel = today.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+  // week starts Sunday
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(todayNum - dayOfWeek);
+  const weekDays = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(startOfWeek);
+    d.setDate(startOfWeek.getDate() + i);
+    return d;
+  });
+
+  const todaysWorkout = workoutForDay(dayOfWeek);
+  const tomorrow = new Date(today);
+  tomorrow.setDate(todayNum + 1);
+  const tomorrowsWorkout = workoutForDay(tomorrow.getDay());
+  const tomorrowLabel = tomorrow.toLocaleDateString("pt-BR", { weekday: "long" });
+
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar />
 
-      <main className="flex-1 min-w-0 p-6 lg:p-8 space-y-6">
+      <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 space-y-6">
         {/* Top bar */}
-        <header className="flex items-center gap-4">
+        <header className="flex items-center gap-3 sm:gap-4 pl-14 lg:pl-0">
+
           <div className="flex-1">
             <h1 className="text-2xl lg:text-3xl font-bold flex items-center gap-2">
               Olá, João! <span className="text-2xl">👋</span>

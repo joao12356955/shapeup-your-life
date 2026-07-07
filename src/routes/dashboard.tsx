@@ -171,6 +171,20 @@ const workoutForDay = (dayIdx: number) => WORKOUT_SPLIT[dayIdx % 7];
 
 
 function Dashboard() {
+  const user = useCurrentUser();
+  const firstName = user?.name?.split(" ")[0] ?? "atleta";
+
+  useEffect(() => {
+    if (!user) return;
+    if (consumeWelcome(user.email)) {
+      toast(`Bem-vindo, ${user.name}! 🎉`, {
+        description: user.isNew
+          ? "Complete seu perfil nas Configurações para personalizar seu plano."
+          : "Que bom te ver por aqui. Bora treinar!",
+      });
+    }
+  }, [user]);
+
   const today = new Date();
   const dayOfWeek = today.getDay();
   const todayNum = today.getDate();
@@ -200,8 +214,9 @@ function Dashboard() {
 
           <div className="flex-1">
             <h1 className="text-2xl lg:text-3xl font-bold flex items-center gap-2">
-              Olá, João! <span className="text-2xl">👋</span>
+              Olá, {firstName}! <span className="text-2xl">👋</span>
             </h1>
+
             <p className="text-sm text-muted-foreground">Foco hoje, resultado amanhã.</p>
           </div>
           <div className="hidden md:flex relative w-72">

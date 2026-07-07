@@ -18,8 +18,12 @@ import {
   Trophy,
   Dumbbell,
   Utensils,
+  Flame,
+  Brain,
 } from "lucide-react";
 import logoAsset from "@/assets/shapeup-logo-hero.png.asset.json";
+import { registerUser, type Objetivo } from "@/lib/user-store";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/cadastro")({
   head: () => ({ meta: [{ title: "Crie sua conta — ShapeUp" }] }),
@@ -30,6 +34,14 @@ function SignupPage() {
   const navigate = useNavigate();
   const [showPwd, setShowPwd] = useState(false);
   const [showPwd2, setShowPwd2] = useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [password2, setPassword2] = useState("");
+  const [altura, setAltura] = useState("");
+  const [peso, setPeso] = useState("");
+  const [objetivo, setObjetivo] = useState<Objetivo | "">("");
+
 
   return (
     <div className="min-h-screen bg-background p-4 lg:p-8">

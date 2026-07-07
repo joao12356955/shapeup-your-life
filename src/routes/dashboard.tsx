@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 import {
   LogOut,
   User,
@@ -17,6 +18,8 @@ import {
   Clock,
   Plus,
 } from "lucide-react";
+import { consumeWelcome, logout, useCurrentUser, initialsOf } from "@/lib/user-store";
+
 import {
   LineChart,
   Line,
@@ -58,26 +61,32 @@ import { Trophy } from "lucide-react";
 
 function UserMenu() {
   const navigate = useNavigate();
+  const user = useCurrentUser();
+  const name = user?.name ?? "Convidado";
+  const initials = user?.initials ?? initialsOf(name);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-2 rounded-full bg-card border border-border pl-1 pr-3 py-1 hover:border-primary/50 transition">
-          <div className="h-8 w-8 rounded-full bg-gradient-primary flex items-center justify-center font-bold text-sm">JV</div>
+          <div className="h-8 w-8 rounded-full bg-gradient-primary flex items-center justify-center font-bold text-sm">{initials}</div>
           <ChevronDown size={14} />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-52">
         <DropdownMenuLabel>
-          <div className="font-semibold">João Victor</div>
-          <div className="text-xs text-muted-foreground font-normal">Nível 12</div>
+          <div className="font-semibold">{name}</div>
+          <div className="text-xs text-muted-foreground font-normal">{user?.email ?? "—"}</div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={() => navigate({ to: "/configuracoes" })}>
           <User size={14} className="mr-2" /> Meu perfil
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          onClick={() => navigate({ to: "/" })}
+          onClick={() => {
+            logout();
+            navigate({ to: "/" });
+          }}
           className="text-destructive focus:text-destructive"
         >
           <LogOut size={14} className="mr-2" /> Sair
@@ -86,6 +95,7 @@ function UserMenu() {
     </DropdownMenu>
   );
 }
+
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -161,6 +171,20 @@ const workoutForDay = (dayIdx: number) => WORKOUT_SPLIT[dayIdx % 7];
 
 
 function Dashboard() {
+  const user = useCurrentUser();
+  const firstName = user?.name?.split(" ")[0] ?? "atleta";
+
+  useEffect(() => {
+    if (!user) return;
+    if (consumeWelcome(user.email)) {
+      toast(`Bem-vindo, ${user.name}! 🎉`, {
+        description: user.isNew
+          ? "Complete seu perfil nas Configurações para personalizar seu plano."
+          : "Que bom te ver por aqui. Bora treinar!",
+      });
+    }
+  }, [user]);
+
   const today = new Date();
   const dayOfWeek = today.getDay();
   const todayNum = today.getDate();
@@ -190,8 +214,9 @@ function Dashboard() {
 
           <div className="flex-1">
             <h1 className="text-2xl lg:text-3xl font-bold flex items-center gap-2">
-              Olá, João! <span className="text-2xl">👋</span>
+              Olá, {firstName}! <span className="text-2xl">👋</span>
             </h1>
+
             <p className="text-sm text-muted-foreground">Foco hoje, resultado amanhã.</p>
           </div>
           <div className="hidden md:flex relative w-72">

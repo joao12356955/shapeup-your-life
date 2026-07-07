@@ -1,8 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { toast } from "sonner";
 import bgAsset from "@/assets/shapeup-bg-dashboard.png.asset.json";
 import loginArt from "@/assets/shapeup-login-v4.png.asset.json";
+import { login } from "@/lib/user-store";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -18,7 +20,10 @@ export const Route = createFileRoute("/")({
 
 function LoginPage() {
   const [showPwd, setShowPwd] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
+
 
   return (
     <div
@@ -48,6 +53,13 @@ function LoginPage() {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
+                const user = login(email, password);
+                if (!user) {
+                  toast.error("Credenciais inválidas", {
+                    description: "Tente teste1@email / 1234 ou teste2@email / 1234",
+                  });
+                  return;
+                }
                 navigate({ to: "/dashboard" });
               }}
               className="w-full max-w-md rounded-2xl border border-primary/30 bg-card/70 backdrop-blur-xl p-8 lg:p-10 shadow-elegant space-y-6"
@@ -57,6 +69,11 @@ function LoginPage() {
                 <p className="mt-1 text-muted-foreground">Log in to continue your journey</p>
               </div>
 
+              <div className="rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-xs text-primary-glow">
+                Contas de teste: <span className="font-semibold">teste1@email</span> ou{" "}
+                <span className="font-semibold">teste2@email</span> — senha <span className="font-semibold">1234</span>
+              </div>
+
               <div className="space-y-2">
                 <label className="text-sm font-medium">Email address</label>
                 <div className="relative">
@@ -64,6 +81,8 @@ function LoginPage() {
                   <input
                     type="email"
                     required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter your email"
                     className="w-full rounded-lg bg-input border border-border pl-10 pr-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 transition"
                   />
@@ -77,6 +96,8 @@ function LoginPage() {
                   <input
                     type={showPwd ? "text" : "password"}
                     required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
                     className="w-full rounded-lg bg-input border border-border pl-10 pr-10 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 transition"
                   />
@@ -92,6 +113,7 @@ function LoginPage() {
                   <a href="#" className="text-xs text-primary-glow hover:underline">Forgot password?</a>
                 </div>
               </div>
+
 
               <button
                 type="submit"

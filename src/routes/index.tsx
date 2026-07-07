@@ -1,8 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { toast } from "sonner";
 import bgAsset from "@/assets/shapeup-bg-dashboard.png.asset.json";
 import loginArt from "@/assets/shapeup-login-v4.png.asset.json";
+import { login } from "@/lib/user-store";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -18,7 +20,10 @@ export const Route = createFileRoute("/")({
 
 function LoginPage() {
   const [showPwd, setShowPwd] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
+
 
   return (
     <div

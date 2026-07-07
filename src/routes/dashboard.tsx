@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 import {
   LogOut,
   User,
@@ -17,6 +18,8 @@ import {
   Clock,
   Plus,
 } from "lucide-react";
+import { consumeWelcome, logout, useCurrentUser, initialsOf } from "@/lib/user-store";
+
 import {
   LineChart,
   Line,

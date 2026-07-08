@@ -286,10 +286,11 @@ function Dashboard() {
 
         {/* Stats row */}
         <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-          <StatCard icon={Scale} label="Peso atual" value="78.4" unit="kg" trend="2.6 kg" hint="desde o início" />
-          <StatCard icon={Target} label="Meta" value="72.0" unit="kg" hint="Faltam 6.4 kg" />
+          <StatCard icon={Scale} label="Peso atual" value={peso.toString()} unit="kg" hint="atualizado no seu perfil" />
+          <StatCard icon={Target} label="Meta" value={meta.toString()} unit="kg" hint={`Faltam ${diff} kg`} />
           <StatCard icon={Flame} label="Dias no desafio" value="8" unit="/ 30" hint="26 dias restantes" />
           <StatCard icon={CheckCircle2} label="Treinos concluídos" value="12" unit="/ 16" hint="75% concluído" />
+
 
           {/* Calendar mini */}
           <div className="col-span-2 lg:col-span-2 xl:col-span-1 rounded-2xl bg-gradient-card border border-border p-5 shadow-card">

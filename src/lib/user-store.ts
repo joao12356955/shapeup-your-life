@@ -5,6 +5,29 @@ const CURRENT_KEY = "shapeup:current-user";
 const WELCOMED_KEY = "shapeup:welcomed";
 
 export type Objetivo = "emagrecimento" | "ganho de massa muscular" | "foco";
+export type Sexo = "Masculino" | "Feminino" | "Outro";
+export type NivelAtividade = "Sedentário" | "Levemente ativo" | "Moderado" | "Muito ativo";
+
+export type Medidas = {
+  cintura?: number;
+  quadril?: number;
+  peito?: number;
+  braco?: number;
+  coxa?: number;
+};
+
+export type PlanoTreino = {
+  diasPorSemana?: number;
+  local?: "Academia" | "Casa" | "Ar livre";
+  duracao?: number; // min
+  experiencia?: "Iniciante" | "Intermediário" | "Avançado";
+};
+
+export type PlanoDieta = {
+  refeicoesPorDia?: number;
+  restricoes?: string;
+  metaCalorica?: number;
+};
 
 export type UserProfile = {
   email: string;
@@ -13,8 +36,17 @@ export type UserProfile = {
   initials?: string;
   altura?: number; // cm
   peso?: number; // kg
+  pesoMeta?: number; // kg
+  dataNascimento?: string;
+  sexo?: Sexo;
+  nivelAtividade?: NivelAtividade;
   objetivo?: Objetivo;
-  isNew?: boolean; // no profile data yet
+  dataMeta?: string;
+  medidas?: Medidas;
+  treino?: PlanoTreino;
+  dieta?: PlanoDieta;
+  onboardingCompleto?: boolean;
+  isNew?: boolean;
 };
 
 const SEED_USERS: UserProfile[] = [
@@ -25,7 +57,11 @@ const SEED_USERS: UserProfile[] = [
     initials: "JV",
     altura: 178,
     peso: 78.4,
+    pesoMeta: 72,
     objetivo: "ganho de massa muscular",
+    sexo: "Masculino",
+    nivelAtividade: "Moderado",
+    onboardingCompleto: true,
   },
   {
     email: "teste2@email",
@@ -35,6 +71,7 @@ const SEED_USERS: UserProfile[] = [
     isNew: true,
   },
 ];
+
 
 function readUsers(): UserProfile[] {
   if (typeof window === "undefined") return SEED_USERS;

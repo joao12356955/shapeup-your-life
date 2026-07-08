@@ -172,18 +172,21 @@ const workoutForDay = (dayIdx: number) => WORKOUT_SPLIT[dayIdx % 7];
 
 function Dashboard() {
   const user = useCurrentUser();
+  const navigate = useNavigate();
   const firstName = user?.name?.split(" ")[0] ?? "atleta";
 
   useEffect(() => {
     if (!user) return;
+    if (user.isNew || !user.onboardingCompleto) {
+      navigate({ to: "/onboarding" });
+      return;
+    }
     if (consumeWelcome(user.email)) {
       toast(`Bem-vindo, ${user.name}! 🎉`, {
-        description: user.isNew
-          ? "Complete seu perfil nas Configurações para personalizar seu plano."
-          : "Que bom te ver por aqui. Bora treinar!",
+        description: "Que bom te ver por aqui. Bora treinar!",
       });
     }
-  }, [user]);
+  }, [user, navigate]);
 
   const today = new Date();
   const dayOfWeek = today.getDay();
@@ -203,6 +206,11 @@ function Dashboard() {
   tomorrow.setDate(todayNum + 1);
   const tomorrowsWorkout = workoutForDay(tomorrow.getDay());
   const tomorrowLabel = tomorrow.toLocaleDateString("pt-BR", { weekday: "long" });
+
+  const peso = user?.peso ?? 78.4;
+  const meta = user?.pesoMeta ?? 72;
+  const diff = Math.max(0, peso - meta).toFixed(1);
+
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -278,10 +286,11 @@ function Dashboard() {
 
         {/* Stats row */}
         <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-          <StatCard icon={Scale} label="Peso atual" value="78.4" unit="kg" trend="2.6 kg" hint="desde o início" />
-          <StatCard icon={Target} label="Meta" value="72.0" unit="kg" hint="Faltam 6.4 kg" />
+          <StatCard icon={Scale} label="Peso atual" value={peso.toString()} unit="kg" hint="atualizado no seu perfil" />
+          <StatCard icon={Target} label="Meta" value={meta.toString()} unit="kg" hint={`Faltam ${diff} kg`} />
           <StatCard icon={Flame} label="Dias no desafio" value="8" unit="/ 30" hint="26 dias restantes" />
           <StatCard icon={CheckCircle2} label="Treinos concluídos" value="12" unit="/ 16" hint="75% concluído" />
+
 
           {/* Calendar mini */}
           <div className="col-span-2 lg:col-span-2 xl:col-span-1 rounded-2xl bg-gradient-card border border-border p-5 shadow-card">
@@ -400,7 +409,7 @@ function Dashboard() {
                 { icon: Dumbbell, title: todaysWorkout.name, sub: todaysWorkout.focus, action: todaysWorkout.rest ? "Descanso" : "Pendente", done: !!todaysWorkout.rest },
                 { icon: UtensilsCrossed, title: "Alimentação", sub: "2/4 refeições registradas", action: "Registrar" },
                 { icon: Droplet, title: "Ingestão de água", sub: "6 / 7 copos", action: "Registrar" },
-                { icon: Scale, title: "Peso", sub: "78.4 kg registrado hoje", action: "Ver histórico" },
+                { icon: Scale, title: "Peso", sub: `${peso} kg registrado hoje`, action: "Ver histórico" },
               ].map((it) => {
 
                 const Icon = it.icon;

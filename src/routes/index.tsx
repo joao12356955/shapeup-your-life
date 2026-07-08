@@ -55,12 +55,14 @@ function LoginPage() {
                 e.preventDefault();
                 const user = login(email, password);
                 if (!user) {
-                  toast.error("Credenciais inválidas", {
-                    description: "Tente teste1@email / 1234 ou teste2@email / 1234",
-                  });
+                  toast.error("Credenciais inválidas");
                   return;
                 }
-                navigate({ to: "/dashboard" });
+                if (user.isNew || !user.onboardingCompleto) {
+                  navigate({ to: "/onboarding" });
+                } else {
+                  navigate({ to: "/dashboard" });
+                }
               }}
               className="w-full max-w-md rounded-2xl border border-primary/30 bg-card/70 backdrop-blur-xl p-8 lg:p-10 shadow-elegant space-y-6"
             >
@@ -69,10 +71,6 @@ function LoginPage() {
                 <p className="mt-1 text-muted-foreground">Log in to continue your journey</p>
               </div>
 
-              <div className="rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-xs text-primary-glow">
-                Contas de teste: <span className="font-semibold">teste1@email</span> ou{" "}
-                <span className="font-semibold">teste2@email</span> — senha <span className="font-semibold">1234</span>
-              </div>
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">Email address</label>

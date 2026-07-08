@@ -409,7 +409,7 @@ function Dashboard() {
                 { icon: Dumbbell, title: todaysWorkout.name, sub: todaysWorkout.focus, action: todaysWorkout.rest ? "Descanso" : "Pendente", done: !!todaysWorkout.rest },
                 { icon: UtensilsCrossed, title: "Alimentação", sub: "2/4 refeições registradas", action: "Registrar" },
                 { icon: Droplet, title: "Ingestão de água", sub: "6 / 7 copos", action: "Registrar" },
-                { icon: Scale, title: "Peso", sub: "78.4 kg registrado hoje", action: "Ver histórico" },
+                { icon: Scale, title: "Peso", sub: `${peso} kg registrado hoje`, action: "Ver histórico" },
               ].map((it) => {
 
                 const Icon = it.icon;

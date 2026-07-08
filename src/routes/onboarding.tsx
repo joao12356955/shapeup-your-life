@@ -9,9 +9,9 @@ import {
   Dumbbell,
   UtensilsCrossed,
   ClipboardCheck,
-  Target,
   Flame,
   Brain,
+
 } from "lucide-react";
 import { Sidebar } from "@/components/shapeup/Sidebar";
 import {

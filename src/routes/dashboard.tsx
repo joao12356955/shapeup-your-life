@@ -172,18 +172,21 @@ const workoutForDay = (dayIdx: number) => WORKOUT_SPLIT[dayIdx % 7];
 
 function Dashboard() {
   const user = useCurrentUser();
+  const navigate = useNavigate();
   const firstName = user?.name?.split(" ")[0] ?? "atleta";
 
   useEffect(() => {
     if (!user) return;
+    if (user.isNew || !user.onboardingCompleto) {
+      navigate({ to: "/onboarding" });
+      return;
+    }
     if (consumeWelcome(user.email)) {
       toast(`Bem-vindo, ${user.name}! 🎉`, {
-        description: user.isNew
-          ? "Complete seu perfil nas Configurações para personalizar seu plano."
-          : "Que bom te ver por aqui. Bora treinar!",
+        description: "Que bom te ver por aqui. Bora treinar!",
       });
     }
-  }, [user]);
+  }, [user, navigate]);
 
   const today = new Date();
   const dayOfWeek = today.getDay();
@@ -203,6 +206,11 @@ function Dashboard() {
   tomorrow.setDate(todayNum + 1);
   const tomorrowsWorkout = workoutForDay(tomorrow.getDay());
   const tomorrowLabel = tomorrow.toLocaleDateString("pt-BR", { weekday: "long" });
+
+  const peso = user?.peso ?? 78.4;
+  const meta = user?.pesoMeta ?? 72;
+  const diff = Math.max(0, peso - meta).toFixed(1);
+
 
   return (
     <div className="flex min-h-screen bg-background">

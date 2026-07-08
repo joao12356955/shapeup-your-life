@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TreinosRouteImport } from './routes/treinos'
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as EvolucaoRouteImport } from './routes/evolucao'
 import { Route as DietaRouteImport } from './routes/dieta'
 import { Route as DesafiosRouteImport } from './routes/desafios'
@@ -30,6 +31,11 @@ const TreinosRoute = TreinosRouteImport.update({
 const RelatoriosRoute = RelatoriosRouteImport.update({
   id: '/relatorios',
   path: '/relatorios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EvolucaoRoute = EvolucaoRouteImport.update({
@@ -94,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/desafios': typeof DesafiosRoute
   '/dieta': typeof DietaRoute
   '/evolucao': typeof EvolucaoRoute
+  '/onboarding': typeof OnboardingRoute
   '/relatorios': typeof RelatoriosRoute
   '/treinos': typeof TreinosRoute
 }
@@ -108,6 +115,7 @@ export interface FileRoutesByTo {
   '/desafios': typeof DesafiosRoute
   '/dieta': typeof DietaRoute
   '/evolucao': typeof EvolucaoRoute
+  '/onboarding': typeof OnboardingRoute
   '/relatorios': typeof RelatoriosRoute
   '/treinos': typeof TreinosRoute
 }
@@ -123,6 +131,7 @@ export interface FileRoutesById {
   '/desafios': typeof DesafiosRoute
   '/dieta': typeof DietaRoute
   '/evolucao': typeof EvolucaoRoute
+  '/onboarding': typeof OnboardingRoute
   '/relatorios': typeof RelatoriosRoute
   '/treinos': typeof TreinosRoute
 }
@@ -139,6 +148,7 @@ export interface FileRouteTypes {
     | '/desafios'
     | '/dieta'
     | '/evolucao'
+    | '/onboarding'
     | '/relatorios'
     | '/treinos'
   fileRoutesByTo: FileRoutesByTo
@@ -153,6 +163,7 @@ export interface FileRouteTypes {
     | '/desafios'
     | '/dieta'
     | '/evolucao'
+    | '/onboarding'
     | '/relatorios'
     | '/treinos'
   id:
@@ -167,6 +178,7 @@ export interface FileRouteTypes {
     | '/desafios'
     | '/dieta'
     | '/evolucao'
+    | '/onboarding'
     | '/relatorios'
     | '/treinos'
   fileRoutesById: FileRoutesById
@@ -182,6 +194,7 @@ export interface RootRouteChildren {
   DesafiosRoute: typeof DesafiosRoute
   DietaRoute: typeof DietaRoute
   EvolucaoRoute: typeof EvolucaoRoute
+  OnboardingRoute: typeof OnboardingRoute
   RelatoriosRoute: typeof RelatoriosRoute
   TreinosRoute: typeof TreinosRoute
 }
@@ -200,6 +213,13 @@ declare module '@tanstack/react-router' {
       path: '/relatorios'
       fullPath: '/relatorios'
       preLoaderRoute: typeof RelatoriosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/evolucao': {
@@ -286,6 +306,7 @@ const rootRouteChildren: RootRouteChildren = {
   DesafiosRoute: DesafiosRoute,
   DietaRoute: DietaRoute,
   EvolucaoRoute: EvolucaoRoute,
+  OnboardingRoute: OnboardingRoute,
   RelatoriosRoute: RelatoriosRoute,
   TreinosRoute: TreinosRoute,
 }

@@ -299,10 +299,10 @@ function Dashboard() {
 
         {/* Stats row */}
         <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-          <StatCard icon={Scale} label="Peso atual" value={peso.toString()} unit="kg" hint="atualizado no seu perfil" />
-          <StatCard icon={Target} label="Meta" value={meta.toString()} unit="kg" hint={`Faltam ${diff} kg`} />
-          <StatCard icon={Flame} label="Dias no desafio" value="8" unit="/ 30" hint="26 dias restantes" />
-          <StatCard icon={CheckCircle2} label="Treinos concluídos" value="12" unit="/ 16" hint="75% concluído" />
+          <StatCard icon={Scale} label="Peso atual" value={peso > 0 ? peso.toString() : "—"} unit="kg" hint="atualizado no seu perfil" />
+          <StatCard icon={Target} label="Meta" value={meta > 0 ? meta.toString() : "—"} unit="kg" hint={meta > 0 ? `Faltam ${diff} kg` : "Defina sua meta"} />
+          <StatCard icon={Flame} label="Dias no desafio" value={diasDesafio} unit="/ 30" hint={desafioHint} />
+          <StatCard icon={CheckCircle2} label="Treinos concluídos" value={treinosConcluidos} unit={`/ ${treinosMeta}`} hint={treinoPct} />
 
 
           {/* Calendar mini */}

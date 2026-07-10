@@ -207,9 +207,22 @@ function Dashboard() {
   const tomorrowsWorkout = workoutForDay(tomorrow.getDay());
   const tomorrowLabel = tomorrow.toLocaleDateString("pt-BR", { weekday: "long" });
 
-  const peso = user?.peso ?? 78.4;
-  const meta = user?.pesoMeta ?? 72;
+  const hasSample = !!user?.hasSampleData;
+  const peso = user?.peso ?? 0;
+  const meta = user?.pesoMeta ?? 0;
   const diff = Math.max(0, peso - meta).toFixed(1);
+  const weightData = hasSample
+    ? SAMPLE_WEIGHT
+    : peso > 0
+      ? [{ d: "hoje", kg: peso }]
+      : [];
+  const diasDesafio = hasSample ? "8" : "0";
+  const treinosConcluidos = hasSample ? "12" : "0";
+  const treinosMeta = hasSample ? "16" : "0";
+  const treinoPct = hasSample ? "75% concluído" : "Comece hoje";
+  const desafioHint = hasSample ? "26 dias restantes" : "Nenhum desafio ativo";
+
+
 
 
   return (

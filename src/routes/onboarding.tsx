@@ -95,9 +95,6 @@ function OnboardingPage() {
 
   const trackedFields = useMemo(
     () => [
-      form.name,
-      form.dataNascimento,
-      form.sexo,
       form.altura,
       form.peso,
       form.pesoMeta,

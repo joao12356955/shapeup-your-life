@@ -39,26 +39,32 @@ export const Route = createFileRoute("/calendario")({
 
 function UserMenu() {
   const navigate = useNavigate();
+  const user = useCurrentUser();
+  const name = user?.name ?? "Convidado";
+  const initials = user?.initials ?? initialsOf(name);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-2 rounded-full bg-card border border-border pl-1 pr-3 py-1 hover:border-primary/50 transition">
-          <div className="h-8 w-8 rounded-full bg-gradient-primary flex items-center justify-center font-bold text-sm">JV</div>
+          <div className="h-8 w-8 rounded-full bg-gradient-primary flex items-center justify-center font-bold text-sm">{initials}</div>
           <ChevronDown size={14} />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-52">
         <DropdownMenuLabel>
-          <div className="font-semibold">João Victor</div>
-          <div className="text-xs text-muted-foreground font-normal">Nível 12</div>
+          <div className="font-semibold">{name}</div>
+          <div className="text-xs text-muted-foreground font-normal">{user?.email ?? "—"}</div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={() => navigate({ to: "/configuracoes" })}>
           <User size={14} className="mr-2" /> Meu perfil
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          onClick={() => navigate({ to: "/" })}
+          onClick={() => {
+            logout();
+            navigate({ to: "/" });
+          }}
           className="text-destructive focus:text-destructive"
         >
           <LogOut size={14} className="mr-2" /> Sair

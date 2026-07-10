@@ -227,7 +227,7 @@ function CalendarioPage() {
                   <button className="h-8 w-8 rounded-md border border-border flex items-center justify-center hover:border-primary/50 transition">
                     <ChevronRight size={14} />
                   </button>
-                  <span className="text-sm font-semibold ml-1">Maio 2024</span>
+                  <span className="text-sm font-semibold ml-1 capitalize">{monthLabel}</span>
                   <button className="h-8 px-3 rounded-md border border-border text-xs hover:border-primary/50 transition ml-2">Hoje</button>
                 </div>
                 <div className="flex items-center gap-1 rounded-md border border-border p-1">

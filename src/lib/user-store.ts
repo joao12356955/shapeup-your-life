@@ -47,6 +47,7 @@ export type UserProfile = {
   dieta?: PlanoDieta;
   onboardingCompleto?: boolean;
   isNew?: boolean;
+  hasSampleData?: boolean;
 };
 
 const SEED_USERS: UserProfile[] = [

@@ -7,10 +7,6 @@ import {
   Eye,
   EyeOff,
   Calendar,
-  Weight,
-  Ruler,
-  Target,
-  BarChart3,
   Building2,
   ArrowRight,
   ShieldCheck,
@@ -18,11 +14,9 @@ import {
   Trophy,
   Dumbbell,
   Utensils,
-  Flame,
-  Brain,
 } from "lucide-react";
 import logoAsset from "@/assets/shapeup-logo-hero.png.asset.json";
-import { registerUser, type Objetivo } from "@/lib/user-store";
+import { registerUser, type Sexo } from "@/lib/user-store";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/cadastro")({
@@ -38,9 +32,8 @@ function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
-  const [altura, setAltura] = useState("");
-  const [peso, setPeso] = useState("");
-  const [objetivo, setObjetivo] = useState<Objetivo | "">("");
+  const [dataNascimento, setDataNascimento] = useState("");
+  const [sexo, setSexo] = useState<Sexo | "">("");
 
 
   return (

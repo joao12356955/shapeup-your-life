@@ -383,10 +383,6 @@ function OnboardingPage() {
                 <Review label="Peso atual" value={form.peso ? `${form.peso} kg` : ""} />
                 <Review label="Peso meta" value={form.pesoMeta ? `${form.pesoMeta} kg` : ""} />
                 <Review label="Objetivo" value={form.objetivo} />
-                <Review label="Altura" value={form.altura ? `${form.altura} cm` : ""} />
-                <Review label="Peso atual" value={form.peso ? `${form.peso} kg` : ""} />
-                <Review label="Peso meta" value={form.pesoMeta ? `${form.pesoMeta} kg` : ""} />
-                <Review label="Objetivo" value={form.objetivo} />
                 <Review label="Nível atividade" value={form.nivelAtividade} />
                 <Review label="Data da meta" value={form.dataMeta} />
                 <Review label="Local do treino" value={form.treino.local} />

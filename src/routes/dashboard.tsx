@@ -104,7 +104,7 @@ export const Route = createFileRoute("/dashboard")({
   component: Dashboard,
 });
 
-const weightData = [
+const SAMPLE_WEIGHT: { d: string; kg: number }[] = [
   { d: "10/07", kg: 82 }, { d: "13/07", kg: 81.2 }, { d: "17/07", kg: 80.5 },
   { d: "20/07", kg: 79.8 }, { d: "24/07", kg: 79.3 }, { d: "27/07", kg: 78.9 },
   { d: "31/07", kg: 78.6 }, { d: "04/08", kg: 78.5 }, { d: "08/08", kg: 78.4 },
@@ -207,9 +207,22 @@ function Dashboard() {
   const tomorrowsWorkout = workoutForDay(tomorrow.getDay());
   const tomorrowLabel = tomorrow.toLocaleDateString("pt-BR", { weekday: "long" });
 
-  const peso = user?.peso ?? 78.4;
-  const meta = user?.pesoMeta ?? 72;
+  const hasSample = !!user?.hasSampleData;
+  const peso = user?.peso ?? 0;
+  const meta = user?.pesoMeta ?? 0;
   const diff = Math.max(0, peso - meta).toFixed(1);
+  const weightData = hasSample
+    ? SAMPLE_WEIGHT
+    : peso > 0
+      ? [{ d: "hoje", kg: peso }]
+      : [];
+  const diasDesafio = hasSample ? "8" : "0";
+  const treinosConcluidos = hasSample ? "12" : "0";
+  const treinosMeta = hasSample ? "16" : "0";
+  const treinoPct = hasSample ? "75% concluído" : "Comece hoje";
+  const desafioHint = hasSample ? "26 dias restantes" : "Nenhum desafio ativo";
+
+
 
 
   return (
@@ -286,10 +299,10 @@ function Dashboard() {
 
         {/* Stats row */}
         <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-          <StatCard icon={Scale} label="Peso atual" value={peso.toString()} unit="kg" hint="atualizado no seu perfil" />
-          <StatCard icon={Target} label="Meta" value={meta.toString()} unit="kg" hint={`Faltam ${diff} kg`} />
-          <StatCard icon={Flame} label="Dias no desafio" value="8" unit="/ 30" hint="26 dias restantes" />
-          <StatCard icon={CheckCircle2} label="Treinos concluídos" value="12" unit="/ 16" hint="75% concluído" />
+          <StatCard icon={Scale} label="Peso atual" value={peso > 0 ? peso.toString() : "—"} unit="kg" hint="atualizado no seu perfil" />
+          <StatCard icon={Target} label="Meta" value={meta > 0 ? meta.toString() : "—"} unit="kg" hint={meta > 0 ? `Faltam ${diff} kg` : "Defina sua meta"} />
+          <StatCard icon={Flame} label="Dias no desafio" value={diasDesafio} unit="/ 30" hint={desafioHint} />
+          <StatCard icon={CheckCircle2} label="Treinos concluídos" value={treinosConcluidos} unit={`/ ${treinosMeta}`} hint={treinoPct} />
 
 
           {/* Calendar mini */}

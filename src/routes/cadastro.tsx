@@ -7,10 +7,6 @@ import {
   Eye,
   EyeOff,
   Calendar,
-  Weight,
-  Ruler,
-  Target,
-  BarChart3,
   Building2,
   ArrowRight,
   ShieldCheck,
@@ -18,11 +14,9 @@ import {
   Trophy,
   Dumbbell,
   Utensils,
-  Flame,
-  Brain,
 } from "lucide-react";
 import logoAsset from "@/assets/shapeup-logo-hero.png.asset.json";
-import { registerUser, type Objetivo } from "@/lib/user-store";
+import { registerUser, type Sexo } from "@/lib/user-store";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/cadastro")({
@@ -38,9 +32,8 @@ function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
-  const [altura, setAltura] = useState("");
-  const [peso, setPeso] = useState("");
-  const [objetivo, setObjetivo] = useState<Objetivo | "">("");
+  const [dataNascimento, setDataNascimento] = useState("");
+  const [sexo, setSexo] = useState<Sexo | "">("");
 
 
   return (
@@ -54,19 +47,14 @@ function SignupPage() {
               toast.error("As senhas não coincidem");
               return;
             }
-            if (!objetivo) {
-              toast.error("Selecione um objetivo");
-              return;
-            }
             registerUser({
               email,
               password,
               name,
-              altura: altura ? Number(altura) : undefined,
-              peso: peso ? Number(peso) : undefined,
-              objetivo,
+              dataNascimento: dataNascimento || undefined,
+              sexo: (sexo || undefined) as Sexo | undefined,
             });
-            navigate({ to: "/dashboard" });
+            navigate({ to: "/onboarding" });
           }}
           className="rounded-2xl border border-border bg-card/70 backdrop-blur-xl p-8 lg:p-10 shadow-elegant space-y-6"
         >
@@ -84,7 +72,7 @@ function SignupPage() {
             <h1 className="text-3xl lg:text-4xl font-bold">Crie sua conta</h1>
             <div className="mt-2 h-1 w-16 rounded-full bg-gradient-primary" />
             <p className="mt-3 text-sm text-muted-foreground">
-              Preencha seus dados para começar sua jornada e alcançar seus melhores resultados.
+              Preencha seus dados para começar. Vamos personalizar o restante na próxima etapa.
             </p>
           </div>
 
@@ -117,49 +105,26 @@ function SignupPage() {
                 </button>
               }
             />
-            <IconField icon={Calendar} type="date" placeholder="Data de nascimento" />
-            <IconSelect icon={User} label="Sexo" options={["Masculino", "Feminino", "Outro"]} />
-            <IconField icon={Weight} type="number" placeholder="Peso atual (kg)" required value={peso} onChange={(e) => setPeso(e.target.value)} />
-            <IconField icon={Ruler} type="number" placeholder="Altura (cm)" required value={altura} onChange={(e) => setAltura(e.target.value)} />
-            <IconSelect icon={BarChart3} label="Nível de treino" options={["Iniciante", "Intermediário", "Avançado"]} />
+            <IconField
+              icon={Calendar}
+              type="date"
+              placeholder="Data de nascimento"
+              value={dataNascimento}
+              onChange={(e) => setDataNascimento(e.target.value)}
+            />
+            <IconSelect
+              icon={User}
+              label="Sexo"
+              options={["Masculino", "Feminino", "Outro"]}
+              value={sexo}
+              onChange={(v) => setSexo(v as Sexo)}
+            />
             <div className="sm:col-span-2">
               <IconField icon={Building2} placeholder="Código da academia (opcional)" />
             </div>
           </div>
 
-          {/* Objective — pill chips */}
-          <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4 space-y-3">
-            <div className="flex items-center gap-2">
-              <Target size={16} className="text-primary-glow" />
-              <div className="text-sm font-semibold">Qual é o seu objetivo principal?</div>
-            </div>
-            <p className="text-xs text-muted-foreground">Escolha uma opção para personalizarmos seu plano.</p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              {([
-                { v: "emagrecimento" as Objetivo, label: "Emagrecimento", icon: Flame },
-                { v: "ganho de massa muscular" as Objetivo, label: "Ganho de massa muscular", icon: Dumbbell },
-                { v: "foco" as Objetivo, label: "Foco", icon: Brain },
-              ]).map((opt) => {
-                const Icon = opt.icon;
-                const selected = objetivo === opt.v;
-                return (
-                  <button
-                    key={opt.v}
-                    type="button"
-                    onClick={() => setObjetivo(opt.v)}
-                    className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm text-left transition ${
-                      selected
-                        ? "border-primary bg-gradient-primary text-primary-foreground shadow-glow"
-                        : "border-border bg-secondary/40 hover:border-primary/50"
-                    }`}
-                  >
-                    <Icon size={16} />
-                    <span className="font-medium">{opt.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+
 
 
           <label className="flex items-start gap-2 text-xs text-muted-foreground">
@@ -291,16 +256,21 @@ function IconSelect({
   icon: Icon,
   label,
   options,
+  value,
+  onChange,
 }: {
   icon: React.ComponentType<{ size?: number; className?: string }>;
   label: string;
   options: string[];
+  value?: string;
+  onChange?: (v: string) => void;
 }) {
   return (
     <div className="relative">
       <Icon size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-primary-glow z-10" />
       <select
-        defaultValue=""
+        value={value ?? ""}
+        onChange={(e) => onChange?.(e.target.value)}
         className="w-full appearance-none rounded-lg bg-secondary/60 border border-border pl-10 pr-8 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 transition"
       >
         <option value="" disabled>{label}</option>

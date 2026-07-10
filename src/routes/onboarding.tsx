@@ -52,7 +52,7 @@ type Form = {
 };
 
 const STEPS = [
-  { key: "pessoais", label: "Dados pessoais", sub: "Informações básicas", icon: User },
+  { key: "pessoais", label: "Perfil e objetivo", sub: "Personalize seu plano", icon: User },
   { key: "medidas", label: "Medidas corporais", sub: "Opcional", icon: Ruler },
   { key: "treinos", label: "Treinos", sub: "Monte seu plano", icon: Dumbbell },
   { key: "alimentacao", label: "Alimentação", sub: "Suas preferências", icon: UtensilsCrossed },
@@ -95,9 +95,6 @@ function OnboardingPage() {
 
   const trackedFields = useMemo(
     () => [
-      form.name,
-      form.dataNascimento,
-      form.sexo,
       form.altura,
       form.peso,
       form.pesoMeta,
@@ -236,27 +233,6 @@ function OnboardingPage() {
 
             {step === 0 && (
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <Field label="Nome">
-                  <Input
-                    placeholder="Ex.: João Victor"
-                    value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  />
-                </Field>
-                <Field label="Data de nascimento">
-                  <Input
-                    type="date"
-                    value={form.dataNascimento}
-                    onChange={(e) => setForm({ ...form, dataNascimento: e.target.value })}
-                  />
-                </Field>
-                <Field label="Sexo">
-                  <Select
-                    value={form.sexo}
-                    onChange={(v) => setForm({ ...form, sexo: v as Sexo })}
-                    options={["Masculino", "Feminino", "Outro"]}
-                  />
-                </Field>
                 <Field label="Altura" suffix="cm">
                   <Input type="number" value={form.altura} onChange={(e) => setForm({ ...form, altura: e.target.value })} />
                 </Field>
@@ -403,9 +379,6 @@ function OnboardingPage() {
 
             {step === 4 && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                <Review label="Nome" value={form.name} />
-                <Review label="Sexo" value={form.sexo} />
-                <Review label="Nascimento" value={form.dataNascimento} />
                 <Review label="Altura" value={form.altura ? `${form.altura} cm` : ""} />
                 <Review label="Peso atual" value={form.peso ? `${form.peso} kg` : ""} />
                 <Review label="Peso meta" value={form.pesoMeta ? `${form.pesoMeta} kg` : ""} />

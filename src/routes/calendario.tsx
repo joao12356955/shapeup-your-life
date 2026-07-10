@@ -17,6 +17,7 @@ import {
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { Sidebar } from "@/components/shapeup/Sidebar";
 import { toast } from "sonner";
+import { useCurrentUser, initialsOf, logout } from "@/lib/user-store";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -38,26 +39,32 @@ export const Route = createFileRoute("/calendario")({
 
 function UserMenu() {
   const navigate = useNavigate();
+  const user = useCurrentUser();
+  const name = user?.name ?? "Convidado";
+  const initials = user?.initials ?? initialsOf(name);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-2 rounded-full bg-card border border-border pl-1 pr-3 py-1 hover:border-primary/50 transition">
-          <div className="h-8 w-8 rounded-full bg-gradient-primary flex items-center justify-center font-bold text-sm">JV</div>
+          <div className="h-8 w-8 rounded-full bg-gradient-primary flex items-center justify-center font-bold text-sm">{initials}</div>
           <ChevronDown size={14} />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-52">
         <DropdownMenuLabel>
-          <div className="font-semibold">João Victor</div>
-          <div className="text-xs text-muted-foreground font-normal">Nível 12</div>
+          <div className="font-semibold">{name}</div>
+          <div className="text-xs text-muted-foreground font-normal">{user?.email ?? "—"}</div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={() => navigate({ to: "/configuracoes" })}>
           <User size={14} className="mr-2" /> Meu perfil
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          onClick={() => navigate({ to: "/" })}
+          onClick={() => {
+            logout();
+            navigate({ to: "/" });
+          }}
           className="text-destructive focus:text-destructive"
         >
           <LogOut size={14} className="mr-2" /> Sair
@@ -77,61 +84,72 @@ const typeDot: Record<EventType, string> = {
   outro: "bg-yellow-400",
 };
 
-// Build May 2024 grid: starts Wed May 1 (DOM=0). Apr 28,29,30 are leading.
-const leading = [28, 29, 30];
-const mayDays = Array.from({ length: 31 }, (_, i) => i + 1);
-const trailing = [1];
+const SAMPLE_WORKOUTS = ["Treino A", "Treino B", "Treino C", "Descanso", "Treino D1", "Treino D2", "Cardio"];
 
-const eventsByDay: Record<number, Ev[]> = {
-  1: [{ label: "Treino D1", type: "treino" }],
-  2: [{ label: "Treino B", type: "treino" }],
-  3: [{ label: "Treino D2", type: "treino" }],
-  4: [{ label: "Evento Academia", type: "evento" }, { label: "Desafio Supino", type: "evento" }],
-  5: [{ label: "Corrida longa", type: "outro" }],
-  6: [{ label: "Treino A", type: "treino" }],
-  7: [{ label: "Corrida", type: "outro" }],
-  8: [{ label: "Treino D1", type: "treino" }, { label: "Workshop Nutrição", type: "treino" }],
-  9: [{ label: "Treino B", type: "treino" }],
-  10: [{ label: "Treino D2", type: "treino" }],
-  11: [{ label: "Treino C", type: "treino" }, { label: "Aula Funcional", type: "outro" }],
-  13: [{ label: "Treino A", type: "treino" }],
-  14: [{ label: "Corrida", type: "outro" }],
-  15: [{ label: "Treino D1", type: "treino" }],
-  16: [{ label: "Treino B", type: "treino" }],
-  17: [{ label: "Treino D2", type: "treino" }, { label: "Happy Hour Fit", type: "evento" }],
-  18: [{ label: "Treino C", type: "treino" }, { label: "Corrida leve", type: "outro" }],
-  19: [{ label: "Meia Maratona 21K SP", type: "prova" }],
-  20: [{ label: "Treino A", type: "treino" }],
-  21: [{ label: "Corrida", type: "outro" }],
-  22: [{ label: "Treino D1", type: "treino" }],
-  23: [{ label: "Treino B", type: "treino" }],
-  24: [{ label: "Treino D2", type: "treino" }],
-  25: [{ label: "Desafio Agachamento Academia", type: "prova" }],
-  26: [{ label: "Corrida longa", type: "outro" }],
-  27: [{ label: "Treino A", type: "treino" }],
-  28: [{ label: "Corrida", type: "outro" }],
-  29: [{ label: "Treino D1", type: "treino" }],
-  30: [{ label: "Treino B", type: "treino" }],
-  31: [{ label: "Treino D2", type: "treino" }],
+const addDays = (base: Date, days: number) => {
+  const d = new Date(base);
+  d.setDate(base.getDate() + days);
+  return d;
 };
 
-const SELECTED = 8;
-
-const lembretes = [
-  { icon: Trophy, title: "Maratona Internacional SP", date: "26 de Maio de 2024", days: "18", unit: "dias" },
-  { icon: Trophy, title: "Desafio Supino Máximo", date: "4 de Maio de 2024", days: "4", unit: "dias" },
-  { icon: CalendarIcon, title: "Workshop de Nutrição", date: "8 de Maio de 2024", days: "0", unit: "hoje" },
-  { icon: Flame, title: "Corrida de Aniversário da Cidade", date: "14 de Maio de 2024", days: "6", unit: "dias" },
-  { icon: Dumbbell, title: "Desafio Agachamento", date: "25 de Maio de 2024", days: "17", unit: "dias" },
-];
-
-const destaques = [
-  { tag: "PROVA", color: "bg-destructive/20 text-destructive", title: "Maratona Internacional SP", date: "26/05/2024", local: "São Paulo - SP", info: "42.195 km", restante: "18 dias restantes" },
-  { tag: "EVENTO", color: "bg-blue-500/20 text-blue-400", title: "Desafio Supino Máximo", date: "04/05/2024", local: "Na academia", info: "Mostre sua força e concorra a prémios incríveis!", restante: "4 dias restantes" },
-  { tag: "PROVA", color: "bg-destructive/20 text-destructive", title: "Meia Maratona 21K SP", date: "19/05/2024", local: "São Paulo - SP", info: "21 km", restante: "11 dias restantes" },
-];
+const fmtLong = (d: Date) => {
+  const mo = d.toLocaleDateString("pt-BR", { month: "long" });
+  return `${d.getDate()} de ${mo.charAt(0).toUpperCase() + mo.slice(1)} de ${d.getFullYear()}`;
+};
+const fmtShort = (d: Date) => d.toLocaleDateString("pt-BR");
 
 function CalendarioPage() {
+  const user = useCurrentUser();
+  const hasSample = !!user?.hasSampleData;
+
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth();
+  const first = new Date(year, month, 1);
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstDow = first.getDay();
+  const leading = Array.from({ length: firstDow }, (_, i) => {
+    const d = new Date(year, month, -firstDow + 1 + i);
+    return d.getDate();
+  });
+  const monthDays = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+  const totalCells = Math.ceil((firstDow + daysInMonth) / 7) * 7;
+  const trailingCount = totalCells - firstDow - daysInMonth;
+  const trailing = Array.from({ length: trailingCount }, (_, i) => i + 1);
+  const monthLabel = today.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+  const SELECTED = today.getDate();
+
+  const eventsByDay: Record<number, Ev[]> = {};
+  if (hasSample) {
+    for (let d = 1; d <= daysInMonth; d++) {
+      const date = new Date(year, month, d);
+      const dow = date.getDay();
+      if (dow !== 0) {
+        eventsByDay[d] = [{ label: SAMPLE_WORKOUTS[dow], type: "treino" }];
+      }
+    }
+    const wk = SELECTED;
+    eventsByDay[wk] = [...(eventsByDay[wk] || []), { label: "Workshop Nutrição", type: "evento" }];
+  }
+
+  const lembretes = hasSample
+    ? [
+        { icon: Trophy, title: "Maratona Internacional SP", date: fmtLong(addDays(today, 18)), days: "18", unit: "dias" },
+        { icon: Trophy, title: "Desafio Supino Máximo", date: fmtLong(addDays(today, 4)), days: "4", unit: "dias" },
+        { icon: CalendarIcon, title: "Workshop de Nutrição", date: fmtLong(today), days: "0", unit: "hoje" },
+        { icon: Flame, title: "Corrida de Aniversário", date: fmtLong(addDays(today, 6)), days: "6", unit: "dias" },
+        { icon: Dumbbell, title: "Desafio Agachamento", date: fmtLong(addDays(today, 17)), days: "17", unit: "dias" },
+      ]
+    : [];
+
+  const destaques = hasSample
+    ? [
+        { tag: "PROVA", color: "bg-destructive/20 text-destructive", title: "Maratona Internacional SP", date: fmtShort(addDays(today, 18)), local: "São Paulo - SP", info: "42.195 km", restante: "18 dias restantes" },
+        { tag: "EVENTO", color: "bg-blue-500/20 text-blue-400", title: "Desafio Supino Máximo", date: fmtShort(addDays(today, 4)), local: "Na academia", info: "Mostre sua força e concorra a prémios incríveis!", restante: "4 dias restantes" },
+        { tag: "PROVA", color: "bg-destructive/20 text-destructive", title: "Meia Maratona 21K SP", date: fmtShort(addDays(today, 11)), local: "São Paulo - SP", info: "21 km", restante: "11 dias restantes" },
+      ]
+    : [];
+
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar />
@@ -209,7 +227,7 @@ function CalendarioPage() {
                   <button className="h-8 w-8 rounded-md border border-border flex items-center justify-center hover:border-primary/50 transition">
                     <ChevronRight size={14} />
                   </button>
-                  <span className="text-sm font-semibold ml-1">Maio 2024</span>
+                  <span className="text-sm font-semibold ml-1 capitalize">{monthLabel}</span>
                   <button className="h-8 px-3 rounded-md border border-border text-xs hover:border-primary/50 transition ml-2">Hoje</button>
                 </div>
                 <div className="flex items-center gap-1 rounded-md border border-border p-1">
@@ -237,7 +255,7 @@ function CalendarioPage() {
                   {leading.map((n) => (
                     <div key={`l${n}`} className="border-b border-r border-border p-1.5 text-xs text-muted-foreground/50">{n}</div>
                   ))}
-                  {mayDays.map((n) => {
+                  {monthDays.map((n) => {
                     const evs = eventsByDay[n] || [];
                     const selected = n === SELECTED;
                     return (
@@ -265,7 +283,7 @@ function CalendarioPage() {
                 </div>
               </div>
 
-              <div className="text-center text-xs text-muted-foreground mt-3">8 de maio de 2024</div>
+              <div className="text-center text-xs text-muted-foreground mt-3">{fmtLong(today)}</div>
             </div>
 
             {/* Destaques */}

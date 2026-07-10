@@ -47,6 +47,7 @@ export type UserProfile = {
   dieta?: PlanoDieta;
   onboardingCompleto?: boolean;
   isNew?: boolean;
+  hasSampleData?: boolean;
 };
 
 const SEED_USERS: UserProfile[] = [
@@ -62,13 +63,7 @@ const SEED_USERS: UserProfile[] = [
     sexo: "Masculino",
     nivelAtividade: "Moderado",
     onboardingCompleto: true,
-  },
-  {
-    email: "teste2@email",
-    password: "1234",
-    name: "Novo Atleta",
-    initials: "NA",
-    isNew: true,
+    hasSampleData: true,
   },
 ];
 

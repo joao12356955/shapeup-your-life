@@ -17,6 +17,7 @@ import {
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { Sidebar } from "@/components/shapeup/Sidebar";
 import { toast } from "sonner";
+import { useCurrentUser, initialsOf, logout } from "@/lib/user-store";
 import {
   DropdownMenu,
   DropdownMenuTrigger,

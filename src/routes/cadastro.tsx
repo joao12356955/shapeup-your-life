@@ -256,16 +256,21 @@ function IconSelect({
   icon: Icon,
   label,
   options,
+  value,
+  onChange,
 }: {
   icon: React.ComponentType<{ size?: number; className?: string }>;
   label: string;
   options: string[];
+  value?: string;
+  onChange?: (v: string) => void;
 }) {
   return (
     <div className="relative">
       <Icon size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-primary-glow z-10" />
       <select
-        defaultValue=""
+        value={value ?? ""}
+        onChange={(e) => onChange?.(e.target.value)}
         className="w-full appearance-none rounded-lg bg-secondary/60 border border-border pl-10 pr-8 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 transition"
       >
         <option value="" disabled>{label}</option>

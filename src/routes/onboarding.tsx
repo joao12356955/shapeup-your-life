@@ -379,9 +379,10 @@ function OnboardingPage() {
 
             {step === 4 && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                <Review label="Nome" value={form.name} />
-                <Review label="Sexo" value={form.sexo} />
-                <Review label="Nascimento" value={form.dataNascimento} />
+                <Review label="Altura" value={form.altura ? `${form.altura} cm` : ""} />
+                <Review label="Peso atual" value={form.peso ? `${form.peso} kg` : ""} />
+                <Review label="Peso meta" value={form.pesoMeta ? `${form.pesoMeta} kg` : ""} />
+                <Review label="Objetivo" value={form.objetivo} />
                 <Review label="Altura" value={form.altura ? `${form.altura} cm` : ""} />
                 <Review label="Peso atual" value={form.peso ? `${form.peso} kg` : ""} />
                 <Review label="Peso meta" value={form.pesoMeta ? `${form.pesoMeta} kg` : ""} />

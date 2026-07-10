@@ -52,7 +52,7 @@ type Form = {
 };
 
 const STEPS = [
-  { key: "pessoais", label: "Dados pessoais", sub: "Informações básicas", icon: User },
+  { key: "pessoais", label: "Perfil e objetivo", sub: "Personalize seu plano", icon: User },
   { key: "medidas", label: "Medidas corporais", sub: "Opcional", icon: Ruler },
   { key: "treinos", label: "Treinos", sub: "Monte seu plano", icon: Dumbbell },
   { key: "alimentacao", label: "Alimentação", sub: "Suas preferências", icon: UtensilsCrossed },

@@ -283,7 +283,7 @@ function CalendarioPage() {
                 </div>
               </div>
 
-              <div className="text-center text-xs text-muted-foreground mt-3">8 de maio de 2024</div>
+              <div className="text-center text-xs text-muted-foreground mt-3">{fmtLong(today)}</div>
             </div>
 
             {/* Destaques */}

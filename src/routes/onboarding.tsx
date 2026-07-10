@@ -233,27 +233,6 @@ function OnboardingPage() {
 
             {step === 0 && (
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <Field label="Nome">
-                  <Input
-                    placeholder="Ex.: João Victor"
-                    value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  />
-                </Field>
-                <Field label="Data de nascimento">
-                  <Input
-                    type="date"
-                    value={form.dataNascimento}
-                    onChange={(e) => setForm({ ...form, dataNascimento: e.target.value })}
-                  />
-                </Field>
-                <Field label="Sexo">
-                  <Select
-                    value={form.sexo}
-                    onChange={(v) => setForm({ ...form, sexo: v as Sexo })}
-                    options={["Masculino", "Feminino", "Outro"]}
-                  />
-                </Field>
                 <Field label="Altura" suffix="cm">
                   <Input type="number" value={form.altura} onChange={(e) => setForm({ ...form, altura: e.target.value })} />
                 </Field>

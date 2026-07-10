@@ -255,7 +255,7 @@ function CalendarioPage() {
                   {leading.map((n) => (
                     <div key={`l${n}`} className="border-b border-r border-border p-1.5 text-xs text-muted-foreground/50">{n}</div>
                   ))}
-                  {mayDays.map((n) => {
+                  {monthDays.map((n) => {
                     const evs = eventsByDay[n] || [];
                     const selected = n === SELECTED;
                     return (

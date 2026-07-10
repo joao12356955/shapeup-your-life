@@ -104,7 +104,7 @@ export const Route = createFileRoute("/dashboard")({
   component: Dashboard,
 });
 
-const weightData = [
+const SAMPLE_WEIGHT: { d: string; kg: number }[] = [
   { d: "10/07", kg: 82 }, { d: "13/07", kg: 81.2 }, { d: "17/07", kg: 80.5 },
   { d: "20/07", kg: 79.8 }, { d: "24/07", kg: 79.3 }, { d: "27/07", kg: 78.9 },
   { d: "31/07", kg: 78.6 }, { d: "04/08", kg: 78.5 }, { d: "08/08", kg: 78.4 },

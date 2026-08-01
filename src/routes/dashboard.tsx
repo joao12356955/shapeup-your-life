@@ -636,19 +636,40 @@ function Dashboard() {
             <div className="rounded-2xl bg-gradient-card border border-border p-5 shadow-card">
               <div className="flex items-center justify-between mb-3">
                 <h2 className="font-semibold">Ingestão de água</h2>
-                <span className="text-xs text-muted-foreground">6 / 7 copos</span>
+                <span className="text-xs text-muted-foreground">
+                  {litros} L / {WATER_GOAL_ML / 1000} L
+                </span>
               </div>
               <div className="flex items-center gap-2">
-                {Array.from({ length: 6 }).map((_, i) => (
+                {Array.from({ length: Math.min(bottles, WATER_GOAL_BOTTLES) }).map((_, i) => (
                   <div key={i} className="h-10 w-7 rounded-md bg-gradient-primary shadow-glow" />
                 ))}
-                <div className="h-10 w-7 rounded-md border border-dashed border-primary/50 flex items-center justify-center">
-                  <Plus size={14} className="text-primary-glow" />
-                </div>
+                {bottles < WATER_GOAL_BOTTLES && (
+                  <button
+                    onClick={() => setWaterOpen(true)}
+                    aria-label="Registrar água"
+                    className="h-10 w-7 rounded-md border border-dashed border-primary/50 flex items-center justify-center hover:bg-primary/10 transition"
+                  >
+                    <Plus size={14} className="text-primary-glow" />
+                  </button>
+                )}
               </div>
+              <div className="mt-3 text-xs text-muted-foreground">
+                {bottles} de {WATER_GOAL_BOTTLES} garrafas ({BOTTLE_ML} ml cada)
+              </div>
+              <button
+                onClick={() => setWaterOpen(true)}
+                className="mt-3 w-full rounded-lg bg-gradient-primary py-2 text-sm font-semibold shadow-glow hover:opacity-90 transition"
+              >
+                Registrar
+              </button>
             </div>
           </div>
         </div>
+
+        <WaterDialog open={waterOpen} onOpenChange={setWaterOpen} day={day} onSave={saveToday} />
+        <MealDialog open={mealOpen} onOpenChange={setMealOpen} day={day} onSave={saveToday} />
+        <WeightDialog open={weightOpen} onOpenChange={setWeightOpen} day={day} onSave={saveToday} />
       </main>
     </div>
   );

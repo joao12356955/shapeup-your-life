@@ -606,33 +606,49 @@ function Dashboard() {
                 <div className="relative h-28 w-28 shrink-0">
                   <ResponsiveContainer>
                     <PieChart>
-                      <Pie data={macroData} dataKey="value" innerRadius={36} outerRadius={50} stroke="none">
-                        {macroData.map((m) => <Cell key={m.name} fill={m.color} />)}
+                      <Pie
+                        data={kcalTotal > 0 ? macroData : [{ name: "vazio", value: 1, color: "oklch(0.25 0.04 285)" }]}
+                        dataKey="value"
+                        innerRadius={36}
+                        outerRadius={50}
+                        stroke="none"
+                      >
+                        {(kcalTotal > 0 ? macroData : [{ name: "vazio", value: 1, color: "oklch(0.25 0.04 285)" }]).map((m) => (
+                          <Cell key={m.name} fill={m.color} />
+                        ))}
                       </Pie>
                     </PieChart>
                   </ResponsiveContainer>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-lg font-bold">1.842</span>
+                    <span className="text-lg font-bold">{kcalTotal.toLocaleString("pt-BR")}</span>
                     <span className="text-[10px] text-muted-foreground">kcal</span>
                   </div>
                 </div>
                 <div className="flex-1 space-y-2 text-xs">
-                  {[
-                    { name: "Carboidratos", pct: "45%", g: "207g", c: "oklch(0.62 0.24 295)" },
-                    { name: "Proteínas", pct: "30%", g: "138g", c: "oklch(0.65 0.22 340)" },
-                    { name: "Gorduras", pct: "25%", g: "51g", c: "oklch(0.78 0.17 70)" },
-                  ].map((m) => (
+                  {macroData.map((m) => (
                     <div key={m.name}>
                       <div className="flex items-center gap-2">
-                        <span className="h-2 w-2 rounded-full" style={{ background: m.c }} />
+                        <span className="h-2 w-2 rounded-full" style={{ background: m.color }} />
                         <span className="font-medium">{m.name}</span>
                       </div>
-                      <div className="text-muted-foreground pl-4">{m.pct} / {m.g}</div>
+                      <div className="text-muted-foreground pl-4">{m.value}% / {m.grams}g</div>
                     </div>
                   ))}
                 </div>
+                <button
+                  onClick={() => setMealOpen(true)}
+                  aria-label="Registrar refeições"
+                  className="hidden"
+                />
               </div>
+              <button
+                onClick={() => setMealOpen(true)}
+                className="mt-4 w-full rounded-lg bg-gradient-primary py-2 text-sm font-semibold shadow-glow hover:opacity-90 transition"
+              >
+                Registrar alimentação
+              </button>
             </div>
+
 
             <div className="rounded-2xl bg-gradient-card border border-border p-5 shadow-card">
               <div className="flex items-center justify-between mb-3">

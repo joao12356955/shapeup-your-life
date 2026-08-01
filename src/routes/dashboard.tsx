@@ -233,7 +233,7 @@ function Dashboard() {
   const macroPct = (grams: number, kcalPerG: number) =>
     kcalTotal > 0 ? Math.round(((grams * kcalPerG) / kcalTotal) * 100) : 0;
   const macroData = [
-    { name: "Carboidratos", value: macroPct(macros.carbs, 4) || (kcalTotal ? 0 : 1), grams: macros.carbs, color: "oklch(0.62 0.24 295)" },
+    { name: "Carboidratos", value: macroPct(macros.carbs, 4), grams: macros.carbs, color: "oklch(0.62 0.24 295)" },
     { name: "Proteínas", value: macroPct(macros.protein, 4), grams: macros.protein, color: "oklch(0.65 0.22 340)" },
     { name: "Gorduras", value: macroPct(macros.fat, 9), grams: macros.fat, color: "oklch(0.78 0.17 70)" },
   ];

@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
   BOTTLE_ML,
+  WATER_GOAL_BOTTLES,
   WATER_GOAL_ML,
   dateKey,
   emptyDay,

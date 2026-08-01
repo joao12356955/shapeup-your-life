@@ -430,7 +430,7 @@ function Dashboard() {
                 <ResponsiveContainer>
                   <PieChart>
                     <Pie
-                      data={[{ v: 75 }, { v: 25 }]}
+                      data={[{ v: metaSemanal }, { v: 100 - metaSemanal }]}
                       dataKey="v"
                       innerRadius={36}
                       outerRadius={50}
@@ -444,16 +444,12 @@ function Dashboard() {
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-xl font-bold">75<span className="text-xs text-muted-foreground">%</span></span>
+                  <span className="text-xl font-bold">{metaSemanal}<span className="text-xs text-muted-foreground">%</span></span>
                   <span className="text-[10px] text-muted-foreground">Meta semanal</span>
                 </div>
               </div>
               <div className="flex-1 space-y-3">
-                {[
-                  { l: "Treinos", v: "3 / 4", pct: 75 },
-                  { l: "Dieta", v: "5 / 7", pct: 71 },
-                  { l: "Água", v: "6 / 7", pct: 85 },
-                ].map((r) => (
+                {resumo.map((r) => (
                   <div key={r.l}>
                     <div className="flex justify-between text-xs">
                       <span className="text-foreground/90">{r.l}</span>

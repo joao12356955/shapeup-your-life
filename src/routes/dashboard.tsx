@@ -472,15 +472,50 @@ function Dashboard() {
             <h2 className="font-semibold mb-4">Seu plano de hoje</h2>
             <div className="space-y-3">
               {[
-                { icon: Dumbbell, title: todaysWorkout.name, sub: todaysWorkout.focus, action: todaysWorkout.rest ? "Descanso" : "Pendente", done: !!todaysWorkout.rest },
-                { icon: UtensilsCrossed, title: "Alimentação", sub: "2/4 refeições registradas", action: "Registrar" },
-                { icon: Droplet, title: "Ingestão de água", sub: "6 / 7 copos", action: "Registrar" },
-                { icon: Scale, title: "Peso", sub: `${peso} kg registrado hoje`, action: "Ver histórico" },
+                {
+                  icon: Dumbbell,
+                  title: todaysWorkout.name,
+                  sub: todaysWorkout.rest ? todaysWorkout.focus : day.workoutDone ? "Treino concluído hoje" : todaysWorkout.focus,
+                  action: todaysWorkout.rest ? "Descanso" : day.workoutDone ? "Concluído" : "Marcar feito",
+                  done: !!todaysWorkout.rest || !!day.workoutDone,
+                  onClick: () => {
+                    if (todaysWorkout.rest) return;
+                    saveToday({ workoutDone: !day.workoutDone });
+                    toast(!day.workoutDone ? "Treino marcado como concluído! 💪" : "Treino desmarcado");
+                  },
+                },
+                {
+                  icon: UtensilsCrossed,
+                  title: "Alimentação",
+                  sub: `${day.meals.length}/4 refeições • ${kcalTotal} kcal`,
+                  action: "Registrar",
+                  done: day.meals.length >= 4,
+                  onClick: () => setMealOpen(true),
+                },
+                {
+                  icon: Droplet,
+                  title: "Ingestão de água",
+                  sub: `${litros} L / ${WATER_GOAL_ML / 1000} L • ${bottles} garrafas`,
+                  action: "Registrar",
+                  done: day.waterMl >= WATER_GOAL_ML,
+                  onClick: () => setWaterOpen(true),
+                },
+                {
+                  icon: Scale,
+                  title: "Peso",
+                  sub: day.weightKg ? `${day.weightKg} kg registrado hoje` : "Nenhum peso registrado hoje",
+                  action: day.weightKg ? "Atualizar" : "Registrar",
+                  done: !!day.weightKg,
+                  onClick: () => setWeightOpen(true),
+                },
               ].map((it) => {
-
                 const Icon = it.icon;
                 return (
-                  <div key={it.title} className="flex items-center gap-3 rounded-xl bg-secondary/40 border border-border p-3 hover:border-primary/50 transition">
+                  <button
+                    key={it.title}
+                    onClick={it.onClick}
+                    className="w-full text-left flex items-center gap-3 rounded-xl bg-secondary/40 border border-border p-3 hover:border-primary/50 transition"
+                  >
                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 text-primary-glow">
                       <Icon size={18} />
                     </div>
@@ -492,7 +527,7 @@ function Dashboard() {
                       {it.action}
                     </span>
                     <ChevronRight size={16} className="text-muted-foreground" />
-                  </div>
+                  </button>
                 );
               })}
             </div>

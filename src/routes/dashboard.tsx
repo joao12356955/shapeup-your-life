@@ -635,12 +635,8 @@ function Dashboard() {
                     </div>
                   ))}
                 </div>
-                <button
-                  onClick={() => setMealOpen(true)}
-                  aria-label="Registrar refeições"
-                  className="hidden"
-                />
               </div>
+
               <button
                 onClick={() => setMealOpen(true)}
                 className="mt-4 w-full rounded-lg bg-gradient-primary py-2 text-sm font-semibold shadow-glow hover:opacity-90 transition"

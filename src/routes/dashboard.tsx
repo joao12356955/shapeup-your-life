@@ -122,11 +122,6 @@ const SAMPLE_WEIGHT: { d: string; kg: number }[] = [
   { d: "31/07", kg: 78.6 }, { d: "04/08", kg: 78.5 }, { d: "08/08", kg: 78.4 },
 ];
 
-const macroData = [
-  { name: "Carbs", value: 45, color: "oklch(0.62 0.24 295)" },
-  { name: "Proteínas", value: 30, color: "oklch(0.65 0.22 340)" },
-  { name: "Gorduras", value: 25, color: "oklch(0.78 0.17 70)" },
-];
 
 const WORKOUT_SPLIT = [
   { name: "Descanso ativo", focus: "Mobilidade • Alongamento", duration: "30 min", level: "Recuperação", rest: true, exercises: [

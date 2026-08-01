@@ -1,5 +1,18 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import {
+  BOTTLE_ML,
+  WATER_GOAL_BOTTLES,
+  WATER_GOAL_ML,
+  dateKey,
+  emptyDay,
+  sumMacros,
+  useDailyLogs,
+  weekKeys,
+  type DayLog,
+} from "@/lib/daily-store";
+import { MealDialog, WaterDialog, WeightDialog } from "@/components/shapeup/LogDialogs";
+
 import {
   LogOut,
   User,
@@ -110,11 +123,6 @@ const SAMPLE_WEIGHT: { d: string; kg: number }[] = [
   { d: "31/07", kg: 78.6 }, { d: "04/08", kg: 78.5 }, { d: "08/08", kg: 78.4 },
 ];
 
-const macroData = [
-  { name: "Carbs", value: 45, color: "oklch(0.62 0.24 295)" },
-  { name: "Proteínas", value: 30, color: "oklch(0.65 0.22 340)" },
-  { name: "Gorduras", value: 25, color: "oklch(0.78 0.17 70)" },
-];
 
 const WORKOUT_SPLIT = [
   { name: "Descanso ativo", focus: "Mobilidade • Alongamento", duration: "30 min", level: "Recuperação", rest: true, exercises: [
@@ -208,19 +216,69 @@ function Dashboard() {
   const tomorrowLabel = tomorrow.toLocaleDateString("pt-BR", { weekday: "long" });
 
   const hasSample = !!user?.hasSampleData;
-  const peso = user?.peso ?? 0;
   const meta = user?.pesoMeta ?? 0;
+
+  // ---- registros manuais do dia ----
+  const todayKey = dateKey(today);
+  const { logs, updateDay } = useDailyLogs(user?.email);
+  const day = logs[todayKey] ?? emptyDay;
+  const saveToday = (patch: Partial<DayLog>) => updateDay(todayKey, patch);
+
+  const peso = day.weightKg ?? user?.peso ?? 0;
   const diff = Math.max(0, peso - meta).toFixed(1);
-  const weightData = hasSample
-    ? SAMPLE_WEIGHT
-    : peso > 0
-      ? [{ d: "hoje", kg: peso }]
-      : [];
-  const diasDesafio = hasSample ? "8" : "0";
-  const treinosConcluidos = hasSample ? "12" : "0";
-  const treinosMeta = hasSample ? "16" : "0";
-  const treinoPct = hasSample ? "75% concluído" : "Comece hoje";
-  const desafioHint = hasSample ? "26 dias restantes" : "Nenhum desafio ativo";
+  const bottles = Math.round(day.waterMl / BOTTLE_ML);
+  const litros = (day.waterMl / 1000).toFixed(1);
+  const macros = sumMacros(day.meals);
+  const kcalTotal = macros.kcal;
+  const macroPct = (grams: number, kcalPerG: number) =>
+    kcalTotal > 0 ? Math.round(((grams * kcalPerG) / kcalTotal) * 100) : 0;
+  const macroData = [
+    { name: "Carboidratos", value: macroPct(macros.carbs, 4), grams: macros.carbs, color: "oklch(0.62 0.24 295)" },
+    { name: "Proteínas", value: macroPct(macros.protein, 4), grams: macros.protein, color: "oklch(0.65 0.22 340)" },
+    { name: "Gorduras", value: macroPct(macros.fat, 9), grams: macros.fat, color: "oklch(0.78 0.17 70)" },
+  ];
+
+  const registeredWeights = Object.entries(logs)
+    .filter(([, d]) => typeof d.weightKg === "number")
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([k, d]) => ({
+      d: `${k.slice(8, 10)}/${k.slice(5, 7)}`,
+      kg: d.weightKg as number,
+    }));
+  const weightData =
+    registeredWeights.length > 0
+      ? registeredWeights
+      : hasSample
+        ? SAMPLE_WEIGHT
+        : peso > 0
+          ? [{ d: "hoje", kg: peso }]
+          : [];
+
+  // ---- resumo da semana calculado a partir dos registros ----
+  const week = weekKeys(today).map((k) => logs[k] ?? emptyDay);
+  const treinosFeitos = week.filter((d) => d.workoutDone).length;
+  const treinosMetaNum = 4;
+  const dietaDias = week.filter((d) => d.meals.length >= 3).length;
+  const aguaDias = week.filter((d) => d.waterMl >= WATER_GOAL_ML).length;
+  const pct = (v: number, total: number) => (total > 0 ? Math.round((v / total) * 100) : 0);
+  const resumo = [
+    { l: "Treinos", v: `${treinosFeitos} / ${treinosMetaNum}`, pct: Math.min(100, pct(treinosFeitos, treinosMetaNum)) },
+    { l: "Dieta", v: `${dietaDias} / 7`, pct: pct(dietaDias, 7) },
+    { l: "Água", v: `${aguaDias} / 7`, pct: pct(aguaDias, 7) },
+  ];
+  const metaSemanal = Math.round(resumo.reduce((a, r) => a + r.pct, 0) / resumo.length);
+
+  const diasDesafio = String(Object.values(logs).filter((d) => d.workoutDone).length);
+  const treinosConcluidos = String(treinosFeitos);
+  const treinosMeta = String(treinosMetaNum);
+  const treinoPct = treinosFeitos > 0 ? `${resumo[0].pct}% da meta semanal` : "Comece hoje";
+  const desafioHint = Number(diasDesafio) > 0 ? `${Math.max(0, 30 - Number(diasDesafio))} dias restantes` : "Registre seu 1º treino";
+
+  const [waterOpen, setWaterOpen] = useState(false);
+  const [mealOpen, setMealOpen] = useState(false);
+  const [weightOpen, setWeightOpen] = useState(false);
+
+
 
 
 
@@ -373,7 +431,7 @@ function Dashboard() {
                 <ResponsiveContainer>
                   <PieChart>
                     <Pie
-                      data={[{ v: 75 }, { v: 25 }]}
+                      data={[{ v: metaSemanal }, { v: 100 - metaSemanal }]}
                       dataKey="v"
                       innerRadius={36}
                       outerRadius={50}
@@ -387,16 +445,12 @@ function Dashboard() {
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-xl font-bold">75<span className="text-xs text-muted-foreground">%</span></span>
+                  <span className="text-xl font-bold">{metaSemanal}<span className="text-xs text-muted-foreground">%</span></span>
                   <span className="text-[10px] text-muted-foreground">Meta semanal</span>
                 </div>
               </div>
               <div className="flex-1 space-y-3">
-                {[
-                  { l: "Treinos", v: "3 / 4", pct: 75 },
-                  { l: "Dieta", v: "5 / 7", pct: 71 },
-                  { l: "Água", v: "6 / 7", pct: 85 },
-                ].map((r) => (
+                {resumo.map((r) => (
                   <div key={r.l}>
                     <div className="flex justify-between text-xs">
                       <span className="text-foreground/90">{r.l}</span>
@@ -419,15 +473,50 @@ function Dashboard() {
             <h2 className="font-semibold mb-4">Seu plano de hoje</h2>
             <div className="space-y-3">
               {[
-                { icon: Dumbbell, title: todaysWorkout.name, sub: todaysWorkout.focus, action: todaysWorkout.rest ? "Descanso" : "Pendente", done: !!todaysWorkout.rest },
-                { icon: UtensilsCrossed, title: "Alimentação", sub: "2/4 refeições registradas", action: "Registrar" },
-                { icon: Droplet, title: "Ingestão de água", sub: "6 / 7 copos", action: "Registrar" },
-                { icon: Scale, title: "Peso", sub: `${peso} kg registrado hoje`, action: "Ver histórico" },
+                {
+                  icon: Dumbbell,
+                  title: todaysWorkout.name,
+                  sub: todaysWorkout.rest ? todaysWorkout.focus : day.workoutDone ? "Treino concluído hoje" : todaysWorkout.focus,
+                  action: todaysWorkout.rest ? "Descanso" : day.workoutDone ? "Concluído" : "Marcar feito",
+                  done: !!todaysWorkout.rest || !!day.workoutDone,
+                  onClick: () => {
+                    if (todaysWorkout.rest) return;
+                    saveToday({ workoutDone: !day.workoutDone });
+                    toast(!day.workoutDone ? "Treino marcado como concluído! 💪" : "Treino desmarcado");
+                  },
+                },
+                {
+                  icon: UtensilsCrossed,
+                  title: "Alimentação",
+                  sub: `${day.meals.length}/4 refeições • ${kcalTotal} kcal`,
+                  action: "Registrar",
+                  done: day.meals.length >= 4,
+                  onClick: () => setMealOpen(true),
+                },
+                {
+                  icon: Droplet,
+                  title: "Ingestão de água",
+                  sub: `${litros} L / ${WATER_GOAL_ML / 1000} L • ${bottles} garrafas`,
+                  action: "Registrar",
+                  done: day.waterMl >= WATER_GOAL_ML,
+                  onClick: () => setWaterOpen(true),
+                },
+                {
+                  icon: Scale,
+                  title: "Peso",
+                  sub: day.weightKg ? `${day.weightKg} kg registrado hoje` : "Nenhum peso registrado hoje",
+                  action: day.weightKg ? "Atualizar" : "Registrar",
+                  done: !!day.weightKg,
+                  onClick: () => setWeightOpen(true),
+                },
               ].map((it) => {
-
                 const Icon = it.icon;
                 return (
-                  <div key={it.title} className="flex items-center gap-3 rounded-xl bg-secondary/40 border border-border p-3 hover:border-primary/50 transition">
+                  <button
+                    key={it.title}
+                    onClick={it.onClick}
+                    className="w-full text-left flex items-center gap-3 rounded-xl bg-secondary/40 border border-border p-3 hover:border-primary/50 transition"
+                  >
                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 text-primary-glow">
                       <Icon size={18} />
                     </div>
@@ -439,7 +528,7 @@ function Dashboard() {
                       {it.action}
                     </span>
                     <ChevronRight size={16} className="text-muted-foreground" />
-                  </div>
+                  </button>
                 );
               })}
             </div>
@@ -517,50 +606,83 @@ function Dashboard() {
                 <div className="relative h-28 w-28 shrink-0">
                   <ResponsiveContainer>
                     <PieChart>
-                      <Pie data={macroData} dataKey="value" innerRadius={36} outerRadius={50} stroke="none">
-                        {macroData.map((m) => <Cell key={m.name} fill={m.color} />)}
+                      <Pie
+                        data={kcalTotal > 0 ? macroData : [{ name: "vazio", value: 1, color: "oklch(0.25 0.04 285)" }]}
+                        dataKey="value"
+                        innerRadius={36}
+                        outerRadius={50}
+                        stroke="none"
+                      >
+                        {(kcalTotal > 0 ? macroData : [{ name: "vazio", value: 1, color: "oklch(0.25 0.04 285)" }]).map((m) => (
+                          <Cell key={m.name} fill={m.color} />
+                        ))}
                       </Pie>
                     </PieChart>
                   </ResponsiveContainer>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-lg font-bold">1.842</span>
+                    <span className="text-lg font-bold">{kcalTotal.toLocaleString("pt-BR")}</span>
                     <span className="text-[10px] text-muted-foreground">kcal</span>
                   </div>
                 </div>
                 <div className="flex-1 space-y-2 text-xs">
-                  {[
-                    { name: "Carboidratos", pct: "45%", g: "207g", c: "oklch(0.62 0.24 295)" },
-                    { name: "Proteínas", pct: "30%", g: "138g", c: "oklch(0.65 0.22 340)" },
-                    { name: "Gorduras", pct: "25%", g: "51g", c: "oklch(0.78 0.17 70)" },
-                  ].map((m) => (
+                  {macroData.map((m) => (
                     <div key={m.name}>
                       <div className="flex items-center gap-2">
-                        <span className="h-2 w-2 rounded-full" style={{ background: m.c }} />
+                        <span className="h-2 w-2 rounded-full" style={{ background: m.color }} />
                         <span className="font-medium">{m.name}</span>
                       </div>
-                      <div className="text-muted-foreground pl-4">{m.pct} / {m.g}</div>
+                      <div className="text-muted-foreground pl-4">{m.value}% / {m.grams}g</div>
                     </div>
                   ))}
                 </div>
               </div>
+
+              <button
+                onClick={() => setMealOpen(true)}
+                className="mt-4 w-full rounded-lg bg-gradient-primary py-2 text-sm font-semibold shadow-glow hover:opacity-90 transition"
+              >
+                Registrar alimentação
+              </button>
             </div>
+
 
             <div className="rounded-2xl bg-gradient-card border border-border p-5 shadow-card">
               <div className="flex items-center justify-between mb-3">
                 <h2 className="font-semibold">Ingestão de água</h2>
-                <span className="text-xs text-muted-foreground">6 / 7 copos</span>
+                <span className="text-xs text-muted-foreground">
+                  {litros} L / {WATER_GOAL_ML / 1000} L
+                </span>
               </div>
               <div className="flex items-center gap-2">
-                {Array.from({ length: 6 }).map((_, i) => (
+                {Array.from({ length: Math.min(bottles, WATER_GOAL_BOTTLES) }).map((_, i) => (
                   <div key={i} className="h-10 w-7 rounded-md bg-gradient-primary shadow-glow" />
                 ))}
-                <div className="h-10 w-7 rounded-md border border-dashed border-primary/50 flex items-center justify-center">
-                  <Plus size={14} className="text-primary-glow" />
-                </div>
+                {bottles < WATER_GOAL_BOTTLES && (
+                  <button
+                    onClick={() => setWaterOpen(true)}
+                    aria-label="Registrar água"
+                    className="h-10 w-7 rounded-md border border-dashed border-primary/50 flex items-center justify-center hover:bg-primary/10 transition"
+                  >
+                    <Plus size={14} className="text-primary-glow" />
+                  </button>
+                )}
               </div>
+              <div className="mt-3 text-xs text-muted-foreground">
+                {bottles} de {WATER_GOAL_BOTTLES} garrafas ({BOTTLE_ML} ml cada)
+              </div>
+              <button
+                onClick={() => setWaterOpen(true)}
+                className="mt-3 w-full rounded-lg bg-gradient-primary py-2 text-sm font-semibold shadow-glow hover:opacity-90 transition"
+              >
+                Registrar
+              </button>
             </div>
           </div>
         </div>
+
+        <WaterDialog open={waterOpen} onOpenChange={setWaterOpen} day={day} onSave={saveToday} />
+        <MealDialog open={mealOpen} onOpenChange={setMealOpen} day={day} onSave={saveToday} />
+        <WeightDialog open={weightOpen} onOpenChange={setWeightOpen} day={day} onSave={saveToday} />
       </main>
     </div>
   );

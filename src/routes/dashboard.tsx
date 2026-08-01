@@ -208,19 +208,69 @@ function Dashboard() {
   const tomorrowLabel = tomorrow.toLocaleDateString("pt-BR", { weekday: "long" });
 
   const hasSample = !!user?.hasSampleData;
-  const peso = user?.peso ?? 0;
   const meta = user?.pesoMeta ?? 0;
+
+  // ---- registros manuais do dia ----
+  const todayKey = dateKey(today);
+  const { logs, updateDay } = useDailyLogs(user?.email);
+  const day = logs[todayKey] ?? emptyDay;
+  const saveToday = (patch: Partial<DayLog>) => updateDay(todayKey, patch);
+
+  const peso = day.weightKg ?? user?.peso ?? 0;
   const diff = Math.max(0, peso - meta).toFixed(1);
-  const weightData = hasSample
-    ? SAMPLE_WEIGHT
-    : peso > 0
-      ? [{ d: "hoje", kg: peso }]
-      : [];
-  const diasDesafio = hasSample ? "8" : "0";
-  const treinosConcluidos = hasSample ? "12" : "0";
-  const treinosMeta = hasSample ? "16" : "0";
-  const treinoPct = hasSample ? "75% concluído" : "Comece hoje";
-  const desafioHint = hasSample ? "26 dias restantes" : "Nenhum desafio ativo";
+  const bottles = Math.round(day.waterMl / BOTTLE_ML);
+  const litros = (day.waterMl / 1000).toFixed(1);
+  const macros = sumMacros(day.meals);
+  const kcalTotal = macros.kcal;
+  const macroPct = (grams: number, kcalPerG: number) =>
+    kcalTotal > 0 ? Math.round(((grams * kcalPerG) / kcalTotal) * 100) : 0;
+  const macroData = [
+    { name: "Carboidratos", value: macroPct(macros.carbs, 4) || (kcalTotal ? 0 : 1), grams: macros.carbs, color: "oklch(0.62 0.24 295)" },
+    { name: "Proteínas", value: macroPct(macros.protein, 4), grams: macros.protein, color: "oklch(0.65 0.22 340)" },
+    { name: "Gorduras", value: macroPct(macros.fat, 9), grams: macros.fat, color: "oklch(0.78 0.17 70)" },
+  ];
+
+  const registeredWeights = Object.entries(logs)
+    .filter(([, d]) => typeof d.weightKg === "number")
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([k, d]) => ({
+      d: `${k.slice(8, 10)}/${k.slice(5, 7)}`,
+      kg: d.weightKg as number,
+    }));
+  const weightData =
+    registeredWeights.length > 0
+      ? registeredWeights
+      : hasSample
+        ? SAMPLE_WEIGHT
+        : peso > 0
+          ? [{ d: "hoje", kg: peso }]
+          : [];
+
+  // ---- resumo da semana calculado a partir dos registros ----
+  const week = weekKeys(today).map((k) => logs[k] ?? emptyDay);
+  const treinosFeitos = week.filter((d) => d.workoutDone).length;
+  const treinosMetaNum = 4;
+  const dietaDias = week.filter((d) => d.meals.length >= 3).length;
+  const aguaDias = week.filter((d) => d.waterMl >= WATER_GOAL_ML).length;
+  const pct = (v: number, total: number) => (total > 0 ? Math.round((v / total) * 100) : 0);
+  const resumo = [
+    { l: "Treinos", v: `${treinosFeitos} / ${treinosMetaNum}`, pct: Math.min(100, pct(treinosFeitos, treinosMetaNum)) },
+    { l: "Dieta", v: `${dietaDias} / 7`, pct: pct(dietaDias, 7) },
+    { l: "Água", v: `${aguaDias} / 7`, pct: pct(aguaDias, 7) },
+  ];
+  const metaSemanal = Math.round(resumo.reduce((a, r) => a + r.pct, 0) / resumo.length);
+
+  const diasDesafio = String(Object.values(logs).filter((d) => d.workoutDone).length);
+  const treinosConcluidos = String(treinosFeitos);
+  const treinosMeta = String(treinosMetaNum);
+  const treinoPct = treinosFeitos > 0 ? `${resumo[0].pct}% da meta semanal` : "Comece hoje";
+  const desafioHint = Number(diasDesafio) > 0 ? `${Math.max(0, 30 - Number(diasDesafio))} dias restantes` : "Registre seu 1º treino";
+
+  const [waterOpen, setWaterOpen] = useState(false);
+  const [mealOpen, setMealOpen] = useState(false);
+  const [weightOpen, setWeightOpen] = useState(false);
+
+
 
 
 

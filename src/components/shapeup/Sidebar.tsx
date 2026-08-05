@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import sidebarLogo from "@/assets/shapeup-logo-menu.png.asset.json";
 import { PricingDialog } from "@/components/shapeup/PricingDialog";
+import { LevelCard } from "@/components/shapeup/LevelCard";
+
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 const nav = [

@@ -124,6 +124,8 @@ const historico = [
 ];
 
 function TreinosPage() {
+  const user = useCurrentUser();
+  const xp = useXp(user?.email);
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar />
@@ -263,15 +265,17 @@ function TreinosPage() {
                 <Star className="relative text-primary-glow" size={28} fill="currentColor" />
               </div>
               <div>
-                <div className="text-xl font-bold">Nível 12</div>
-                <div className="text-xs text-muted-foreground">Faltam 320 XP</div>
+                <div className="text-xl font-bold">Nível {xp.level + 1}</div>
+                <div className="text-xs text-muted-foreground">Faltam {xp.toNext} XP</div>
               </div>
             </div>
             <div className="mt-4">
               <div className="h-1.5 rounded-full bg-secondary overflow-hidden">
-                <div className="h-full w-[78%] bg-gradient-primary" />
+                <div className="h-full bg-gradient-primary" style={{ width: `${xp.pct}%` }} />
               </div>
-              <div className="text-[10px] text-muted-foreground text-right mt-1">1.180 / 1.500 XP</div>
+              <div className="text-[10px] text-muted-foreground text-right mt-1">
+                {xp.inLevel} / 1000 XP
+              </div>
             </div>
           </div>
         </div>

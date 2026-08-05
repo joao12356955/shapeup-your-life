@@ -20,6 +20,8 @@ import { Sidebar } from "@/components/shapeup/Sidebar";
 import { TopBar } from "@/components/shapeup/TopBar";
 import { PricingDialog } from "@/components/shapeup/PricingDialog";
 import { useGym } from "@/lib/gym-store";
+import { useCurrentUser, initialsOf } from "@/lib/user-store";
+import { useXp, XP_PER_LEVEL } from "@/lib/xp";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/configuracoes")({
@@ -38,6 +40,9 @@ const tabs = [
 const skinTones = ["#f1c7a8", "#d99875", "#a8714d", "#74442a", "#3d2515"];
 
 function Configuracoes() {
+  const user = useCurrentUser();
+  const xp = useXp(user?.email);
+  const hasSample = !!user?.hasSampleData;
   const [tab, setTab] = useState("perfil");
   const [muscle, setMuscle] = useState(75);
   const [bodyType, setBodyType] = useState(1);
@@ -166,11 +171,11 @@ function Configuracoes() {
               <p className="text-xs text-muted-foreground mb-5">Atualize seus dados pessoais.</p>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Field label="Nome" defaultValue="João Victor" />
-                <Field label="E-mail" defaultValue="joaovictor@email.com" type="email" />
-                <Field label="Data de nascimento" defaultValue="1998-08-15" type="date" />
-                <Field label="Altura" defaultValue="1,78 m" />
-                <Field label="Peso atual" defaultValue="78,4 kg" />
+                <Field key={`n-${user?.email}`} label="Nome" defaultValue={user?.name ?? ""} />
+                <Field key={`e-${user?.email}`} label="E-mail" defaultValue={user?.email ?? ""} type="email" />
+                <Field key={`d-${user?.email}`} label="Data de nascimento" defaultValue={user?.dataNascimento ?? ""} type="date" />
+                <Field key={`a-${user?.email}`} label="Altura" defaultValue={user?.altura ? `${user.altura} cm` : ""} />
+                <Field key={`p-${user?.email}`} label="Peso atual" defaultValue={user?.peso ? `${user.peso} kg` : ""} />
                 <div>
                   <div className="text-xs text-muted-foreground mb-1.5">Objetivo</div>
                   <select className="w-full rounded-lg bg-secondary/60 border border-border px-3 py-2 text-sm outline-none focus:border-primary">
@@ -196,20 +201,23 @@ function Configuracoes() {
               <p className="text-xs text-muted-foreground mb-4">Veja como seu avatar aparece no app.</p>
               <div className="flex items-center gap-4">
                 <div className="h-16 w-16 rounded-full bg-gradient-primary flex items-center justify-center font-bold text-xl shadow-glow">
-                  JV
+                  {user ? (user.initials ?? initialsOf(user.name)) : "--"}
                 </div>
                 <div className="flex-1">
-                  <div className="font-semibold">Nível 12</div>
+                  <div className="font-semibold">Nível {xp.level}</div>
                   <div className="mt-1 h-1.5 rounded-full bg-secondary overflow-hidden">
-                    <div className="h-full w-[82%] bg-gradient-primary" />
+                    <div className="h-full bg-gradient-primary" style={{ width: `${xp.pct}%` }} />
                   </div>
-                  <div className="text-[10px] text-muted-foreground mt-1">1.240 / 1.500 XP</div>
+                  <div className="text-[10px] text-muted-foreground mt-1">
+                    {xp.inLevel} / {XP_PER_LEVEL} XP
+                  </div>
                 </div>
               </div>
               <div className="mt-4 flex items-center gap-2 rounded-lg bg-secondary/40 border border-border p-3">
                 <Trophy size={16} className="text-primary-glow" />
                 <div className="text-xs">
-                  <span className="font-semibold">Próximo nível</span> — 260 XP para o nível 13
+                  <span className="font-semibold">Próximo nível</span> — {xp.toNext} XP para o nível{" "}
+                  {xp.level + 1}
                 </div>
               </div>
             </section>
@@ -244,10 +252,10 @@ function Configuracoes() {
               <p className="text-xs text-muted-foreground mb-4">Seu desempenho em números.</p>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { i: CheckCircle2, l: "Treinos realizados", v: "128", h: "↑ 18 este mês" },
-                  { i: Flame, l: "Dias consecutivos", v: "12", h: "Melhor: 18 dias" },
-                  { i: Flame, l: "Calorias queimadas", v: "12.450", h: "↑ 1.250 este mês" },
-                  { i: Clock, l: "Tempo de treino", v: "48h 32m", h: "↑ 5h este mês" },
+                  { i: CheckCircle2, l: "Treinos realizados", v: hasSample ? "128" : "0", h: hasSample ? "↑ 18 este mês" : "Comece hoje" },
+                  { i: Flame, l: "Dias consecutivos", v: hasSample ? "12" : "0", h: hasSample ? "Melhor: 18 dias" : "Sem sequência ainda" },
+                  { i: Flame, l: "Calorias queimadas", v: hasSample ? "12.450" : "0", h: hasSample ? "↑ 1.250 este mês" : "—" },
+                  { i: Clock, l: "Tempo de treino", v: hasSample ? "48h 32m" : "0h 00m", h: hasSample ? "↑ 5h este mês" : "—" },
                 ].map((s) => {
                   const Icon = s.i;
                   return (

@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import sidebarLogo from "@/assets/shapeup-logo-menu.png.asset.json";
 import { PricingDialog } from "@/components/shapeup/PricingDialog";
+import { LevelCard } from "@/components/shapeup/LevelCard";
+
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 const nav = [
@@ -74,18 +76,8 @@ function SidebarInner({ onNavigate }: { onNavigate?: () => void }) {
         </PricingDialog>
       </div>
 
-      <div className="flex items-center gap-3 border-t border-border pt-4">
-        <div className="h-10 w-10 rounded-full bg-gradient-primary flex items-center justify-center font-semibold">
-          JV
-        </div>
-        <div className="flex-1">
-          <div className="text-sm font-semibold">João Victor</div>
-          <div className="text-xs text-muted-foreground">Nível 12</div>
-          <div className="mt-1 h-1 w-full rounded-full bg-secondary overflow-hidden">
-            <div className="h-full w-2/3 bg-gradient-primary" />
-          </div>
-        </div>
-      </div>
+      <LevelCard />
+
     </div>
   );
 }

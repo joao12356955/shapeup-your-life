@@ -17,6 +17,8 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Sidebar } from "@/components/shapeup/Sidebar";
+import { useCurrentUser, initialsOf } from "@/lib/user-store";
+import { useXp } from "@/lib/xp";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -39,18 +41,22 @@ export const Route = createFileRoute("/desafios")({
 
 function UserMenu() {
   const navigate = useNavigate();
+  const user = useCurrentUser();
+  const xp = useXp(user?.email);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-2 rounded-full bg-card border border-border pl-1 pr-3 py-1 hover:border-primary/50 transition">
-          <div className="h-8 w-8 rounded-full bg-gradient-primary flex items-center justify-center font-bold text-sm">JV</div>
+          <div className="h-8 w-8 rounded-full bg-gradient-primary flex items-center justify-center font-bold text-sm">{user?.initials ?? (user ? initialsOf(user.name) : "--")}</div>
           <ChevronDown size={14} />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-52">
         <DropdownMenuLabel>
-          <div className="font-semibold">João Victor</div>
-          <div className="text-xs text-muted-foreground font-normal">Nível 12</div>
+          <div className="font-semibold">{user?.name ?? "Visitante"}</div>
+          <div className="text-xs text-muted-foreground font-normal">
+            Nível {xp.level} • {xp.total} XP
+          </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem>
@@ -68,11 +74,26 @@ function UserMenu() {
   );
 }
 
-const stats = [
-  { icon: Trophy, label: "Desafios ativos", value: "2", hint: "Participe e evolua" },
-  { icon: Check, label: "Desafios concluídos", value: "7", hint: "Parabéns pela dedicação!" },
-  { icon: Flame, label: "Sequência atual", value: "12 dias", hint: "Continue assim!" },
-  { icon: Star, label: "Pontos conquistados", value: "2.450 XP", hint: "Top 12% da comunidade" },
+const buildStats = (hasSample: boolean, xpTotal: number) => [
+  { icon: Trophy, label: "Desafios ativos", value: hasSample ? "2" : "0", hint: "Participe e evolua" },
+  {
+    icon: Check,
+    label: "Desafios concluídos",
+    value: hasSample ? "7" : "0",
+    hint: hasSample ? "Parabéns pela dedicação!" : "Seu primeiro está a um clique",
+  },
+  {
+    icon: Flame,
+    label: "Sequência atual",
+    value: hasSample ? "12 dias" : "0 dias",
+    hint: hasSample ? "Continue assim!" : "Comece hoje",
+  },
+  {
+    icon: Star,
+    label: "Pontos conquistados",
+    value: `${xpTotal} XP`,
+    hint: "Ganhe XP com água e refeições",
+  },
 ];
 
 const ativos = [
@@ -111,6 +132,11 @@ const dayStatus = (n: number): "done" | "today" | "pending" => {
 };
 
 function DesafiosPage() {
+  const user = useCurrentUser();
+  const xp = useXp(user?.email);
+  const hasSample = !!user?.hasSampleData;
+  const stats = buildStats(hasSample, xp.total);
+  const ativosDoUsuario = hasSample ? ativos : [];
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar />
@@ -199,7 +225,12 @@ function DesafiosPage() {
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
           <div className="xl:col-span-2 rounded-2xl bg-gradient-card border border-border p-5 shadow-card space-y-4">
             <h2 className="font-semibold">Desafios ativos</h2>
-            {ativos.map((a) => (
+            {ativosDoUsuario.length === 0 && (
+              <p className="text-sm text-muted-foreground rounded-xl bg-secondary/40 border border-dashed border-border p-6 text-center">
+                Você ainda não participa de nenhum desafio. Escolha um abaixo para começar.
+              </p>
+            )}
+            {ativosDoUsuario.map((a) => (
               <div key={a.name} className="rounded-xl bg-secondary/40 border border-border p-4 hover:border-primary/50 transition">
                 <div className="flex gap-4">
                   <div className="h-24 w-32 shrink-0 rounded-lg bg-gradient-to-br from-primary/40 via-primary/20 to-background border border-primary/30 flex items-center justify-center">
@@ -255,7 +286,7 @@ function DesafiosPage() {
               </div>
               <div className="grid grid-cols-7 gap-1.5">
                 {Array.from({ length: 30 }, (_, i) => i + 1).map((n) => {
-                  const s = dayStatus(n);
+                  const s = hasSample ? dayStatus(n) : "pending";
                   return (
                     <div key={n} className="flex flex-col items-center gap-1">
                       <span className="text-[9px] text-muted-foreground">{n}</span>
@@ -277,10 +308,15 @@ function DesafiosPage() {
                 <div className="flex-1">
                   <h3 className="font-semibold text-sm">Recompensa em andamento</h3>
                   <div className="mt-3 h-1.5 rounded-full bg-secondary overflow-hidden">
-                    <div className="h-full w-[82%] bg-gradient-primary" />
+                    <div
+                      className="h-full bg-gradient-primary"
+                      style={{ width: `${Math.min(100, Math.round((xp.total / 3000) * 100))}%` }}
+                    />
                   </div>
-                  <div className="text-[10px] text-muted-foreground mt-1">2.450 / 3.000 XP</div>
-                  <div className="text-xs text-muted-foreground mt-2">Faltam 550 XP para desbloquear</div>
+                  <div className="text-[10px] text-muted-foreground mt-1">{xp.total} / 3.000 XP</div>
+                  <div className="text-xs text-muted-foreground mt-2">
+                    Faltam {Math.max(0, 3000 - xp.total)} XP para desbloquear
+                  </div>
                 </div>
                 <div className="text-right">
                   <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-primary/40 to-primary/10 flex items-center justify-center">

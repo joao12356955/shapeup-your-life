@@ -32,6 +32,8 @@ import {
   Cell,
 } from "recharts";
 import { Sidebar } from "@/components/shapeup/Sidebar";
+import { useCurrentUser, initialsOf } from "@/lib/user-store";
+import { useXp } from "@/lib/xp";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -54,18 +56,22 @@ export const Route = createFileRoute("/dieta")({
 
 function UserMenu() {
   const navigate = useNavigate();
+  const user = useCurrentUser();
+  const xp = useXp(user?.email);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-2 rounded-full bg-card border border-border pl-1 pr-3 py-1 hover:border-primary/50 transition">
-          <div className="h-8 w-8 rounded-full bg-gradient-primary flex items-center justify-center font-bold text-sm">JV</div>
+          <div className="h-8 w-8 rounded-full bg-gradient-primary flex items-center justify-center font-bold text-sm">{user?.initials ?? (user ? initialsOf(user.name) : "--")}</div>
           <ChevronDown size={14} />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-52">
         <DropdownMenuLabel>
-          <div className="font-semibold">João Victor</div>
-          <div className="text-xs text-muted-foreground font-normal">Nível 12</div>
+          <div className="font-semibold">{user?.name ?? "Visitante"}</div>
+          <div className="text-xs text-muted-foreground font-normal">
+            Nível {xp.level} • {xp.total} XP
+          </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem>

@@ -34,6 +34,14 @@ import {
 import { Sidebar } from "@/components/shapeup/Sidebar";
 import { useCurrentUser, initialsOf } from "@/lib/user-store";
 import { useXp } from "@/lib/xp";
+import {
+  dateKey,
+  emptyDay,
+  sumMacros,
+  useDailyLogs,
+  weekKeys,
+  WATER_GOAL_ML,
+} from "@/lib/daily-store";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -92,12 +100,18 @@ function UserMenu() {
 const PURPLE = "oklch(0.62 0.24 295)";
 const PURPLE_GLOW = "oklch(0.78 0.18 320)";
 
-const macros = [
-  { icon: Flame, label: "Calorias", value: "2.150", goal: "2.700 kcal", pct: 80, rest: "550 kcal restantes" },
-  { icon: Drumstick, label: "Proteínas", value: "168", goal: "180 g", pct: 93, rest: "12 g restantes" },
-  { icon: Wheat, label: "Carboidratos", value: "210", goal: "270 g", pct: 78, rest: "60 g restantes" },
-  { icon: Droplet, label: "Gorduras", value: "65", goal: "80 g", pct: 81, rest: "15 g restantes" },
-];
+type Totals = { kcal: number; protein: number; carbs: number; fat: number };
+
+const pctOf = (v: number, goal: number) => Math.min(100, Math.round((v / goal) * 100));
+
+function buildMacros(t: Totals, goals: Totals) {
+  return [
+    { icon: Flame, label: "Calorias", value: String(t.kcal), goal: `${goals.kcal} kcal`, pct: pctOf(t.kcal, goals.kcal), rest: `${Math.max(0, goals.kcal - t.kcal)} kcal restantes` },
+    { icon: Drumstick, label: "Proteínas", value: String(t.protein), goal: `${goals.protein} g`, pct: pctOf(t.protein, goals.protein), rest: `${Math.max(0, goals.protein - t.protein)} g restantes` },
+    { icon: Wheat, label: "Carboidratos", value: String(t.carbs), goal: `${goals.carbs} g`, pct: pctOf(t.carbs, goals.carbs), rest: `${Math.max(0, goals.carbs - t.carbs)} g restantes` },
+    { icon: Droplet, label: "Gorduras", value: String(t.fat), goal: `${goals.fat} g`, pct: pctOf(t.fat, goals.fat), rest: `${Math.max(0, goals.fat - t.fat)} g restantes` },
+  ];
+}
 
 const refeicoes = [
   {
@@ -155,25 +169,42 @@ const consumidos = [
   { emoji: "🍌", name: "Banana", qty: "14 un", pct: 50 },
 ];
 
-const evolucao = [
-  { d: "Seg", v: 2400 },
-  { d: "Ter", v: 2050 },
-  { d: "Qua", v: 2600 },
-  { d: "Qui", v: 2150 },
-  { d: "Sex", v: 2200 },
-  { d: "Sáb", v: 2700 },
-  { d: "Dom", v: 2500 },
-];
 
-const metas = [
-  { icon: Flame, label: "Calorias", value: "2.150 / 2.700 kcal", pct: 80 },
-  { icon: Drumstick, label: "Proteínas", value: "168 / 180 g", pct: 93 },
-  { icon: Wheat, label: "Carboidratos", value: "210 / 270 g", pct: 78 },
-  { icon: Droplet, label: "Gorduras", value: "65 / 80 g", pct: 81 },
-  { icon: Droplet, label: "Água", value: "2,1 / 3 L", pct: 70 },
-];
+
+function buildMetas(t: Totals, goals: Totals, waterMl: number) {
+  return [
+    { icon: Flame, label: "Calorias", value: `${t.kcal} / ${goals.kcal} kcal`, pct: pctOf(t.kcal, goals.kcal) },
+    { icon: Drumstick, label: "Proteínas", value: `${t.protein} / ${goals.protein} g`, pct: pctOf(t.protein, goals.protein) },
+    { icon: Wheat, label: "Carboidratos", value: `${t.carbs} / ${goals.carbs} g`, pct: pctOf(t.carbs, goals.carbs) },
+    { icon: Droplet, label: "Gorduras", value: `${t.fat} / ${goals.fat} g`, pct: pctOf(t.fat, goals.fat) },
+    {
+      icon: Droplet,
+      label: "Água",
+      value: `${(waterMl / 1000).toFixed(1)} / ${WATER_GOAL_ML / 1000} L`,
+      pct: pctOf(waterMl, WATER_GOAL_ML),
+    },
+  ];
+}
+
+const DAY_LABELS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
 function DietaPage() {
+  const user = useCurrentUser();
+  const { logs } = useDailyLogs(user?.email);
+  const today = logs[dateKey()] ?? emptyDay;
+  const totals = sumMacros(today.meals);
+  const goals: Totals = {
+    kcal: user?.dieta?.metaCalorica ?? 2700,
+    protein: 180,
+    carbs: 270,
+    fat: 80,
+  };
+  const macros = buildMacros(totals, goals);
+  const metas = buildMetas(totals, goals, today.waterMl);
+  const evolucao = weekKeys().map((k, i) => ({
+    d: DAY_LABELS[i],
+    v: sumMacros((logs[k] ?? emptyDay).meals).kcal,
+  }));
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar />

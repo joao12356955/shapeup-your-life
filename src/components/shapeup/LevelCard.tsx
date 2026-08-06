@@ -1,4 +1,4 @@
-import { Sparkles, Droplet, UtensilsCrossed, Star } from "lucide-react";
+import { Sparkles, Droplet, UtensilsCrossed, Star, History } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { useCurrentUser, initialsOf } from "@/lib/user-store";
 import {
@@ -63,6 +63,39 @@ export function LevelCard() {
             <span className="font-medium">Total hoje</span>
             <span className="font-bold">{today.total} XP</span>
           </div>
+        </div>
+
+        <div className="px-4 py-3 border-b border-border space-y-2">
+          <div className="flex items-center gap-2 text-[11px] uppercase tracking-wider text-muted-foreground">
+            <History size={12} /> Histórico de XP
+          </div>
+          {xp.history.length === 0 ? (
+            <p className="text-xs text-muted-foreground">Seus ganhos aparecerão aqui.</p>
+          ) : (
+            <div className="max-h-40 overflow-y-auto space-y-3 pr-1">
+              {xp.history.map((entry) => (
+                <div key={entry.key} className="rounded-lg bg-secondary/40 border border-border p-2.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-medium">
+                      {new Date(`${entry.key}T12:00:00`).toLocaleDateString("pt-BR", {
+                        day: "2-digit",
+                        month: "short",
+                      })}
+                    </span>
+                    <span className="font-bold text-success">+{entry.total} XP</span>
+                  </div>
+                  <div className="mt-1 space-y-0.5">
+                    {entry.items.map((item) => (
+                      <div key={item.label} className="flex justify-between gap-3 text-[10px] text-muted-foreground">
+                        <span className="truncate">{item.label}</span>
+                        <span className="shrink-0">+{item.xp}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="px-4 py-3 space-y-2">

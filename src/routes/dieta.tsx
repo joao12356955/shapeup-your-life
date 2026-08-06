@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
 import {
   Search,
   Bell,
@@ -32,6 +33,7 @@ import {
   Cell,
 } from "recharts";
 import { Sidebar } from "@/components/shapeup/Sidebar";
+import { MealDialog, WaterDialog } from "@/components/shapeup/LogDialogs";
 import { useCurrentUser, initialsOf } from "@/lib/user-store";
 import { useXp } from "@/lib/xp";
 import {
@@ -190,8 +192,12 @@ const DAY_LABELS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
 function DietaPage() {
   const user = useCurrentUser();
-  const { logs } = useDailyLogs(user?.email);
+  const { logs, updateDay } = useDailyLogs(user?.email);
+  const [mealOpen, setMealOpen] = useState(false);
+  const [waterOpen, setWaterOpen] = useState(false);
+  const todayKey = dateKey();
   const today = logs[dateKey()] ?? emptyDay;
+  const saveToday = (patch: Partial<typeof today>) => updateDay(todayKey, patch);
   const totals = sumMacros(today.meals);
   const goals: Totals = {
     kcal: user?.dieta?.metaCalorica ?? 2700,
@@ -304,21 +310,21 @@ function DietaPage() {
                 </div>
                 <div className="text-sm text-muted-foreground">Água</div>
               </div>
-              <button className="h-6 w-6 rounded-md bg-primary/20 text-primary-glow flex items-center justify-center hover:bg-primary/30 transition">
+              <button onClick={() => setWaterOpen(true)} aria-label="Registrar água" className="h-6 w-6 rounded-md bg-primary/20 text-primary-glow flex items-center justify-center hover:bg-primary/30 transition">
                 <Plus size={14} />
               </button>
             </div>
             <div className="mt-2 flex items-baseline gap-1">
-              <span className="text-2xl font-bold">2,1</span>
+              <span className="text-2xl font-bold">{(today.waterMl / 1000).toFixed(1).replace(".", ",")}</span>
               <span className="text-xs text-muted-foreground">/ 3 L</span>
             </div>
             <div className="mt-3 flex items-center gap-2">
               <div className="flex-1 h-1.5 rounded-full bg-secondary overflow-hidden">
-                <div className="h-full bg-gradient-primary" style={{ width: "70%" }} />
+                <div className="h-full bg-gradient-primary" style={{ width: `${pctOf(today.waterMl, WATER_GOAL_ML)}%` }} />
               </div>
-              <span className="text-[10px] text-muted-foreground">70%</span>
+              <span className="text-[10px] text-muted-foreground">{pctOf(today.waterMl, WATER_GOAL_ML)}%</span>
             </div>
-            <div className="mt-2 text-[11px] text-muted-foreground">0,9 L restantes</div>
+            <div className="mt-2 text-[11px] text-muted-foreground">{(Math.max(0, WATER_GOAL_ML - today.waterMl) / 1000).toFixed(1).replace(".", ",")} L restantes</div>
           </div>
         </div>
 
@@ -328,35 +334,38 @@ function DietaPage() {
           <div className="xl:col-span-2 rounded-2xl bg-gradient-card border border-border p-5 shadow-card">
             <h2 className="font-semibold mb-4">Plano alimentar de hoje</h2>
             <div className="space-y-3">
-              {refeicoes.map((r) => (
-                <div key={r.hour} className="flex items-start gap-3">
+              {today.meals.length === 0 && (
+                <p className="rounded-lg border border-dashed border-border p-5 text-center text-sm text-muted-foreground">Nenhuma refeição registrada hoje.</p>
+              )}
+              {today.meals.map((meal, index) => (
+                <div key={meal.id} className="flex items-start gap-3">
                   <div className="flex flex-col items-center pt-1">
                     <div className="h-2.5 w-2.5 rounded-full bg-primary-glow shadow-glow" />
                     <div className="flex-1 w-px bg-border mt-1" />
                   </div>
                   <div className="w-24 shrink-0 text-xs">
-                    <div className="text-muted-foreground">{r.hour}</div>
-                    <div className="font-semibold mt-0.5">{r.name}</div>
-                    <div className="text-primary-glow mt-0.5">{r.kcal} kcal</div>
+                    <div className="text-muted-foreground">{String(7 + index * 4).padStart(2, "0")}:30</div>
+                    <div className="font-semibold mt-0.5">{meal.slot}</div>
+                    <div className="text-primary-glow mt-0.5">{meal.kcal} kcal</div>
                   </div>
                   <div className="h-12 w-12 shrink-0 rounded-lg bg-secondary/60 border border-border flex items-center justify-center text-2xl">
-                    {r.emoji}
+                    🍽️
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-semibold truncate">{r.title}</div>
-                    <div className="text-xs text-muted-foreground truncate">{r.desc}</div>
+                    <div className="text-sm font-semibold truncate">{meal.name}</div>
+                    <div className="text-xs text-muted-foreground truncate">Refeição registrada hoje</div>
                   </div>
                   <div className="hidden md:flex items-center gap-1">
-                    <span className="text-[10px] rounded-md bg-secondary/60 border border-border px-1.5 py-1">P {r.p}g</span>
-                    <span className="text-[10px] rounded-md bg-secondary/60 border border-border px-1.5 py-1">C {r.c}g</span>
-                    <span className="text-[10px] rounded-md bg-secondary/60 border border-border px-1.5 py-1">G {r.g}g</span>
+                    <span className="text-[10px] rounded-md bg-secondary/60 border border-border px-1.5 py-1">P {meal.protein}g</span>
+                    <span className="text-[10px] rounded-md bg-secondary/60 border border-border px-1.5 py-1">C {meal.carbs}g</span>
+                    <span className="text-[10px] rounded-md bg-secondary/60 border border-border px-1.5 py-1">G {meal.fat}g</span>
                   </div>
-                  <div className="text-xs text-primary-glow font-semibold shrink-0">{r.kcal} kcal</div>
+                  <div className="text-xs text-primary-glow font-semibold shrink-0">{meal.kcal} kcal</div>
                 </div>
               ))}
             </div>
-            <button className="mt-4 w-full rounded-lg border border-dashed border-primary/50 py-2.5 text-sm font-medium text-primary-glow hover:bg-primary/10 transition flex items-center justify-center gap-2">
-              <Plus size={14} /> Adicionar refeição
+            <button onClick={() => setMealOpen(true)} className="mt-4 w-full rounded-lg border border-dashed border-primary/50 py-2.5 text-sm font-medium text-primary-glow hover:bg-primary/10 transition flex items-center justify-center gap-2">
+              <Plus size={14} /> Registrar refeições
             </button>
           </div>
 
@@ -368,7 +377,7 @@ function DietaPage() {
                 <div className="relative h-28 w-28 shrink-0">
                   <ResponsiveContainer>
                     <PieChart>
-                      <Pie data={[{ v: 31 }, { v: 39 }, { v: 30 }]} dataKey="v" innerRadius={36} outerRadius={52} startAngle={90} endAngle={-270} stroke="none">
+                      <Pie data={[{ v: totals.protein * 4 }, { v: totals.carbs * 4 }, { v: totals.fat * 9 }]} dataKey="v" innerRadius={36} outerRadius={52} startAngle={90} endAngle={-270} stroke="none">
                         <Cell fill={PURPLE_GLOW} />
                         <Cell fill={PURPLE} />
                         <Cell fill="oklch(0.35 0.06 285)" />
@@ -376,22 +385,22 @@ function DietaPage() {
                     </PieChart>
                   </ResponsiveContainer>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <div className="text-lg font-bold leading-none">2.150</div>
+                    <div className="text-lg font-bold leading-none">{totals.kcal}</div>
                     <div className="text-[10px] text-muted-foreground">kcal</div>
                   </div>
                 </div>
                 <div className="text-xs space-y-2 flex-1">
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-primary-glow" /> Proteínas</div>
-                    <div className="text-muted-foreground">168g (31%)</div>
+                    <div className="text-muted-foreground">{totals.protein}g</div>
                   </div>
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-primary" /> Carboidratos</div>
-                    <div className="text-muted-foreground">210g (39%)</div>
+                    <div className="text-muted-foreground">{totals.carbs}g</div>
                   </div>
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-muted-foreground" /> Gorduras</div>
-                    <div className="text-muted-foreground">65g (30%)</div>
+                    <div className="text-muted-foreground">{totals.fat}g</div>
                   </div>
                 </div>
               </div>
@@ -516,6 +525,8 @@ function DietaPage() {
             </div>
           </div>
         </div>
+        <MealDialog open={mealOpen} onOpenChange={setMealOpen} day={today} onSave={saveToday} />
+        <WaterDialog open={waterOpen} onOpenChange={setWaterOpen} day={today} onSave={saveToday} />
       </main>
     </div>
   );

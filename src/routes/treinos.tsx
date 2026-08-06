@@ -31,6 +31,7 @@ import {
 import { Sidebar } from "@/components/shapeup/Sidebar";
 import { useCurrentUser, initialsOf } from "@/lib/user-store";
 import { useXp } from "@/lib/xp";
+import { dateKey, emptyDay, useDailyLogs, weekKeys } from "@/lib/daily-store";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -126,6 +127,20 @@ const historico = [
 function TreinosPage() {
   const user = useCurrentUser();
   const xp = useXp(user?.email);
+  const { logs, updateDay } = useDailyLogs(user?.email);
+  const todayKey = dateKey();
+  const today = logs[todayKey] ?? emptyDay;
+  const week = weekKeys().map((key) => ({ key, done: !!logs[key]?.workoutDone }));
+  const completedThisWeek = week.filter((item) => item.done).length;
+  const goal = user?.treino?.diasPorSemana ?? 5;
+  const workoutPct = Math.min(100, Math.round((completedThisWeek / goal) * 100));
+  const completedTotal = Object.entries(logs)
+    .filter(([, day]) => day.workoutDone)
+    .sort(([a], [b]) => b.localeCompare(a));
+  const toggleWorkout = () => {
+    updateDay(todayKey, { workoutDone: !today.workoutDone });
+    toast(today.workoutDone ? "Treino de hoje desmarcado" : "Treino concluído e sincronizado! 💪");
+  };
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar />
@@ -202,8 +217,8 @@ function TreinosPage() {
               </div>
               <PersonStanding className="text-primary-glow shrink-0" size={48} />
             </div>
-            <button className="mt-5 w-full rounded-lg bg-gradient-primary py-2.5 text-sm font-semibold shadow-glow hover:opacity-90 transition flex items-center justify-center gap-2">
-              <Play size={14} fill="currentColor" /> Iniciar treino
+            <button onClick={toggleWorkout} className="mt-5 w-full rounded-lg bg-gradient-primary py-2.5 text-sm font-semibold shadow-glow hover:opacity-90 transition flex items-center justify-center gap-2">
+              <Play size={14} fill="currentColor" /> {today.workoutDone ? "Treino concluído" : "Marcar como concluído"}
             </button>
           </div>
 
@@ -214,9 +229,9 @@ function TreinosPage() {
               <span>Streak de treinos</span>
             </div>
             <div className="mt-3">
-              <div className="text-3xl font-bold">12 <span className="text-base font-normal text-muted-foreground">dias</span></div>
-              <div className="text-xs text-muted-foreground">seguidos</div>
-              <div className="text-xs text-success mt-1">+240 XP essa semana</div>
+              <div className="text-3xl font-bold">{completedTotal.length} <span className="text-base font-normal text-muted-foreground">dias</span></div>
+              <div className="text-xs text-muted-foreground">com treino registrado</div>
+              <div className="text-xs text-success mt-1">{completedThisWeek} nesta semana</div>
             </div>
             <div className="h-16 mt-2 -mx-1">
               <ResponsiveContainer>
@@ -240,18 +255,18 @@ function TreinosPage() {
               <div className="relative h-20 w-20 shrink-0">
                 <ResponsiveContainer>
                   <PieChart>
-                    <Pie data={[{ v: 80 }, { v: 20 }]} dataKey="v" innerRadius={26} outerRadius={36} startAngle={90} endAngle={-270} stroke="none">
+                    <Pie data={[{ v: workoutPct }, { v: 100 - workoutPct }]} dataKey="v" innerRadius={26} outerRadius={36} startAngle={90} endAngle={-270} stroke="none">
                       <Cell fill="oklch(0.62 0.24 295)" />
                       <Cell fill="oklch(0.25 0.04 285)" />
                     </Pie>
                   </PieChart>
                 </ResponsiveContainer>
-                <div className="absolute inset-0 flex items-center justify-center text-sm font-bold">80%</div>
+                <div className="absolute inset-0 flex items-center justify-center text-sm font-bold">{workoutPct}%</div>
               </div>
               <div className="text-sm">
-                <div><span className="text-xl font-bold">4</span> de <span className="text-xl font-bold">5</span></div>
+                <div><span className="text-xl font-bold">{completedThisWeek}</span> de <span className="text-xl font-bold">{goal}</span></div>
                 <div className="text-xs text-muted-foreground">treinos concluídos</div>
-                <div className="text-xs text-muted-foreground mt-1">Faltam 1 treino<br/>para completar</div>
+                <div className="text-xs text-muted-foreground mt-1">Faltam {Math.max(0, goal - completedThisWeek)} treino(s)<br/>para completar</div>
               </div>
             </div>
           </div>
@@ -325,10 +340,10 @@ function TreinosPage() {
             <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
               <div className="text-xs flex items-center gap-2">
                 <Trophy size={14} className="text-primary-glow" />
-                Conclua o treino e ganhe <span className="text-success font-semibold">+150 XP</span>
+                O status do treino é atualizado no dashboard e nos desafios.
               </div>
-              <button className="text-xs rounded-lg border border-primary/50 px-3 py-1.5 hover:bg-primary/10 transition">
-                Marcar todos como concluídos
+              <button onClick={toggleWorkout} className="text-xs rounded-lg border border-primary/50 px-3 py-1.5 hover:bg-primary/10 transition">
+                {today.workoutDone ? "Desmarcar treino" : "Marcar treino concluído"}
               </button>
             </div>
           </div>
@@ -356,15 +371,14 @@ function TreinosPage() {
           <div className="rounded-2xl bg-gradient-card border border-border p-5 shadow-card">
             <h2 className="font-semibold mb-4">Histórico recente</h2>
             <div className="space-y-2">
-              {historico.map((h) => (
-                <div key={h.name} className="flex items-center gap-3 rounded-xl bg-secondary/40 border border-border p-3 hover:border-primary/50 transition">
-                  <span className={`text-xs font-bold rounded-md px-2 py-1 w-10 text-center ${h.color}`}>{h.tag}</span>
+              {completedTotal.length === 0 && <p className="text-sm text-muted-foreground">Nenhum treino concluído ainda.</p>}
+              {completedTotal.slice(0, 5).map(([key]) => (
+                <div key={key} className="flex items-center gap-3 rounded-xl bg-secondary/40 border border-border p-3 hover:border-primary/50 transition">
+                  <span className="text-xs font-bold rounded-md px-2 py-1 w-10 text-center bg-primary/30 text-primary-glow">✓</span>
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-semibold">{h.name}</div>
+                    <div className="text-sm font-semibold">Treino concluído</div>
                   </div>
-                  <div className="text-xs text-muted-foreground">{h.date}</div>
-                  <div className="text-xs text-muted-foreground">{h.time}</div>
-                  <div className="text-xs text-success font-semibold">{h.xp}</div>
+                  <div className="text-xs text-muted-foreground">{new Date(`${key}T12:00:00`).toLocaleDateString("pt-BR")}</div>
                   <ChevronRight size={14} className="text-muted-foreground" />
                 </div>
               ))}

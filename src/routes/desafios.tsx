@@ -19,6 +19,7 @@ import {
 import { Sidebar } from "@/components/shapeup/Sidebar";
 import { useCurrentUser, initialsOf } from "@/lib/user-store";
 import { useXp } from "@/lib/xp";
+import { useDailyLogs } from "@/lib/daily-store";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -74,19 +75,19 @@ function UserMenu() {
   );
 }
 
-const buildStats = (hasSample: boolean, xpTotal: number) => [
-  { icon: Trophy, label: "Desafios ativos", value: hasSample ? "2" : "0", hint: "Participe e evolua" },
+const buildStats = (workoutDays: number, xpTotal: number) => [
+  { icon: Trophy, label: "Desafios ativos", value: workoutDays > 0 ? "1" : "0", hint: "Participe e evolua" },
   {
     icon: Check,
     label: "Desafios concluídos",
-    value: hasSample ? "7" : "0",
-    hint: hasSample ? "Parabéns pela dedicação!" : "Seu primeiro está a um clique",
+    value: String(Math.floor(workoutDays / 30)),
+    hint: workoutDays >= 30 ? "Parabéns pela dedicação!" : "Seu primeiro está em andamento",
   },
   {
     icon: Flame,
     label: "Sequência atual",
-    value: hasSample ? "12 dias" : "0 dias",
-    hint: hasSample ? "Continue assim!" : "Comece hoje",
+    value: `${workoutDays} dias`,
+    hint: workoutDays > 0 ? "Continue assim!" : "Comece hoje",
   },
   {
     icon: Star,
@@ -134,9 +135,10 @@ const dayStatus = (n: number): "done" | "today" | "pending" => {
 function DesafiosPage() {
   const user = useCurrentUser();
   const xp = useXp(user?.email);
-  const hasSample = !!user?.hasSampleData;
-  const stats = buildStats(hasSample, xp.total);
-  const ativosDoUsuario = hasSample ? ativos : [];
+  const { logs } = useDailyLogs(user?.email);
+  const workoutDays = Object.values(logs).filter((day) => day.workoutDone).length;
+  const stats = buildStats(workoutDays, xp.total);
+  const ativosDoUsuario = workoutDays > 0 ? [{ ...ativos[0], progress: Math.min(100, Math.round((workoutDays / 30) * 100)), progressLabel: `${Math.min(30, workoutDays)} / 30 dias` }] : [];
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar />
@@ -286,7 +288,7 @@ function DesafiosPage() {
               </div>
               <div className="grid grid-cols-7 gap-1.5">
                 {Array.from({ length: 30 }, (_, i) => i + 1).map((n) => {
-                  const s = hasSample ? dayStatus(n) : "pending";
+                  const s = n < workoutDays ? "done" : n === workoutDays && workoutDays > 0 ? "today" : "pending";
                   return (
                     <div key={n} className="flex flex-col items-center gap-1">
                       <span className="text-[9px] text-muted-foreground">{n}</span>

@@ -51,9 +51,9 @@ function LoginPage() {
           {/* Right — Login */}
           <div className="flex items-center justify-center p-6 lg:p-12">
             <form
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
-                const user = login(email, password);
+                const user = await login(email, password);
                 if (!user) {
                   toast.error("Credenciais inválidas");
                   return;

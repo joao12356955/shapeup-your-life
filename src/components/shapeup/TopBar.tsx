@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import { useCurrentUser, initialsOf } from "@/lib/user-store";
+import { useCurrentUser, initialsOf, logout } from "@/lib/user-store";
 import { useXp } from "@/lib/xp";
 import { Bell, ChevronDown, LogOut, Search, User, Dumbbell, Flame, Trophy } from "lucide-react";
 import { toast } from "sonner";
@@ -42,7 +42,10 @@ function UserMenu() {
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          onClick={() => navigate({ to: "/" })}
+          onClick={async () => {
+            await logout();
+            navigate({ to: "/", replace: true });
+          }}
           className="text-destructive focus:text-destructive"
         >
           <LogOut size={14} className="mr-2" /> Sair

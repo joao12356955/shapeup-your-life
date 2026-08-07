@@ -41,19 +41,27 @@ function SignupPage() {
       <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-2">
         {/* Left: Form */}
         <form
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
             if (password !== password2) {
               toast.error("As senhas não coincidem");
               return;
             }
-            registerUser({
+            if (password.length < 6) {
+              toast.error("A senha precisa ter pelo menos 6 caracteres");
+              return;
+            }
+            const res = await registerUser({
               email,
               password,
               name,
               dataNascimento: dataNascimento || undefined,
               sexo: (sexo || undefined) as Sexo | undefined,
             });
+            if (!res.ok) {
+              toast.error(res.error ?? "Não foi possível criar a conta");
+              return;
+            }
             navigate({ to: "/onboarding" });
           }}
           className="rounded-2xl border border-border bg-card/70 backdrop-blur-xl p-8 lg:p-10 shadow-elegant space-y-6"

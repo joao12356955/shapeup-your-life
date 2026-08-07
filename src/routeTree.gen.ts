@@ -20,6 +20,7 @@ import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as CalendarioRouteImport } from './routes/calendario'
 import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as CadastrarAcademiaRouteImport } from './routes/cadastrar-academia'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AcademiaRouteImport } from './routes/academia'
 import { Route as IndexRouteImport } from './routes/index'
 
@@ -78,6 +79,11 @@ const CadastrarAcademiaRoute = CadastrarAcademiaRouteImport.update({
   path: '/cadastrar-academia',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AcademiaRoute = AcademiaRouteImport.update({
   id: '/academia',
   path: '/academia',
@@ -92,6 +98,7 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/academia': typeof AcademiaRoute
+  '/admin': typeof AdminRoute
   '/cadastrar-academia': typeof CadastrarAcademiaRoute
   '/cadastro': typeof CadastroRoute
   '/calendario': typeof CalendarioRoute
@@ -107,6 +114,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/academia': typeof AcademiaRoute
+  '/admin': typeof AdminRoute
   '/cadastrar-academia': typeof CadastrarAcademiaRoute
   '/cadastro': typeof CadastroRoute
   '/calendario': typeof CalendarioRoute
@@ -123,6 +131,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/academia': typeof AcademiaRoute
+  '/admin': typeof AdminRoute
   '/cadastrar-academia': typeof CadastrarAcademiaRoute
   '/cadastro': typeof CadastroRoute
   '/calendario': typeof CalendarioRoute
@@ -140,6 +149,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/academia'
+    | '/admin'
     | '/cadastrar-academia'
     | '/cadastro'
     | '/calendario'
@@ -155,6 +165,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/academia'
+    | '/admin'
     | '/cadastrar-academia'
     | '/cadastro'
     | '/calendario'
@@ -170,6 +181,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/academia'
+    | '/admin'
     | '/cadastrar-academia'
     | '/cadastro'
     | '/calendario'
@@ -186,6 +198,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AcademiaRoute: typeof AcademiaRoute
+  AdminRoute: typeof AdminRoute
   CadastrarAcademiaRoute: typeof CadastrarAcademiaRoute
   CadastroRoute: typeof CadastroRoute
   CalendarioRoute: typeof CalendarioRoute
@@ -278,6 +291,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CadastrarAcademiaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/academia': {
       id: '/academia'
       path: '/academia'
@@ -298,6 +318,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AcademiaRoute: AcademiaRoute,
+  AdminRoute: AdminRoute,
   CadastrarAcademiaRoute: CadastrarAcademiaRoute,
   CadastroRoute: CadastroRoute,
   CalendarioRoute: CalendarioRoute,
@@ -313,13 +334,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

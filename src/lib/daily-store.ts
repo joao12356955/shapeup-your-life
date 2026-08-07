@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+
 
 const LOGS_KEY = "shapeup:logs";
 const EVENT = "shapeup:logs-changed";
@@ -81,6 +83,45 @@ function write(email: string, logs: LogMap) {
   window.dispatchEvent(new Event(EVENT));
 }
 
+/** Pulls the user's daily logs from the database into the local cache. */
+async function hydrateFromDb(email: string) {
+  const { data: auth } = await supabase.auth.getUser();
+  const user = auth.user;
+  if (!user) return;
+  const { data } = await supabase
+    .from("daily_logs")
+    .select("day, water_ml, meals, weight_kg, workout_done")
+    .eq("user_id", user.id);
+  if (!data) return;
+  const merged = read(email);
+  for (const row of data) {
+    merged[row.day] = {
+      waterMl: row.water_ml ?? 0,
+      meals: (row.meals as MealEntry[]) ?? [],
+      weightKg: row.weight_kg === null ? undefined : Number(row.weight_kg),
+      workoutDone: row.workout_done ?? false,
+    };
+  }
+  write(email, merged);
+}
+
+async function persistDay(key: string, day: DayLog) {
+  const { data: auth } = await supabase.auth.getUser();
+  const user = auth.user;
+  if (!user) return;
+  await supabase.from("daily_logs").upsert(
+    {
+      user_id: user.id,
+      day: key,
+      water_ml: day.waterMl ?? 0,
+      meals: (day.meals ?? []) as never,
+      weight_kg: day.weightKg ?? null,
+      workout_done: day.workoutDone ?? false,
+    },
+    { onConflict: "user_id,day" },
+  );
+}
+
 export function useDailyLogs(email?: string) {
   const [logs, setLogs] = useState<LogMap>({});
 
@@ -88,6 +129,7 @@ export function useDailyLogs(email?: string) {
     if (!email) return;
     const refresh = () => setLogs(read(email));
     refresh();
+    void hydrateFromDb(email);
     window.addEventListener(EVENT, refresh);
     window.addEventListener("storage", refresh);
     return () => {
@@ -104,12 +146,14 @@ export function useDailyLogs(email?: string) {
       const next = typeof patch === "function" ? patch(prev) : patch;
       current[key] = { ...prev, ...next };
       write(email, current);
+      void persistDay(key, current[key]);
     },
     [email],
   );
 
   return { logs, updateDay };
 }
+
 
 export function weekKeys(today = new Date()) {
   const start = new Date(today);

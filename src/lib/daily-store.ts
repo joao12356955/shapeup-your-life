@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+
 
 const LOGS_KEY = "shapeup:logs";
 const EVENT = "shapeup:logs-changed";

@@ -12,10 +12,12 @@ import {
   Crown,
   Building2,
   Menu,
+  Shield,
 } from "lucide-react";
 import sidebarLogo from "@/assets/shapeup-logo-menu.png.asset.json";
 import { PricingDialog } from "@/components/shapeup/PricingDialog";
 import { LevelCard } from "@/components/shapeup/LevelCard";
+import { useCurrentUser } from "@/lib/user-store";
 
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
@@ -33,6 +35,7 @@ const nav = [
 
 function SidebarInner({ onNavigate }: { onNavigate?: () => void }) {
   const location = useLocation();
+  const user = useCurrentUser();
   return (
     <div className="flex h-full flex-col gap-8">
       <img src={sidebarLogo.url} alt="ShapeUp" className="h-32 w-auto self-start -ml-2" />
@@ -57,6 +60,20 @@ function SidebarInner({ onNavigate }: { onNavigate?: () => void }) {
             </Link>
           );
         })}
+
+        {user?.isAdmin && (
+          <Link
+            to="/admin"
+            onClick={onNavigate}
+            className={`mt-1 flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
+              location.pathname === "/admin"
+                ? "bg-sidebar-active text-foreground shadow-glow"
+                : "text-sidebar-foreground hover:bg-primary/15 hover:text-foreground hover:translate-x-0.5"
+            }`}
+          >
+            <Shield size={18} /> Admin
+          </Link>
+        )}
       </nav>
 
       <div className="rounded-xl bg-gradient-card border border-border p-4 space-y-3">

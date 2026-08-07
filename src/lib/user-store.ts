@@ -222,7 +222,7 @@ export function updateCurrentUser(patch: Partial<UserProfile>) {
   if (!cur) return;
   writeCache({ ...cur, ...patch, isNew: false });
   if (cur.id) {
-    void supabase.from("profiles").update(patchToRow(patch)).eq("id", cur.id);
+    void supabase.from("profiles").update(patchToRow(patch) as never).eq("id", cur.id);
   }
 }
 

@@ -378,6 +378,11 @@ function EvolucaoPage() {
               </button>
             </div>
             <div className="space-y-3">
+              {medidas.length === 0 && (
+                <p className="text-xs text-muted-foreground">
+                  Nenhuma medida registrada ainda. Adicione suas medidas nas configurações.
+                </p>
+              )}
               {medidas.map((m) => (
                 <div key={m.name} className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
@@ -386,13 +391,11 @@ function EvolucaoPage() {
                     </div>
                     {m.name}
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="font-semibold">{m.value}</span>
-                    <DeltaPill trend={m.trend} label={m.delta} />
-                  </div>
+                  <span className="font-semibold">{m.value} cm</span>
                 </div>
               ))}
             </div>
+
             <button className="mt-5 w-full rounded-lg bg-primary/10 text-primary-glow text-sm py-2 hover:bg-primary/20 transition">
               Ver histórico completo
             </button>

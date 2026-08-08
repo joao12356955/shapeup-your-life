@@ -90,49 +90,14 @@ function UserMenu() {
 const PURPLE = "oklch(0.62 0.24 295)";
 const PURPLE_GLOW = "oklch(0.78 0.18 320)";
 
-const metrics = [
-  { icon: Scale, label: "Peso atual", value: "78.4", unit: "kg", delta: "2.6 kg", trend: "down" as const, sub: "desde o início" },
-  { icon: Activity, label: "Massa magra", value: "62.1", unit: "kg", delta: "1.8 kg", trend: "up" as const, sub: "desde o início" },
-  { icon: Droplets, label: "Gordura corporal", value: "14.2", unit: "%", delta: "2.1 %", trend: "down" as const, sub: "desde o início" },
-  { icon: Heart, label: "IMC", value: "24.1", unit: "", delta: "Saudável", trend: "neutral" as const, sub: "" },
-  { icon: Droplets, label: "Água corporal", value: "58.7", unit: "%", delta: "3.2 %", trend: "up" as const, sub: "desde o início" },
-  { icon: UserIcon, label: "Idade metabólica", value: "28", unit: "anos", delta: "3 anos", trend: "down" as const, sub: "desde o início" },
-];
+const MEDIDA_LABELS: Record<string, string> = {
+  peito: "Peito",
+  cintura: "Cintura",
+  quadril: "Quadril",
+  braco: "Braço",
+  coxa: "Coxa",
+};
 
-const weightData = [
-  { d: "08/05", v: 81 }, { d: "10/05", v: 80.7 }, { d: "12/05", v: 80.3 },
-  { d: "14/05", v: 80 }, { d: "16/05", v: 79.6 }, { d: "18/05", v: 79.3 },
-  { d: "20/05", v: 79 }, { d: "22/05", v: 78.7 }, { d: "24/05", v: 78.5 },
-  { d: "26/05", v: 78.4 }, { d: "28/05", v: 78.5 }, { d: "30/05", v: 78.4 },
-  { d: "01/06", v: 78.4 }, { d: "03/06", v: 78.4 }, { d: "05/06", v: 78.3 },
-  { d: "08/06", v: 78.4 },
-];
-
-const medidas = [
-  { name: "Peito", value: "105 cm", delta: "1.5 cm", trend: "down" as const },
-  { name: "Cintura", value: "79 cm", delta: "2.0 cm", trend: "down" as const },
-  { name: "Abdômen", value: "89 cm", delta: "2.3 cm", trend: "down" as const },
-  { name: "Quadril", value: "102 cm", delta: "1.0 cm", trend: "down" as const },
-  { name: "Coxa", value: "59 cm", delta: "0 cm", trend: "neutral" as const },
-  { name: "Braço", value: "37 cm", delta: "0.5 cm", trend: "up" as const },
-];
-
-const medicoes = [
-  { name: "Peito", value: "105 cm", delta: "1.5 cm" },
-  { name: "Cintura", value: "79 cm", delta: "2.0 cm" },
-  { name: "Braço", value: "37 cm", delta: "0.5 cm" },
-  { name: "Abdômen", value: "89 cm", delta: "2.3 cm" },
-  { name: "Coxa", value: "59 cm", delta: "0 cm" },
-  { name: "Panturrilha", value: "38 cm", delta: "0.3 cm" },
-];
-
-const exercicios = [
-  { name: "Supino Reto", inicial: "70 kg", atual: "80 kg", evo: "14.3%" },
-  { name: "Agachamento Smith", inicial: "100 kg", atual: "120 kg", evo: "20.0%" },
-  { name: "Puxada Triângulo", inicial: "50 kg", atual: "60 kg", evo: "20.0%" },
-  { name: "Desenvolvimento", inicial: "28 kg", atual: "34 kg", evo: "21.4%" },
-  { name: "Leg Press 45°", inicial: "180 kg", atual: "220 kg", evo: "22.2%" },
-];
 
 function DeltaPill({ trend, label }: { trend: "up" | "down" | "neutral"; label: string }) {
   const color =

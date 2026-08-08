@@ -401,83 +401,63 @@ function EvolucaoPage() {
             </button>
           </div>
 
-          {/* Medições corporais visual */}
+          {/* Hábitos registrados */}
           <div className="rounded-2xl bg-gradient-card border border-border p-5 shadow-card">
             <div className="font-semibold flex items-center gap-2 mb-4">
-              Medições corporais <Info size={12} className="text-muted-foreground" />
+              Hábitos registrados <Info size={12} className="text-muted-foreground" />
             </div>
-            <div className="grid grid-cols-[1fr_auto_1fr] gap-3 items-center">
-              <div className="space-y-4 text-sm text-right">
-                <div>
-                  <div className="text-muted-foreground text-xs">Peito</div>
-                  <div className="font-semibold">105 cm <span className="text-rose-400 text-xs">↓ 1.5 cm</span></div>
+            <div className="space-y-3 text-sm">
+              {[
+                { l: "Dias com registro", v: `${s.daysLogged} dia(s)` },
+                { l: "Treinos concluídos", v: `${s.workoutsDone} treino(s)` },
+                { l: "Dias com refeições", v: `${s.mealDays} dia(s)` },
+                { l: "Dias na meta de água", v: `${s.waterGoalDays} dia(s)` },
+                { l: "Média de água", v: s.avgWaterMl ? `${(s.avgWaterMl / 1000).toFixed(1)} L/dia` : "—" },
+                { l: "Média de calorias", v: s.avgKcal ? `${s.avgKcal} kcal` : "—" },
+                { l: "Sequência atual", v: `${s.streak} dia(s)` },
+                { l: "Melhor sequência", v: `${s.best} dia(s)` },
+              ].map((r) => (
+                <div key={r.l} className="flex items-center justify-between">
+                  <span className="text-muted-foreground">{r.l}</span>
+                  <span className="font-semibold">{r.v}</span>
                 </div>
-                <div>
-                  <div className="text-muted-foreground text-xs">Braço</div>
-                  <div className="font-semibold">37 cm <span className="text-emerald-400 text-xs">↑ 0.5 cm</span></div>
-                </div>
-                <div>
-                  <div className="text-muted-foreground text-xs">Coxa</div>
-                  <div className="font-semibold">59 cm <span className="text-muted-foreground text-xs">— 0 cm</span></div>
-                </div>
-              </div>
-              <div className="flex items-center justify-center h-full">
-                <div className="text-7xl opacity-40 text-primary-glow">🧍</div>
-              </div>
-              <div className="space-y-4 text-sm">
-                <div>
-                  <div className="text-muted-foreground text-xs">Cintura</div>
-                  <div className="font-semibold">79 cm <span className="text-rose-400 text-xs">↓ 2.0 cm</span></div>
-                </div>
-                <div>
-                  <div className="text-muted-foreground text-xs">Abdômen</div>
-                  <div className="font-semibold">89 cm <span className="text-rose-400 text-xs">↓ 2.3 cm</span></div>
-                </div>
-                <div>
-                  <div className="text-muted-foreground text-xs">Panturrilha</div>
-                  <div className="font-semibold">38 cm <span className="text-emerald-400 text-xs">↑ 0.3 cm</span></div>
-                </div>
-              </div>
+              ))}
             </div>
-            <button className="mt-5 w-full rounded-lg bg-primary/10 text-primary-glow text-sm py-2 hover:bg-primary/20 transition">
-              Registrar novas medidas
-            </button>
           </div>
 
           {/* Desempenho */}
           <div className="rounded-2xl bg-gradient-card border border-border p-5 shadow-card">
             <div className="flex items-center justify-between mb-4">
               <div className="font-semibold flex items-center gap-2">
-                Desempenho nos treinos <Info size={12} className="text-muted-foreground" />
+                Treinos por semana <Info size={12} className="text-muted-foreground" />
               </div>
-              <button className="text-xs rounded-md border border-border px-2 py-1 inline-flex items-center gap-1 hover:border-primary/50">
-                Tabela completa <ChevronDown size={12} />
-              </button>
             </div>
-            <table className="w-full text-xs">
-              <thead className="text-muted-foreground uppercase">
-                <tr className="text-left">
-                  <th className="font-medium pb-2">Exercício</th>
-                  <th className="font-medium pb-2 text-right">Inicial</th>
-                  <th className="font-medium pb-2 text-right">Atual</th>
-                  <th className="font-medium pb-2 text-right">Evolução</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {exercicios.map((e) => (
-                  <tr key={e.name}>
-                    <td className="py-2.5">{e.name}</td>
-                    <td className="py-2.5 text-right text-muted-foreground">{e.inicial}</td>
-                    <td className="py-2.5 text-right font-semibold">{e.atual}</td>
-                    <td className="py-2.5 text-right text-emerald-400 font-semibold">↑ {e.evo}</td>
+            {treinosRecentes.length === 0 ? (
+              <p className="text-xs text-muted-foreground">
+                Marque seus treinos como concluídos no dashboard para ver sua evolução aqui (+300 XP por treino).
+              </p>
+            ) : (
+              <table className="w-full text-xs">
+                <thead className="text-muted-foreground uppercase">
+                  <tr className="text-left">
+                    <th className="font-medium pb-2">Semana de</th>
+                    <th className="font-medium pb-2 text-right">Treinos</th>
+                    <th className="font-medium pb-2 text-right">XP</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-            <button className="mt-5 w-full rounded-lg bg-primary/10 text-primary-glow text-sm py-2 hover:bg-primary/20 transition">
-              Ver todos os exercícios
-            </button>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {treinosRecentes.map((t) => (
+                    <tr key={t.w}>
+                      <td className="py-2.5">{t.w}</td>
+                      <td className="py-2.5 text-right font-semibold">{t.v}</td>
+                      <td className="py-2.5 text-right text-emerald-400 font-semibold">+{t.v * 300}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
+
         </div>
       </main>
     </div>

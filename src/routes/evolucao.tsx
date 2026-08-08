@@ -114,7 +114,91 @@ function DeltaPill({ trend, label }: { trend: "up" | "down" | "neutral"; label: 
 }
 
 function EvolucaoPage() {
+  const user = useCurrentUser();
+  const s = useStats(user);
+  const one = (v?: number) => (typeof v === "number" ? v.toFixed(1) : "—");
+
+  const metrics = [
+    {
+      icon: Scale,
+      label: "Peso atual",
+      value: one(s.peso),
+      unit: "kg",
+      delta:
+        s.pesoDelta !== undefined
+          ? `${Math.abs(s.pesoDelta).toFixed(1)} kg`
+          : "Sem registros",
+      trend: (s.pesoDelta === undefined ? "neutral" : s.pesoDelta < 0 ? "down" : "up") as
+        | "up"
+        | "down"
+        | "neutral",
+      sub: s.pesoDelta !== undefined ? "desde o início" : "",
+    },
+    {
+      icon: Target,
+      label: "Meta de peso",
+      value: one(s.pesoMeta),
+      unit: "kg",
+      delta:
+        s.peso && s.pesoMeta
+          ? `${Math.abs(s.peso - s.pesoMeta).toFixed(1)} kg restantes`
+          : "Defina sua meta",
+      trend: "neutral" as const,
+      sub: "",
+    },
+    {
+      icon: Heart,
+      label: "IMC",
+      value: s.imc ? s.imc.toFixed(1) : "—",
+      unit: "",
+      delta: s.imcLabel,
+      trend: "neutral" as const,
+      sub: s.altura ? `${s.altura} cm` : "",
+    },
+    {
+      icon: Droplets,
+      label: "Água (média)",
+      value: s.avgWaterMl ? (s.avgWaterMl / 1000).toFixed(1) : "—",
+      unit: "L/dia",
+      delta: `${s.waterGoalDays} dia(s) na meta`,
+      trend: "neutral" as const,
+      sub: "",
+    },
+    {
+      icon: Dumbbell,
+      label: "Treinos concluídos",
+      value: String(s.workoutsDone),
+      unit: "treinos",
+      delta: `${s.streak} dia(s) de sequência`,
+      trend: "neutral" as const,
+      sub: "",
+    },
+    {
+      icon: Activity,
+      label: "Dias registrados",
+      value: String(s.daysLogged),
+      unit: "dias",
+      delta: `${s.mealDays} dia(s) com refeições`,
+      trend: "neutral" as const,
+      sub: "",
+    },
+  ];
+
+  const weightData = s.weights.map((w) => ({ d: w.d, v: w.kg }));
+  const weightMin = weightData.length ? Math.min(...weightData.map((w) => w.v)) - 2 : 60;
+  const weightMax = weightData.length ? Math.max(...weightData.map((w) => w.v)) + 2 : 100;
+
+  const medidas = Object.entries(MEDIDA_LABELS)
+    .map(([k, name]) => ({
+      name,
+      value: (s.medidas as Record<string, number | undefined>)[k],
+    }))
+    .filter((m) => typeof m.value === "number");
+
+  const treinosRecentes = s.weeklyWorkouts.slice(-6);
+
   return (
+
     <div className="flex min-h-screen bg-background">
       <Sidebar />
       <main className="flex-1 min-w-0 p-6 lg:p-8 space-y-6">

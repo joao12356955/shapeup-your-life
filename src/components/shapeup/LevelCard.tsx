@@ -1,4 +1,4 @@
-import { Sparkles, Droplet, UtensilsCrossed, Star, History } from "lucide-react";
+import { Sparkles, Droplet, UtensilsCrossed, Star, History, Dumbbell } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { useCurrentUser, initialsOf } from "@/lib/user-store";
 import {
@@ -7,8 +7,10 @@ import {
   XP_ALL_MEALS,
   XP_WATER_GOAL,
   XP_EXTRA_BOTTLE,
+  XP_WORKOUT,
   XP_PER_LEVEL,
 } from "@/lib/xp";
+
 import { dateKey, emptyDay } from "@/lib/daily-store";
 
 export function LevelCard() {

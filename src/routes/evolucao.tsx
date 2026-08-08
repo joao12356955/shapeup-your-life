@@ -1,4 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+
 import {
   Search,
   Bell,
@@ -6,6 +8,8 @@ import {
   TrendingUp,
   TrendingDown,
   Scale,
+  Target,
+
   Activity,
   Droplets,
   Heart,
@@ -32,6 +36,8 @@ import {
 import { Sidebar } from "@/components/shapeup/Sidebar";
 import { useCurrentUser, initialsOf } from "@/lib/user-store";
 import { useXp } from "@/lib/xp";
+import { useStats } from "@/lib/stats";
+
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -90,49 +96,14 @@ function UserMenu() {
 const PURPLE = "oklch(0.62 0.24 295)";
 const PURPLE_GLOW = "oklch(0.78 0.18 320)";
 
-const metrics = [
-  { icon: Scale, label: "Peso atual", value: "78.4", unit: "kg", delta: "2.6 kg", trend: "down" as const, sub: "desde o início" },
-  { icon: Activity, label: "Massa magra", value: "62.1", unit: "kg", delta: "1.8 kg", trend: "up" as const, sub: "desde o início" },
-  { icon: Droplets, label: "Gordura corporal", value: "14.2", unit: "%", delta: "2.1 %", trend: "down" as const, sub: "desde o início" },
-  { icon: Heart, label: "IMC", value: "24.1", unit: "", delta: "Saudável", trend: "neutral" as const, sub: "" },
-  { icon: Droplets, label: "Água corporal", value: "58.7", unit: "%", delta: "3.2 %", trend: "up" as const, sub: "desde o início" },
-  { icon: UserIcon, label: "Idade metabólica", value: "28", unit: "anos", delta: "3 anos", trend: "down" as const, sub: "desde o início" },
-];
+const MEDIDA_LABELS: Record<string, string> = {
+  peito: "Peito",
+  cintura: "Cintura",
+  quadril: "Quadril",
+  braco: "Braço",
+  coxa: "Coxa",
+};
 
-const weightData = [
-  { d: "08/05", v: 81 }, { d: "10/05", v: 80.7 }, { d: "12/05", v: 80.3 },
-  { d: "14/05", v: 80 }, { d: "16/05", v: 79.6 }, { d: "18/05", v: 79.3 },
-  { d: "20/05", v: 79 }, { d: "22/05", v: 78.7 }, { d: "24/05", v: 78.5 },
-  { d: "26/05", v: 78.4 }, { d: "28/05", v: 78.5 }, { d: "30/05", v: 78.4 },
-  { d: "01/06", v: 78.4 }, { d: "03/06", v: 78.4 }, { d: "05/06", v: 78.3 },
-  { d: "08/06", v: 78.4 },
-];
-
-const medidas = [
-  { name: "Peito", value: "105 cm", delta: "1.5 cm", trend: "down" as const },
-  { name: "Cintura", value: "79 cm", delta: "2.0 cm", trend: "down" as const },
-  { name: "Abdômen", value: "89 cm", delta: "2.3 cm", trend: "down" as const },
-  { name: "Quadril", value: "102 cm", delta: "1.0 cm", trend: "down" as const },
-  { name: "Coxa", value: "59 cm", delta: "0 cm", trend: "neutral" as const },
-  { name: "Braço", value: "37 cm", delta: "0.5 cm", trend: "up" as const },
-];
-
-const medicoes = [
-  { name: "Peito", value: "105 cm", delta: "1.5 cm" },
-  { name: "Cintura", value: "79 cm", delta: "2.0 cm" },
-  { name: "Braço", value: "37 cm", delta: "0.5 cm" },
-  { name: "Abdômen", value: "89 cm", delta: "2.3 cm" },
-  { name: "Coxa", value: "59 cm", delta: "0 cm" },
-  { name: "Panturrilha", value: "38 cm", delta: "0.3 cm" },
-];
-
-const exercicios = [
-  { name: "Supino Reto", inicial: "70 kg", atual: "80 kg", evo: "14.3%" },
-  { name: "Agachamento Smith", inicial: "100 kg", atual: "120 kg", evo: "20.0%" },
-  { name: "Puxada Triângulo", inicial: "50 kg", atual: "60 kg", evo: "20.0%" },
-  { name: "Desenvolvimento", inicial: "28 kg", atual: "34 kg", evo: "21.4%" },
-  { name: "Leg Press 45°", inicial: "180 kg", atual: "220 kg", evo: "22.2%" },
-];
 
 function DeltaPill({ trend, label }: { trend: "up" | "down" | "neutral"; label: string }) {
   const color =
@@ -149,7 +120,98 @@ function DeltaPill({ trend, label }: { trend: "up" | "down" | "neutral"; label: 
 }
 
 function EvolucaoPage() {
+  const user = useCurrentUser();
+  const s = useStats(user);
+  const one = (v?: number) => (typeof v === "number" ? v.toFixed(1) : "—");
+  const [hoje, setHoje] = useState("—");
+  useEffect(() => setHoje(new Date().toLocaleDateString("pt-BR")), []);
+  const inicio = s.weights[0]?.key
+    ? s.weights[0]!.key.split("-").reverse().join("/")
+    : hoje;
+
+
+
+  const metrics = [
+    {
+      icon: Scale,
+      label: "Peso atual",
+      value: one(s.peso),
+      unit: "kg",
+      delta:
+        s.pesoDelta !== undefined
+          ? `${Math.abs(s.pesoDelta).toFixed(1)} kg`
+          : "Sem registros",
+      trend: (s.pesoDelta === undefined ? "neutral" : s.pesoDelta < 0 ? "down" : "up") as
+        | "up"
+        | "down"
+        | "neutral",
+      sub: s.pesoDelta !== undefined ? "desde o início" : "",
+    },
+    {
+      icon: Target,
+      label: "Meta de peso",
+      value: one(s.pesoMeta),
+      unit: "kg",
+      delta:
+        s.peso && s.pesoMeta
+          ? `${Math.abs(s.peso - s.pesoMeta).toFixed(1)} kg restantes`
+          : "Defina sua meta",
+      trend: "neutral" as const,
+      sub: "",
+    },
+    {
+      icon: Heart,
+      label: "IMC",
+      value: s.imc ? s.imc.toFixed(1) : "—",
+      unit: "",
+      delta: s.imcLabel,
+      trend: "neutral" as const,
+      sub: s.altura ? `${s.altura} cm` : "",
+    },
+    {
+      icon: Droplets,
+      label: "Água (média)",
+      value: s.avgWaterMl ? (s.avgWaterMl / 1000).toFixed(1) : "—",
+      unit: "L/dia",
+      delta: `${s.waterGoalDays} dia(s) na meta`,
+      trend: "neutral" as const,
+      sub: "",
+    },
+    {
+      icon: Dumbbell,
+      label: "Treinos concluídos",
+      value: String(s.workoutsDone),
+      unit: "treinos",
+      delta: `${s.streak} dia(s) de sequência`,
+      trend: "neutral" as const,
+      sub: "",
+    },
+    {
+      icon: Activity,
+      label: "Dias registrados",
+      value: String(s.daysLogged),
+      unit: "dias",
+      delta: `${s.mealDays} dia(s) com refeições`,
+      trend: "neutral" as const,
+      sub: "",
+    },
+  ];
+
+  const weightData = s.weights.map((w) => ({ d: w.d, v: w.kg }));
+  const weightMin = weightData.length ? Math.min(...weightData.map((w) => w.v)) - 2 : 60;
+  const weightMax = weightData.length ? Math.max(...weightData.map((w) => w.v)) + 2 : 100;
+
+  const medidas = Object.entries(MEDIDA_LABELS)
+    .map(([k, name]) => ({
+      name,
+      value: (s.medidas as Record<string, number | undefined>)[k],
+    }))
+    .filter((m) => typeof m.value === "number");
+
+  const treinosRecentes = s.weeklyWorkouts.slice(-6);
+
   return (
+
     <div className="flex min-h-screen bg-background">
       <Sidebar />
       <main className="flex-1 min-w-0 p-6 lg:p-8 space-y-6">
@@ -216,7 +278,7 @@ function EvolucaoPage() {
         <div className="flex justify-end">
           <button className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-1.5 text-sm hover:border-primary/50 transition">
             <CalendarIcon size={14} className="text-primary-glow" />
-            08/05/2024 — 08/06/2024
+            {inicio} — {hoje}
             <ChevronDown size={14} />
           </button>
         </div>
@@ -251,23 +313,23 @@ function EvolucaoPage() {
               <div className="font-semibold flex items-center gap-2">
                 Fotos de progresso <Info size={12} className="text-muted-foreground" />
               </div>
-              <span className="text-xs rounded-md bg-primary/20 text-primary-glow px-2 py-1">08/06/2024</span>
+              <span className="text-xs rounded-md bg-primary/20 text-primary-glow px-2 py-1">{hoje}</span>
             </div>
             <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
               <div className="rounded-xl border border-border bg-secondary/40 aspect-[3/4] flex flex-col items-center justify-end p-3 relative overflow-hidden">
-                <span className="absolute top-2 left-2 text-xs rounded bg-background/70 px-2 py-0.5">08/05/2024</span>
+                <span className="absolute top-2 left-2 text-xs rounded bg-background/70 px-2 py-0.5">{inicio}</span>
                 <div className="text-5xl opacity-30">👤</div>
               </div>
               <div className="flex flex-col items-center gap-2">
                 <div className="h-14 w-14 rounded-full border-2 border-primary flex items-center justify-center text-primary-glow">
                   <ArrowRight size={20} />
                 </div>
-                <div className="text-3xl font-bold leading-none">30</div>
+                <div className="text-3xl font-bold leading-none">{s.daysLogged}</div>
                 <div className="text-xs text-muted-foreground">dias</div>
                 <div className="text-[10px] text-muted-foreground">de evolução</div>
               </div>
               <div className="rounded-xl border border-border bg-secondary/40 aspect-[3/4] flex flex-col items-center justify-end p-3 relative overflow-hidden">
-                <span className="absolute top-2 left-2 text-xs rounded bg-background/70 px-2 py-0.5">08/06/2024</span>
+                <span className="absolute top-2 left-2 text-xs rounded bg-background/70 px-2 py-0.5">{hoje}</span>
                 <div className="text-5xl opacity-30">💪</div>
               </div>
             </div>
@@ -296,7 +358,7 @@ function EvolucaoPage() {
                   </defs>
                   <CartesianGrid stroke="oklch(0.3 0.05 290)" strokeDasharray="3 3" vertical={false} />
                   <XAxis dataKey="d" stroke="oklch(0.65 0.05 290)" fontSize={10} tickLine={false} axisLine={false} />
-                  <YAxis stroke="oklch(0.65 0.05 290)" fontSize={10} domain={[76, 82]} tickLine={false} axisLine={false} />
+                  <YAxis stroke="oklch(0.65 0.05 290)" fontSize={10} domain={[Math.floor(weightMin), Math.ceil(weightMax)]} tickLine={false} axisLine={false} />
                   <Tooltip
                     contentStyle={{
                       background: "oklch(0.18 0.05 290)",
@@ -321,10 +383,15 @@ function EvolucaoPage() {
                 Medidas corporais <Info size={12} className="text-muted-foreground" />
               </div>
               <button className="text-xs rounded-md border border-border px-2 py-1 inline-flex items-center gap-1 hover:border-primary/50">
-                08/06/2024 <ChevronDown size={12} />
+                {hoje} <ChevronDown size={12} />
               </button>
             </div>
             <div className="space-y-3">
+              {medidas.length === 0 && (
+                <p className="text-xs text-muted-foreground">
+                  Nenhuma medida registrada ainda. Adicione suas medidas nas configurações.
+                </p>
+              )}
               {medidas.map((m) => (
                 <div key={m.name} className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
@@ -333,95 +400,73 @@ function EvolucaoPage() {
                     </div>
                     {m.name}
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="font-semibold">{m.value}</span>
-                    <DeltaPill trend={m.trend} label={m.delta} />
-                  </div>
+                  <span className="font-semibold">{m.value} cm</span>
                 </div>
               ))}
             </div>
+
             <button className="mt-5 w-full rounded-lg bg-primary/10 text-primary-glow text-sm py-2 hover:bg-primary/20 transition">
               Ver histórico completo
             </button>
           </div>
 
-          {/* Medições corporais visual */}
+          {/* Hábitos registrados */}
           <div className="rounded-2xl bg-gradient-card border border-border p-5 shadow-card">
             <div className="font-semibold flex items-center gap-2 mb-4">
-              Medições corporais <Info size={12} className="text-muted-foreground" />
+              Hábitos registrados <Info size={12} className="text-muted-foreground" />
             </div>
-            <div className="grid grid-cols-[1fr_auto_1fr] gap-3 items-center">
-              <div className="space-y-4 text-sm text-right">
-                <div>
-                  <div className="text-muted-foreground text-xs">Peito</div>
-                  <div className="font-semibold">105 cm <span className="text-rose-400 text-xs">↓ 1.5 cm</span></div>
+            <div className="space-y-3 text-sm">
+              {[
+                { l: "Dias com registro", v: `${s.daysLogged} dia(s)` },
+                { l: "Treinos concluídos", v: `${s.workoutsDone} treino(s)` },
+                { l: "Dias com refeições", v: `${s.mealDays} dia(s)` },
+                { l: "Dias na meta de água", v: `${s.waterGoalDays} dia(s)` },
+                { l: "Média de água", v: s.avgWaterMl ? `${(s.avgWaterMl / 1000).toFixed(1)} L/dia` : "—" },
+                { l: "Média de calorias", v: s.avgKcal ? `${s.avgKcal} kcal` : "—" },
+                { l: "Sequência atual", v: `${s.streak} dia(s)` },
+                { l: "Melhor sequência", v: `${s.best} dia(s)` },
+              ].map((r) => (
+                <div key={r.l} className="flex items-center justify-between">
+                  <span className="text-muted-foreground">{r.l}</span>
+                  <span className="font-semibold">{r.v}</span>
                 </div>
-                <div>
-                  <div className="text-muted-foreground text-xs">Braço</div>
-                  <div className="font-semibold">37 cm <span className="text-emerald-400 text-xs">↑ 0.5 cm</span></div>
-                </div>
-                <div>
-                  <div className="text-muted-foreground text-xs">Coxa</div>
-                  <div className="font-semibold">59 cm <span className="text-muted-foreground text-xs">— 0 cm</span></div>
-                </div>
-              </div>
-              <div className="flex items-center justify-center h-full">
-                <div className="text-7xl opacity-40 text-primary-glow">🧍</div>
-              </div>
-              <div className="space-y-4 text-sm">
-                <div>
-                  <div className="text-muted-foreground text-xs">Cintura</div>
-                  <div className="font-semibold">79 cm <span className="text-rose-400 text-xs">↓ 2.0 cm</span></div>
-                </div>
-                <div>
-                  <div className="text-muted-foreground text-xs">Abdômen</div>
-                  <div className="font-semibold">89 cm <span className="text-rose-400 text-xs">↓ 2.3 cm</span></div>
-                </div>
-                <div>
-                  <div className="text-muted-foreground text-xs">Panturrilha</div>
-                  <div className="font-semibold">38 cm <span className="text-emerald-400 text-xs">↑ 0.3 cm</span></div>
-                </div>
-              </div>
+              ))}
             </div>
-            <button className="mt-5 w-full rounded-lg bg-primary/10 text-primary-glow text-sm py-2 hover:bg-primary/20 transition">
-              Registrar novas medidas
-            </button>
           </div>
 
           {/* Desempenho */}
           <div className="rounded-2xl bg-gradient-card border border-border p-5 shadow-card">
             <div className="flex items-center justify-between mb-4">
               <div className="font-semibold flex items-center gap-2">
-                Desempenho nos treinos <Info size={12} className="text-muted-foreground" />
+                Treinos por semana <Info size={12} className="text-muted-foreground" />
               </div>
-              <button className="text-xs rounded-md border border-border px-2 py-1 inline-flex items-center gap-1 hover:border-primary/50">
-                Tabela completa <ChevronDown size={12} />
-              </button>
             </div>
-            <table className="w-full text-xs">
-              <thead className="text-muted-foreground uppercase">
-                <tr className="text-left">
-                  <th className="font-medium pb-2">Exercício</th>
-                  <th className="font-medium pb-2 text-right">Inicial</th>
-                  <th className="font-medium pb-2 text-right">Atual</th>
-                  <th className="font-medium pb-2 text-right">Evolução</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {exercicios.map((e) => (
-                  <tr key={e.name}>
-                    <td className="py-2.5">{e.name}</td>
-                    <td className="py-2.5 text-right text-muted-foreground">{e.inicial}</td>
-                    <td className="py-2.5 text-right font-semibold">{e.atual}</td>
-                    <td className="py-2.5 text-right text-emerald-400 font-semibold">↑ {e.evo}</td>
+            {treinosRecentes.length === 0 ? (
+              <p className="text-xs text-muted-foreground">
+                Marque seus treinos como concluídos no dashboard para ver sua evolução aqui (+300 XP por treino).
+              </p>
+            ) : (
+              <table className="w-full text-xs">
+                <thead className="text-muted-foreground uppercase">
+                  <tr className="text-left">
+                    <th className="font-medium pb-2">Semana de</th>
+                    <th className="font-medium pb-2 text-right">Treinos</th>
+                    <th className="font-medium pb-2 text-right">XP</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-            <button className="mt-5 w-full rounded-lg bg-primary/10 text-primary-glow text-sm py-2 hover:bg-primary/20 transition">
-              Ver todos os exercícios
-            </button>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {treinosRecentes.map((t) => (
+                    <tr key={t.w}>
+                      <td className="py-2.5">{t.w}</td>
+                      <td className="py-2.5 text-right font-semibold">{t.v}</td>
+                      <td className="py-2.5 text-right text-emerald-400 font-semibold">+{t.v * 300}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
+
         </div>
       </main>
     </div>

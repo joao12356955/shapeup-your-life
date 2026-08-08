@@ -278,12 +278,20 @@ function Dashboard() {
   const [mealOpen, setMealOpen] = useState(false);
   const [weightOpen, setWeightOpen] = useState(false);
 
-
-
-
-
+  // os dados do dia dependem da data/hora local, então só renderizamos após montar
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) {
+    return (
+      <div className="flex min-h-screen bg-background">
+        <Sidebar />
+        <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8" />
+      </div>
+    );
+  }
 
   return (
+
     <div className="flex min-h-screen bg-background">
       <Sidebar />
 

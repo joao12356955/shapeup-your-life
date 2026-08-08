@@ -1,4 +1,4 @@
-import { Sparkles, Droplet, UtensilsCrossed, Star, History } from "lucide-react";
+import { Sparkles, Droplet, UtensilsCrossed, Star, History, Dumbbell } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { useCurrentUser, initialsOf } from "@/lib/user-store";
 import {
@@ -7,8 +7,10 @@ import {
   XP_ALL_MEALS,
   XP_WATER_GOAL,
   XP_EXTRA_BOTTLE,
+  XP_WORKOUT,
   XP_PER_LEVEL,
 } from "@/lib/xp";
+
 import { dateKey, emptyDay } from "@/lib/daily-store";
 
 export function LevelCard() {
@@ -103,9 +105,14 @@ export function LevelCard() {
             Como ganhar
           </div>
           <div className="flex items-center gap-2 text-xs">
+            <Dumbbell size={13} className="text-primary-glow" /> Treino concluído
+            <span className="ml-auto font-semibold">+{XP_WORKOUT} XP</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs">
             <UtensilsCrossed size={13} className="text-primary-glow" /> Todas as refeições do dia
             <span className="ml-auto font-semibold">+{XP_ALL_MEALS} XP</span>
           </div>
+
           <div className="flex items-center gap-2 text-xs">
             <Droplet size={13} className="text-primary-glow" /> Meta de 3 L de água
             <span className="ml-auto font-semibold">+{XP_WATER_GOAL} XP</span>

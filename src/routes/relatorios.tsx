@@ -1,14 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import {
   CheckCircle2,
   Dumbbell,
   Flame,
   Scale,
-  Percent,
+  Droplet,
   CalendarDays,
   ChevronDown,
   TrendingUp,
   Sparkles,
+  Heart,
 } from "lucide-react";
 import {
   LineChart,
@@ -26,32 +28,68 @@ import {
 import { Sidebar } from "@/components/shapeup/Sidebar";
 import { TopBar } from "@/components/shapeup/TopBar";
 import { StatCard } from "@/components/shapeup/StatCard";
+import { useCurrentUser } from "@/lib/user-store";
+import { useStats } from "@/lib/stats";
+import { XP_WORKOUT } from "@/lib/xp";
+import { useXp } from "@/lib/xp";
 
 export const Route = createFileRoute("/relatorios")({
-  head: () => ({ meta: [{ title: "Relatórios — ShapeUp" }] }),
+  head: () => ({
+    meta: [
+      { title: "Relatórios — ShapeUp" },
+      { name: "description", content: "Relatórios de treinos, dieta e evolução corporal atualizados com os seus registros no ShapeUp." },
+      { property: "og:title", content: "Relatórios — ShapeUp" },
+      { property: "og:description", content: "Acompanhe treinos, calorias, água e evolução do peso com dados reais." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: Relatorios,
 });
-
-const weight = [
-  { d: "10/04", kg: 82 }, { d: "14/04", kg: 81.4 }, { d: "18/04", kg: 80.8 },
-  { d: "22/04", kg: 80.1 }, { d: "26/04", kg: 79.5 }, { d: "30/04", kg: 79.1 },
-  { d: "04/05", kg: 78.7 }, { d: "08/05", kg: 78.4 },
-];
-
-const volume = [
-  { w: "07/04", v: 18200 }, { w: "14/04", v: 21800 }, { w: "21/04", v: 25600 },
-  { w: "28/04", v: 24100 }, { w: "05/05", v: 24700 },
-];
-
-const macros = [
-  { name: "Proteínas", value: 31, color: "oklch(0.62 0.24 295)" },
-  { name: "Carboidratos", value: 39, color: "oklch(0.65 0.22 340)" },
-  { name: "Gorduras", value: 30, color: "oklch(0.78 0.17 70)" },
-];
 
 const tabs = ["Visão geral", "Treinos", "Dieta", "Corporal", "Desempenho", "Hábitos"];
 
 function Relatorios() {
+  const user = useCurrentUser();
+  const s = useStats(user);
+  const xp = useXp(user?.email);
+  const [hoje, setHoje] = useState("—");
+  useEffect(() => setHoje(new Date().toLocaleDateString("pt-BR")), []);
+
+  const weight = s.weights.map((w) => ({ d: w.d, kg: w.kg }));
+  const wMin = weight.length ? Math.min(...weight.map((w) => w.kg)) - 2 : 60;
+  const wMax = weight.length ? Math.max(...weight.map((w) => w.kg)) + 2 : 100;
+  const volume = s.weeklyWorkouts;
+  const macros = s.macros.filter((m) => m.value > 0);
+  const hasMacros = macros.length > 0;
+
+  const composicao = [
+    { l: "Peso atual", v: s.peso ? `${s.peso.toFixed(1)} kg` : "—", p: s.peso && s.pesoMeta ? Math.min(100, Math.round((s.pesoMeta / s.peso) * 100)) : 0 },
+    { l: "Meta de peso", v: s.pesoMeta ? `${s.pesoMeta.toFixed(1)} kg` : "—", p: s.pesoMeta ? 100 : 0 },
+    { l: "IMC", v: s.imc ? `${s.imc.toFixed(1)} (${s.imcLabel})` : "—", p: s.imc ? Math.min(100, Math.round((s.imc / 40) * 100)) : 0 },
+    { l: "Altura", v: s.altura ? `${s.altura} cm` : "—", p: s.altura ? Math.min(100, Math.round((s.altura / 220) * 100)) : 0 },
+  ];
+
+  const insights = [
+    {
+      i: TrendingUp,
+      t:
+        s.pesoDelta !== undefined
+          ? `Seu peso variou ${s.pesoDelta > 0 ? "+" : "-"}${Math.abs(s.pesoDelta).toFixed(1)} kg desde o primeiro registro.`
+          : "Registre seu peso no dashboard para acompanhar sua variação.",
+    },
+    {
+      i: CalendarDays,
+      t: `Você concluiu ${s.workoutsDone} treino(s) e acumulou ${s.workoutsDone * XP_WORKOUT} XP com eles.`,
+    },
+    {
+      i: Droplet,
+      t: s.avgWaterMl
+        ? `Sua média de água é de ${(s.avgWaterMl / 1000).toFixed(1)} L por dia (${s.waterGoalDays} dia(s) na meta).`
+        : "Registre sua ingestão de água para receber insights de hidratação.",
+    },
+  ];
+
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar />
@@ -76,55 +114,91 @@ function Relatorios() {
             ))}
           </div>
           <div className="flex items-center gap-2 pb-3">
-            <span className="text-xs text-muted-foreground">Período</span>
+            <span className="text-xs text-muted-foreground">Atualizado em</span>
             <button className="text-xs flex items-center gap-1 rounded-md border border-border bg-card px-3 py-1.5">
-              Últimos 30 dias <ChevronDown size={12} />
+              {hoje} <ChevronDown size={12} />
             </button>
           </div>
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-          <StatCard icon={CheckCircle2} label="Treinos concluídos" value="12" unit="de 16" hint="↑ 20% vs período anterior" />
-          <StatCard icon={Dumbbell} label="Volume total (kg)" value="24.680" unit="kg" hint="↑ 18% vs período anterior" />
-          <StatCard icon={Flame} label="Calorias médias" value="2.150" unit="kcal" hint="↑ 8% vs período anterior" />
-          <StatCard icon={Scale} label="Peso médio" value="78.4" unit="kg" trend="2.6 kg" hint="desde o início" />
-          <StatCard icon={Percent} label="% Gordura corporal" value="14.2" unit="%" trend="2.1%" hint="desde o início" />
-          <StatCard icon={Flame} label="Streak atual" value="12" unit="dias" hint="Melhor: 18 dias" />
+          <StatCard
+            icon={CheckCircle2}
+            label="Treinos concluídos"
+            value={String(s.workoutsDone)}
+            unit={`de ${s.workoutsGoal}`}
+            hint={`+${s.workoutsDone * XP_WORKOUT} XP em treinos`}
+          />
+          <StatCard
+            icon={Dumbbell}
+            label="Dias registrados"
+            value={String(s.daysLogged)}
+            unit="dias"
+            hint={`${s.mealDays} dia(s) com refeições`}
+          />
+          <StatCard
+            icon={Flame}
+            label="Calorias médias"
+            value={s.avgKcal ? s.avgKcal.toLocaleString("pt-BR") : "—"}
+            unit="kcal"
+            hint="média dos dias com refeições"
+          />
+          <StatCard
+            icon={Scale}
+            label="Peso atual"
+            value={s.peso ? s.peso.toFixed(1) : "—"}
+            unit="kg"
+            trend={s.pesoDelta !== undefined ? `${Math.abs(s.pesoDelta).toFixed(1)} kg` : undefined}
+            hint={s.pesoDelta !== undefined ? "desde o início" : "registre seu peso"}
+          />
+          <StatCard
+            icon={Heart}
+            label="IMC"
+            value={s.imc ? s.imc.toFixed(1) : "—"}
+            unit=""
+            hint={s.imcLabel}
+          />
+          <StatCard
+            icon={Flame}
+            label="Streak atual"
+            value={String(s.streak)}
+            unit="dias"
+            hint={`Melhor: ${s.best} dias`}
+          />
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
           <div className="xl:col-span-2 rounded-2xl bg-gradient-card border border-border p-5 shadow-card">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-semibold">Evolução do peso</h2>
-              <button className="text-xs text-muted-foreground flex items-center gap-1 rounded-md border border-border px-2 py-1">
-                Últimos 30 dias <ChevronDown size={12} />
-              </button>
+              <span className="text-xs text-muted-foreground">{s.weights.length} registro(s)</span>
             </div>
             <div className="h-64">
-              <ResponsiveContainer>
-                <LineChart data={weight} margin={{ left: -20, right: 8, top: 8, bottom: 0 }}>
-                  <XAxis dataKey="d" stroke="oklch(0.6 0.03 285)" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                  <YAxis stroke="oklch(0.6 0.03 285)" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} domain={[74, 82]} />
-                  <Tooltip contentStyle={{ background: "oklch(0.17 0.035 280)", border: "1px solid oklch(0.62 0.24 295)", borderRadius: 8, fontSize: 12 }} />
-                  <Line type="monotone" dataKey="kg" stroke="oklch(0.62 0.24 295)" strokeWidth={3} dot={{ fill: "oklch(0.62 0.24 295)", r: 4 }} />
-                </LineChart>
-              </ResponsiveContainer>
+              {weight.length === 0 ? (
+                <div className="h-full flex items-center justify-center text-xs text-muted-foreground text-center px-6">
+                  Registre seu peso no dashboard para ver a evolução aqui.
+                </div>
+              ) : (
+                <ResponsiveContainer>
+                  <LineChart data={weight} margin={{ left: -20, right: 8, top: 8, bottom: 0 }}>
+                    <XAxis dataKey="d" stroke="oklch(0.6 0.03 285)" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <YAxis stroke="oklch(0.6 0.03 285)" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} domain={[Math.floor(wMin), Math.ceil(wMax)]} />
+                    <Tooltip contentStyle={{ background: "oklch(0.17 0.035 280)", border: "1px solid oklch(0.62 0.24 295)", borderRadius: 8, fontSize: 12 }} />
+                    <Line type="monotone" dataKey="kg" stroke="oklch(0.62 0.24 295)" strokeWidth={3} dot={{ fill: "oklch(0.62 0.24 295)", r: 4 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </div>
 
           <div className="rounded-2xl bg-gradient-card border border-border p-5 shadow-card">
-            <h2 className="font-semibold mb-4">Composição corporal</h2>
+            <h2 className="font-semibold mb-4">Perfil corporal</h2>
             <div className="space-y-3">
-              {[
-                { l: "Massa magra", v: "62.1 kg", p: 79 },
-                { l: "Gordura corporal", v: "11.1 kg", p: 14 },
-                { l: "Água corporal", v: "45.9 kg", p: 58 },
-                { l: "Massa óssea", v: "3.2 kg", p: 4 },
-              ].map((r) => (
+              {composicao.map((r) => (
                 <div key={r.l}>
                   <div className="flex justify-between text-xs">
                     <span>{r.l}</span>
-                    <span className="text-muted-foreground">{r.v} ({r.p}%)</span>
+                    <span className="text-muted-foreground">{r.v}</span>
                   </div>
                   <div className="mt-1 h-1.5 rounded-full bg-secondary overflow-hidden">
                     <div className="h-full bg-gradient-primary" style={{ width: `${r.p}%` }} />
@@ -138,79 +212,89 @@ function Relatorios() {
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
           <div className="rounded-2xl bg-gradient-card border border-border p-5 shadow-card">
             <h2 className="font-semibold mb-4">Distribuição de macros</h2>
-            <div className="flex items-center gap-4">
-              <div className="relative h-36 w-36 shrink-0">
-                <ResponsiveContainer>
-                  <PieChart>
-                    <Pie data={macros} dataKey="value" innerRadius={42} outerRadius={60} stroke="none">
-                      {macros.map((m) => <Cell key={m.name} fill={m.color} />)}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-lg font-bold">2.150</span>
-                  <span className="text-[10px] text-muted-foreground">kcal média</span>
+            {!hasMacros ? (
+              <p className="text-xs text-muted-foreground">
+                Registre suas refeições para ver a distribuição de macronutrientes.
+              </p>
+            ) : (
+              <div className="flex items-center gap-4">
+                <div className="relative h-36 w-36 shrink-0">
+                  <ResponsiveContainer>
+                    <PieChart>
+                      <Pie data={macros} dataKey="value" innerRadius={42} outerRadius={60} stroke="none">
+                        {macros.map((m) => <Cell key={m.name} fill={m.color} />)}
+                      </Pie>
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-lg font-bold">{s.avgKcal.toLocaleString("pt-BR")}</span>
+                    <span className="text-[10px] text-muted-foreground">kcal média</span>
+                  </div>
+                </div>
+                <div className="space-y-2 text-xs flex-1">
+                  {macros.map((m) => (
+                    <div key={m.name} className="flex items-center gap-2">
+                      <span className="h-2.5 w-2.5 rounded-full" style={{ background: m.color }} />
+                      <span className="flex-1">{m.name}</span>
+                      <span className="text-muted-foreground">{m.value}%</span>
+                    </div>
+                  ))}
                 </div>
               </div>
-              <div className="space-y-2 text-xs flex-1">
-                {macros.map((m) => (
-                  <div key={m.name} className="flex items-center gap-2">
-                    <span className="h-2.5 w-2.5 rounded-full" style={{ background: m.color }} />
-                    <span className="flex-1">{m.name}</span>
-                    <span className="text-muted-foreground">{m.value}%</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+            )}
           </div>
 
           <div className="xl:col-span-2 rounded-2xl bg-gradient-card border border-border p-5 shadow-card">
-            <h2 className="font-semibold mb-4">Volume por semana (kg)</h2>
+            <h2 className="font-semibold mb-4">Treinos por semana</h2>
             <div className="h-56">
-              <ResponsiveContainer>
-                <BarChart data={volume} margin={{ left: -20, right: 8, top: 8, bottom: 0 }}>
-                  <XAxis dataKey="w" stroke="oklch(0.6 0.03 285)" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                  <YAxis stroke="oklch(0.6 0.03 285)" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                  <Tooltip contentStyle={{ background: "oklch(0.17 0.035 280)", border: "1px solid oklch(0.62 0.24 295)", borderRadius: 8, fontSize: 12 }} />
-                  <Bar dataKey="v" fill="oklch(0.62 0.24 295)" radius={[6, 6, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              {volume.length === 0 ? (
+                <div className="h-full flex items-center justify-center text-xs text-muted-foreground text-center px-6">
+                  Marque seus treinos como concluídos para acompanhar o volume semanal (+{XP_WORKOUT} XP por treino).
+                </div>
+              ) : (
+                <ResponsiveContainer>
+                  <BarChart data={volume} margin={{ left: -20, right: 8, top: 8, bottom: 0 }}>
+                    <XAxis dataKey="w" stroke="oklch(0.6 0.03 285)" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <YAxis allowDecimals={false} stroke="oklch(0.6 0.03 285)" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <Tooltip contentStyle={{ background: "oklch(0.17 0.035 280)", border: "1px solid oklch(0.62 0.24 295)", borderRadius: 8, fontSize: 12 }} />
+                    <Bar dataKey="v" fill="oklch(0.62 0.24 295)" radius={[6, 6, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </div>
         </div>
 
         <div className="rounded-2xl bg-gradient-card border border-border p-5 shadow-card">
-          <h2 className="font-semibold mb-4">Recordes pessoais</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="text-xs text-muted-foreground">
-                <tr>
-                  <th className="text-left font-medium pb-3">Exercício</th>
-                  <th className="text-right font-medium pb-3">Anterior</th>
-                  <th className="text-right font-medium pb-3">Recorde atual</th>
-                  <th className="text-right font-medium pb-3">Evolução</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {[
-                  { ex: "Supino Reto", prev: "80 kg", now: "100 kg", up: "25%" },
-                  { ex: "Agachamento Smith", prev: "120 kg", now: "140 kg", up: "16%" },
-                  { ex: "Leg Press 45°", prev: "200 kg", now: "260 kg", up: "30%" },
-                  { ex: "Puxada Triângulo", prev: "60 kg", now: "75 kg", up: "25%" },
-                  { ex: "Remada Curvada", prev: "60 kg", now: "80 kg", up: "33%" },
-                ].map((r) => (
-                  <tr key={r.ex}>
-                    <td className="py-3 flex items-center gap-2 font-medium">
-                      <Dumbbell size={14} className="text-primary-glow" /> {r.ex}
-                    </td>
-                    <td className="py-3 text-right text-muted-foreground">{r.prev}</td>
-                    <td className="py-3 text-right font-semibold">{r.now}</td>
-                    <td className="py-3 text-right text-success font-semibold">↑ {r.up}</td>
+          <h2 className="font-semibold mb-4">Histórico de XP</h2>
+          {xp.history.length === 0 ? (
+            <p className="text-xs text-muted-foreground">
+              Nenhum XP ainda. Conclua treinos (+{XP_WORKOUT} XP), refeições e a meta de água para pontuar.
+            </p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="text-xs text-muted-foreground">
+                  <tr>
+                    <th className="text-left font-medium pb-3">Dia</th>
+                    <th className="text-left font-medium pb-3">Conquistas</th>
+                    <th className="text-right font-medium pb-3">XP</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {xp.history.slice(0, 10).map((h) => (
+                    <tr key={h.key}>
+                      <td className="py-3 font-medium">{h.key.split("-").reverse().join("/")}</td>
+                      <td className="py-3 text-muted-foreground text-xs">
+                        {h.items.map((i) => i.label).join(" • ")}
+                      </td>
+                      <td className="py-3 text-right text-success font-semibold">+{h.total} XP</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
 
         <div className="rounded-2xl bg-gradient-card border border-border p-5 shadow-card">
@@ -220,13 +304,9 @@ function Relatorios() {
             </div>
             <div className="flex-1 min-w-0">
               <div className="font-semibold">Insights ShapeUp AI</div>
-              <p className="text-xs text-muted-foreground mb-3">Com base nos seus dados dos últimos 30 dias.</p>
+              <p className="text-xs text-muted-foreground mb-3">Com base nos seus registros até agora.</p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {[
-                  { i: TrendingUp, t: "Você aumentou 18% o volume total de treino. Continue assim!" },
-                  { i: CalendarDays, t: "Sua consistência está excelente! 75% dos treinos concluídos." },
-                  { i: Percent, t: "Redução de 2.1% na gordura corporal. Ótimo progresso!" },
-                ].map((c, i) => {
+                {insights.map((c, i) => {
                   const Icon = c.i;
                   return (
                     <div key={i} className="flex items-start gap-2 rounded-xl bg-secondary/40 border border-border p-3">

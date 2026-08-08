@@ -6,6 +6,8 @@ import {
   TrendingUp,
   TrendingDown,
   Scale,
+  Target,
+
   Activity,
   Droplets,
   Heart,

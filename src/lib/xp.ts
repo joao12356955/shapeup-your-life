@@ -12,6 +12,7 @@ export const XP_PER_LEVEL = 1000;
 export const XP_ALL_MEALS = 100;
 export const XP_WATER_GOAL = 250;
 export const XP_EXTRA_BOTTLE = 50;
+export const XP_WORKOUT = 300;
 
 export type XpItem = { label: string; xp: number };
 
@@ -19,9 +20,12 @@ export function dayXp(day: DayLog | undefined): { total: number; items: XpItem[]
   const items: XpItem[] = [];
   if (!day) return { total: 0, items };
 
+  if (day.workoutDone) items.push({ label: "Treino concluído", xp: XP_WORKOUT });
+
   const meals = day.meals ?? [];
   const allMeals = MEAL_SLOTS.every((slot) => meals.some((m) => m.slot === slot));
   if (allMeals) items.push({ label: "Todas as refeições do dia", xp: XP_ALL_MEALS });
+
 
   const water = day.waterMl ?? 0;
   if (water >= WATER_GOAL_ML) {

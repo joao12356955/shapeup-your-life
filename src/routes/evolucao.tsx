@@ -278,7 +278,7 @@ function EvolucaoPage() {
         <div className="flex justify-end">
           <button className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-1.5 text-sm hover:border-primary/50 transition">
             <CalendarIcon size={14} className="text-primary-glow" />
-            08/05/2024 — 08/06/2024
+            {inicio} — {hoje}
             <ChevronDown size={14} />
           </button>
         </div>
@@ -313,23 +313,23 @@ function EvolucaoPage() {
               <div className="font-semibold flex items-center gap-2">
                 Fotos de progresso <Info size={12} className="text-muted-foreground" />
               </div>
-              <span className="text-xs rounded-md bg-primary/20 text-primary-glow px-2 py-1">08/06/2024</span>
+              <span className="text-xs rounded-md bg-primary/20 text-primary-glow px-2 py-1">{hoje}</span>
             </div>
             <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
               <div className="rounded-xl border border-border bg-secondary/40 aspect-[3/4] flex flex-col items-center justify-end p-3 relative overflow-hidden">
-                <span className="absolute top-2 left-2 text-xs rounded bg-background/70 px-2 py-0.5">08/05/2024</span>
+                <span className="absolute top-2 left-2 text-xs rounded bg-background/70 px-2 py-0.5">{inicio}</span>
                 <div className="text-5xl opacity-30">👤</div>
               </div>
               <div className="flex flex-col items-center gap-2">
                 <div className="h-14 w-14 rounded-full border-2 border-primary flex items-center justify-center text-primary-glow">
                   <ArrowRight size={20} />
                 </div>
-                <div className="text-3xl font-bold leading-none">30</div>
+                <div className="text-3xl font-bold leading-none">{s.daysLogged}</div>
                 <div className="text-xs text-muted-foreground">dias</div>
                 <div className="text-[10px] text-muted-foreground">de evolução</div>
               </div>
               <div className="rounded-xl border border-border bg-secondary/40 aspect-[3/4] flex flex-col items-center justify-end p-3 relative overflow-hidden">
-                <span className="absolute top-2 left-2 text-xs rounded bg-background/70 px-2 py-0.5">08/06/2024</span>
+                <span className="absolute top-2 left-2 text-xs rounded bg-background/70 px-2 py-0.5">{hoje}</span>
                 <div className="text-5xl opacity-30">💪</div>
               </div>
             </div>
@@ -383,7 +383,7 @@ function EvolucaoPage() {
                 Medidas corporais <Info size={12} className="text-muted-foreground" />
               </div>
               <button className="text-xs rounded-md border border-border px-2 py-1 inline-flex items-center gap-1 hover:border-primary/50">
-                08/06/2024 <ChevronDown size={12} />
+                {hoje} <ChevronDown size={12} />
               </button>
             </div>
             <div className="space-y-3">

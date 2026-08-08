@@ -34,6 +34,8 @@ import {
 import { Sidebar } from "@/components/shapeup/Sidebar";
 import { useCurrentUser, initialsOf } from "@/lib/user-store";
 import { useXp } from "@/lib/xp";
+import { useStats } from "@/lib/stats";
+
 import { toast } from "sonner";
 import {
   DropdownMenu,

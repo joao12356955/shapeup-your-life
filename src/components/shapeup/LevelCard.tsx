@@ -103,9 +103,14 @@ export function LevelCard() {
             Como ganhar
           </div>
           <div className="flex items-center gap-2 text-xs">
+            <Dumbbell size={13} className="text-primary-glow" /> Treino concluído
+            <span className="ml-auto font-semibold">+{XP_WORKOUT} XP</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs">
             <UtensilsCrossed size={13} className="text-primary-glow" /> Todas as refeições do dia
             <span className="ml-auto font-semibold">+{XP_ALL_MEALS} XP</span>
           </div>
+
           <div className="flex items-center gap-2 text-xs">
             <Droplet size={13} className="text-primary-glow" /> Meta de 3 L de água
             <span className="ml-auto font-semibold">+{XP_WATER_GOAL} XP</span>

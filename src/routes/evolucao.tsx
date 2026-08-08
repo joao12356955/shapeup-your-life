@@ -121,6 +121,13 @@ function EvolucaoPage() {
   const user = useCurrentUser();
   const s = useStats(user);
   const one = (v?: number) => (typeof v === "number" ? v.toFixed(1) : "—");
+  const [hoje, setHoje] = useState("—");
+  useEffect(() => setHoje(new Date().toLocaleDateString("pt-BR")), []);
+  const inicio = s.weights[0]?.key
+    ? s.weights[0]!.key.split("-").reverse().join("/")
+    : hoje;
+
+
 
   const metrics = [
     {

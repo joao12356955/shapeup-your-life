@@ -217,14 +217,15 @@ export async function registerUser(u: UserProfile): Promise<{ ok: boolean; error
   return { ok: true };
 }
 
-export function updateCurrentUser(patch: Partial<UserProfile>) {
+export async function updateCurrentUser(patch: Partial<UserProfile>) {
   const cur = readCache();
   if (!cur) return;
-  writeCache({ ...cur, ...patch, isNew: false });
+  writeCache({ ...cur, ...patch, isNew: patch.onboardingCompleto === true ? false : cur.isNew });
   if (cur.id) {
-    void supabase.from("profiles").update(patchToRow(patch) as never).eq("id", cur.id);
+    await supabase.from("profiles").update(patchToRow(patch) as never).eq("id", cur.id);
   }
 }
+
 
 export function consumeWelcome(email: string): boolean {
   if (typeof window === "undefined") return false;

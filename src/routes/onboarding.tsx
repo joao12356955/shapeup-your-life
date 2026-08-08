@@ -121,7 +121,7 @@ function OnboardingPage() {
 
   // save partial after each step
   const persist = () => {
-    updateCurrentUser({
+    return updateCurrentUser({
       name: form.name || undefined,
       dataNascimento: form.dataNascimento || undefined,
       sexo: (form.sexo || undefined) as Sexo | undefined,
@@ -153,22 +153,23 @@ function OnboardingPage() {
   };
 
   const next = () => {
-    persist();
+    void persist();
     if (step < STEPS.length - 1) setStep(step + 1);
   };
   const prev = () => setStep(Math.max(0, step - 1));
 
-  const finish = () => {
-    persist();
-    updateCurrentUser({ onboardingCompleto: true });
+  const finish = async () => {
+    await persist();
+    await updateCurrentUser({ onboardingCompleto: true });
     toast.success("Perfil configurado! Bora treinar 💪");
     navigate({ to: "/dashboard" });
   };
 
-  const skip = () => {
-    updateCurrentUser({ onboardingCompleto: true });
+  const skip = async () => {
+    await updateCurrentUser({ onboardingCompleto: true });
     navigate({ to: "/dashboard" });
   };
+
 
   return (
     <div className="flex min-h-screen bg-background">

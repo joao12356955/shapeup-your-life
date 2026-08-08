@@ -349,7 +349,7 @@ function EvolucaoPage() {
                   </defs>
                   <CartesianGrid stroke="oklch(0.3 0.05 290)" strokeDasharray="3 3" vertical={false} />
                   <XAxis dataKey="d" stroke="oklch(0.65 0.05 290)" fontSize={10} tickLine={false} axisLine={false} />
-                  <YAxis stroke="oklch(0.65 0.05 290)" fontSize={10} domain={[76, 82]} tickLine={false} axisLine={false} />
+                  <YAxis stroke="oklch(0.65 0.05 290)" fontSize={10} domain={[Math.floor(weightMin), Math.ceil(weightMax)]} tickLine={false} axisLine={false} />
                   <Tooltip
                     contentStyle={{
                       background: "oklch(0.18 0.05 290)",

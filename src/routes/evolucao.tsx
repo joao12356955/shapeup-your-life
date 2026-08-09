@@ -315,27 +315,8 @@ function EvolucaoPage() {
               </div>
               <span className="text-xs rounded-md bg-primary/20 text-primary-glow px-2 py-1">{hoje}</span>
             </div>
-            <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
-              <div className="rounded-xl border border-border bg-secondary/40 aspect-[3/4] flex flex-col items-center justify-end p-3 relative overflow-hidden">
-                <span className="absolute top-2 left-2 text-xs rounded bg-background/70 px-2 py-0.5">{inicio}</span>
-                <div className="text-5xl opacity-30">👤</div>
-              </div>
-              <div className="flex flex-col items-center gap-2">
-                <div className="h-14 w-14 rounded-full border-2 border-primary flex items-center justify-center text-primary-glow">
-                  <ArrowRight size={20} />
-                </div>
-                <div className="text-3xl font-bold leading-none">{s.daysLogged}</div>
-                <div className="text-xs text-muted-foreground">dias</div>
-                <div className="text-[10px] text-muted-foreground">de evolução</div>
-              </div>
-              <div className="rounded-xl border border-border bg-secondary/40 aspect-[3/4] flex flex-col items-center justify-end p-3 relative overflow-hidden">
-                <span className="absolute top-2 left-2 text-xs rounded bg-background/70 px-2 py-0.5">{hoje}</span>
-                <div className="text-5xl opacity-30">💪</div>
-              </div>
-            </div>
-            <button className="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-lg border border-dashed border-border py-2.5 text-sm text-primary-glow hover:bg-primary/10 transition">
-              <Plus size={14} /> Adicionar nova foto
-            </button>
+            <ProgressPhotos days={s.daysLogged} />
+
           </div>
 
           <div className="rounded-2xl bg-gradient-card border border-border p-5 shadow-card">

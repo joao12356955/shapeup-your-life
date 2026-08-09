@@ -66,7 +66,11 @@ function Configuracoes() {
             return (
               <button
                 key={t.id}
-                onClick={() => setTab(t.id)}
+                onClick={() => {
+                  setTab(t.id);
+                  if (t.id === "priv")
+                    document.getElementById("privacidade")?.scrollIntoView({ behavior: "smooth" });
+                }}
                 className={`flex items-center gap-2 pb-3 text-sm font-medium whitespace-nowrap border-b-2 transition ${
                   active ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"
                 }`}

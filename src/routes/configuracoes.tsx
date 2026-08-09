@@ -23,6 +23,8 @@ import { useGym } from "@/lib/gym-store";
 import { useCurrentUser, initialsOf } from "@/lib/user-store";
 import { useXp, XP_PER_LEVEL } from "@/lib/xp";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+
 
 export const Route = createFileRoute("/configuracoes")({
   head: () => ({ meta: [{ title: "Configurações — ShapeUp" }] }),

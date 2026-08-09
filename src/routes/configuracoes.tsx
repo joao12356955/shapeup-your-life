@@ -23,6 +23,8 @@ import { useGym } from "@/lib/gym-store";
 import { useCurrentUser, initialsOf } from "@/lib/user-store";
 import { useXp, XP_PER_LEVEL } from "@/lib/xp";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+
 
 export const Route = createFileRoute("/configuracoes")({
   head: () => ({ meta: [{ title: "Configurações — ShapeUp" }] }),
@@ -64,7 +66,11 @@ function Configuracoes() {
             return (
               <button
                 key={t.id}
-                onClick={() => setTab(t.id)}
+                onClick={() => {
+                  setTab(t.id);
+                  if (t.id === "priv")
+                    document.getElementById("privacidade")?.scrollIntoView({ behavior: "smooth" });
+                }}
                 className={`flex items-center gap-2 pb-3 text-sm font-medium whitespace-nowrap border-b-2 transition ${
                   active ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"
                 }`}
@@ -192,7 +198,11 @@ function Configuracoes() {
                 </button>
               </div>
             </section>
+
+            {/* Privacidade e segurança */}
+            <PrivacySection currentEmail={user?.email ?? ""} />
           </div>
+
 
           {/* Right column */}
           <div className="space-y-6">
@@ -397,5 +407,129 @@ function Field({
         className="w-full rounded-lg bg-secondary/60 border border-border px-3 py-2 text-sm outline-none focus:border-primary"
       />
     </div>
+  );
+}
+
+function PrivacySection({ currentEmail }: { currentEmail: string }) {
+  const [email, setEmail] = useState("");
+  const [pwd, setPwd] = useState("");
+  const [pwd2, setPwd2] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function changeEmail() {
+    const value = email.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+      toast.error("Informe um e-mail válido.");
+      return;
+    }
+    setBusy(true);
+    const { error } = await supabase.auth.updateUser({ email: value });
+    setBusy(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setEmail("");
+    toast.success("Enviamos um link de confirmação para o novo e-mail.");
+  }
+
+  async function changePassword() {
+    if (pwd.length < 6) {
+      toast.error("A senha deve ter ao menos 6 caracteres.");
+      return;
+    }
+    if (pwd !== pwd2) {
+      toast.error("As senhas não coincidem.");
+      return;
+    }
+    setBusy(true);
+    const { error } = await supabase.auth.updateUser({ password: pwd });
+    setBusy(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setPwd("");
+    setPwd2("");
+    toast.success("Senha atualizada!");
+  }
+
+  return (
+    <section
+      id="privacidade"
+      className="rounded-2xl bg-gradient-card border border-border p-5 shadow-card scroll-mt-24"
+    >
+      <h2 className="font-semibold flex items-center gap-2">
+        <Shield size={16} className="text-primary-glow" /> Privacidade e segurança
+      </h2>
+      <p className="text-xs text-muted-foreground mb-5">
+        Altere seu e-mail de acesso e sua senha.
+      </p>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-3">
+          <div className="text-sm font-semibold">Alterar e-mail</div>
+          <div>
+            <div className="text-xs text-muted-foreground mb-1.5">E-mail atual</div>
+            <input
+              value={currentEmail}
+              readOnly
+              className="w-full rounded-lg bg-secondary/40 border border-border px-3 py-2 text-sm text-muted-foreground"
+            />
+          </div>
+          <div>
+            <div className="text-xs text-muted-foreground mb-1.5">Novo e-mail</div>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="novo@email.com"
+              maxLength={255}
+              className="w-full rounded-lg bg-secondary/60 border border-border px-3 py-2 text-sm outline-none focus:border-primary"
+            />
+          </div>
+          <button
+            onClick={() => void changeEmail()}
+            disabled={busy}
+            className="w-full rounded-lg bg-gradient-primary py-2.5 text-sm font-semibold shadow-glow hover:opacity-90 transition disabled:opacity-60"
+          >
+            Atualizar e-mail
+          </button>
+        </div>
+
+        <div className="space-y-3">
+          <div className="text-sm font-semibold">Alterar senha</div>
+          <div>
+            <div className="text-xs text-muted-foreground mb-1.5">Nova senha</div>
+            <input
+              type="password"
+              value={pwd}
+              onChange={(e) => setPwd(e.target.value)}
+              placeholder="••••••••"
+              maxLength={72}
+              className="w-full rounded-lg bg-secondary/60 border border-border px-3 py-2 text-sm outline-none focus:border-primary"
+            />
+          </div>
+          <div>
+            <div className="text-xs text-muted-foreground mb-1.5">Confirmar nova senha</div>
+            <input
+              type="password"
+              value={pwd2}
+              onChange={(e) => setPwd2(e.target.value)}
+              placeholder="••••••••"
+              maxLength={72}
+              className="w-full rounded-lg bg-secondary/60 border border-border px-3 py-2 text-sm outline-none focus:border-primary"
+            />
+          </div>
+          <button
+            onClick={() => void changePassword()}
+            disabled={busy}
+            className="w-full rounded-lg border border-border py-2.5 text-sm font-semibold hover:border-primary/60 transition disabled:opacity-60"
+          >
+            Atualizar senha
+          </button>
+        </div>
+      </div>
+    </section>
   );
 }

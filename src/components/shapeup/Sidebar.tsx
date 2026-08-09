@@ -37,65 +37,67 @@ function SidebarInner({ onNavigate }: { onNavigate?: () => void }) {
   const location = useLocation();
   const user = useCurrentUser();
   return (
-    <div className="flex h-full flex-col gap-8">
+    <div className="flex h-full flex-col gap-6 min-h-0">
       <img src={sidebarLogo.url} alt="ShapeUp" className="h-32 w-auto self-start -ml-2" />
 
-      <nav className="flex-1 flex flex-col gap-1 overflow-y-auto">
-        {nav.map((item, i) => {
-          const active = location.pathname === item.to && (i === 0 || item.to !== "/dashboard");
-          const Icon = item.icon;
-          return (
+      <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-6 pr-1">
+        <nav className="flex flex-col gap-1">
+          {nav.map((item, i) => {
+            const active = location.pathname === item.to && (i === 0 || item.to !== "/dashboard");
+            const Icon = item.icon;
+            return (
+              <Link
+                key={`${item.label}-${i}`}
+                to={item.to}
+                onClick={onNavigate}
+                className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
+                  active
+                    ? "bg-sidebar-active text-foreground shadow-glow"
+                    : "text-sidebar-foreground hover:bg-primary/15 hover:text-foreground hover:translate-x-0.5"
+                }`}
+              >
+                <Icon size={18} />
+                {item.label}
+              </Link>
+            );
+          })}
+
+          {user?.isAdmin && (
             <Link
-              key={`${item.label}-${i}`}
-              to={item.to}
+              to="/admin"
               onClick={onNavigate}
-              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
-                active
+              className={`mt-1 flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
+                location.pathname === "/admin"
                   ? "bg-sidebar-active text-foreground shadow-glow"
                   : "text-sidebar-foreground hover:bg-primary/15 hover:text-foreground hover:translate-x-0.5"
               }`}
             >
-              <Icon size={18} />
-              {item.label}
+              <Shield size={18} /> Admin
             </Link>
-          );
-        })}
+          )}
+        </nav>
 
-        {user?.isAdmin && (
-          <Link
-            to="/admin"
-            onClick={onNavigate}
-            className={`mt-1 flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
-              location.pathname === "/admin"
-                ? "bg-sidebar-active text-foreground shadow-glow"
-                : "text-sidebar-foreground hover:bg-primary/15 hover:text-foreground hover:translate-x-0.5"
-            }`}
-          >
-            <Shield size={18} /> Admin
-          </Link>
-        )}
-      </nav>
+        <div className="rounded-xl bg-gradient-card border border-border p-4 space-y-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/20">
+            <Crown size={18} className="text-primary-glow" />
+          </div>
+          <div>
+            <div className="font-semibold">Seja Premium</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Acesse recursos exclusivos e potencialize seus resultados.
+            </p>
+          </div>
+          <PricingDialog>
+            <button className="w-full rounded-lg bg-gradient-primary py-2 text-sm font-semibold text-primary-foreground shadow-glow hover:opacity-90 transition">
+              Assinar agora
+            </button>
+          </PricingDialog>
+        </div>
 
-      <div className="rounded-xl bg-gradient-card border border-border p-4 space-y-3">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/20">
-          <Crown size={18} className="text-primary-glow" />
-        </div>
-        <div>
-          <div className="font-semibold">Seja Premium</div>
-          <p className="text-xs text-muted-foreground mt-1">
-            Acesse recursos exclusivos e potencialize seus resultados.
-          </p>
-        </div>
-        <PricingDialog>
-          <button className="w-full rounded-lg bg-gradient-primary py-2 text-sm font-semibold text-primary-foreground shadow-glow hover:opacity-90 transition">
-            Assinar agora
-          </button>
-        </PricingDialog>
+        <LevelCard />
       </div>
-
-      <LevelCard />
-
     </div>
+
   );
 }
 

@@ -192,7 +192,11 @@ function Configuracoes() {
                 </button>
               </div>
             </section>
+
+            {/* Privacidade e segurança */}
+            <PrivacySection currentEmail={user?.email ?? ""} />
           </div>
+
 
           {/* Right column */}
           <div className="space-y-6">

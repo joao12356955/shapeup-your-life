@@ -48,12 +48,12 @@ function waterReply(day: DayLog) {
   return `💧 Você bebeu ${litros(ml)}L hoje (${bottles} de 6 garrafas, ${pct}% da meta). Faltam ${litros(falta)}L — cada 500ml extra ainda rende XP! 🔥`;
 }
 
-function workoutReply(day: DayLog) {
+function workoutReply(day: DayLog, user?: UserProfile | null) {
   const now = new Date();
-  const hoje = workoutForDay(now.getDay());
+  const hoje = workoutForDay(now.getDay(), user?.objetivo);
   const t = new Date(now);
   t.setDate(now.getDate() + 1);
-  const amanha = workoutForDay(t.getDay());
+  const amanha = workoutForDay(t.getDay(), user?.objetivo);
   const feito = day.workoutDone
     ? `✅ Treino de hoje concluído: ${hoje.name} — ${hoje.focus} (${hoje.duration}). +300 XP na conta! 💥`
     : `🏋️ Treino de hoje: ${hoje.name} — ${hoje.focus} (${hoje.duration}). Ainda não marcado como concluído, dá tempo!`;
@@ -90,12 +90,12 @@ function reply(text: string, day: DayLog, user?: UserProfile | null) {
   const t = text.toLowerCase();
   if (has(t, ["agua", "água", "hidrat", "litro", "garrafa", "beb"])) return waterReply(day);
   if (has(t, ["treino", "treinar", "exerc", "academia", "musculac", "cardio", "amanh"]))
-    return workoutReply(day);
+    return workoutReply(day, user);
   if (has(t, ["aliment", "comida", "refei", "dieta", "comer", "caloria", "macro", "kcal", "proteina", "proteína"]))
     return mealReply(day, user);
   if (has(t, ["peso", "emagre", "imc", "balanc"])) return weightReply(day, user);
   if (has(t, ["resumo", "dia", "como estou", "status", "hoje"]))
-    return `${waterReply(day)}\n\n${workoutReply(day)}\n\n${mealReply(day, user)}`;
+    return `${waterReply(day)}\n\n${workoutReply(day, user)}\n\n${mealReply(day, user)}`;
   if (has(t, ["oi", "ola", "olá", "bom dia", "boa noite", "boa tarde", "e ai", "e aí"]))
     return `E aí${user?.name ? `, ${user.name.split(" ")[0]}` : ""}! 👋 Quer saber da sua água, do treino ou da próxima refeição?`;
   return FALLBACK[Math.floor(Math.random() * FALLBACK.length)]!;

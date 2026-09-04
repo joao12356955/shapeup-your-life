@@ -31,6 +31,7 @@ import {
 import { Sidebar } from "@/components/shapeup/Sidebar";
 import { useCurrentUser, initialsOf } from "@/lib/user-store";
 import { useXp } from "@/lib/xp";
+import { splitFor, workoutForDay, planLabel, WEEK_LABELS } from "@/lib/workout-split";
 import { dateKey, emptyDay, useDailyLogs, weekKeys } from "@/lib/daily-store";
 import { toast } from "sonner";
 import {
@@ -98,32 +99,6 @@ const weekBars = [
   { d: "12/08", v: 4 }, { d: "19/08", v: 2 },
 ];
 
-const exercises = [
-  { n: 1, name: "Supino Declinado Articulado", series: 5, reps: "12", rest: "60s" },
-  { n: 2, name: "Supino Inclinado Máquina", series: 5, reps: "12", rest: "60s" },
-  { n: 3, name: "Supino Reto Drop", series: 2, reps: "12+12+12+12", rest: "90s" },
-  { n: 4, name: "Crucifixo na Polia + Flexão", series: 4, reps: "12", rest: "60s" },
-  { n: 5, name: "Tríceps Corda + Francês Polia", series: 4, reps: "12+12", rest: "60s" },
-  { n: 6, name: "Tríceps Barra Reta + Inverso", series: 4, reps: "12", rest: "60s" },
-  { n: 7, name: "Abs Roda + Paralela", series: 4, reps: "20", rest: "45s" },
-];
-
-const divisao = [
-  { d: "SEG", tag: "A", color: "bg-primary/30 text-primary-glow", label: "Peito + Tríceps" },
-  { d: "TER", tag: "🏃", color: "bg-muted text-foreground", label: "Corrida" },
-  { d: "QUA", tag: "D1", color: "bg-success/30 text-success", label: "Quadríceps" },
-  { d: "QUI", tag: "B", color: "bg-primary/30 text-primary-glow", label: "Costas + Bíceps" },
-  { d: "SEX", tag: "D2", color: "bg-destructive/30 text-destructive", label: "Posterior + Glúteos" },
-  { d: "SÁB", tag: "C", color: "bg-accent/30 text-accent-foreground", label: "Ombro + Trapézio + Corrida leve" },
-  { d: "DOM", tag: "🏃", color: "bg-muted text-foreground", label: "Corrida longa" },
-];
-
-const historico = [
-  { tag: "B", color: "bg-primary/30 text-primary-glow", name: "Costas + Bíceps", date: "Qui, 08/08", time: "62 min", xp: "+145 XP" },
-  { tag: "D1", color: "bg-success/30 text-success", name: "Quadríceps", date: "Qua, 07/08", time: "58 min", xp: "+138 XP" },
-  { tag: "🏃", color: "bg-muted text-foreground", name: "Corrida", date: "Ter, 06/08", time: "35 min", xp: "+110 XP" },
-];
-
 function TreinosPage() {
   const user = useCurrentUser();
   const xp = useXp(user?.email);
@@ -133,6 +108,9 @@ function TreinosPage() {
   const week = weekKeys().map((key) => ({ key, done: !!logs[key]?.workoutDone }));
   const completedThisWeek = week.filter((item) => item.done).length;
   const goal = user?.treino?.diasPorSemana ?? 5;
+  const plan = splitFor(user?.objetivo);
+  const todayWorkout = workoutForDay(new Date().getDay(), user?.objetivo);
+  const exercises = todayWorkout.exercises;
   const workoutPct = Math.min(100, Math.round((completedThisWeek / goal) * 100));
   const completedTotal = Object.entries(logs)
     .filter(([, day]) => day.workoutDone)
@@ -212,8 +190,9 @@ function TreinosPage() {
             <div className="text-xs text-muted-foreground border-b border-border/50 pb-1 inline-block">Treino de hoje</div>
             <div className="mt-3 flex items-start justify-between gap-2">
               <div>
-                <div className="text-2xl font-bold leading-tight">Peito + Tríceps</div>
-                <div className="text-xs text-muted-foreground mt-1">7 exercícios • 65 min</div>
+                <div className="text-2xl font-bold leading-tight">{todayWorkout.name}</div>
+                <div className="text-xs text-muted-foreground mt-1">{todayWorkout.focus}</div>
+                <div className="text-xs text-muted-foreground">{exercises.length} exercícios • {todayWorkout.duration}</div>
               </div>
               <PersonStanding className="text-primary-glow shrink-0" size={48} />
             </div>
@@ -301,13 +280,13 @@ function TreinosPage() {
           <div className="xl:col-span-2 rounded-2xl bg-gradient-card border border-border p-5 shadow-card">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-lg bg-primary/30 text-primary-glow flex items-center justify-center font-bold">A</div>
+                <div className="h-10 w-10 rounded-lg bg-primary/30 text-primary-glow flex items-center justify-center font-bold">{todayWorkout.tag}</div>
                 <div>
-                  <div className="font-semibold">Treino A – Peito + Tríceps</div>
-                  <div className="text-xs text-muted-foreground">Foco em hipertrofia • Alta intensidade</div>
+                  <div className="font-semibold">{todayWorkout.name} – {todayWorkout.focus}</div>
+                  <div className="text-xs text-muted-foreground">{planLabel(user?.objetivo)} • {todayWorkout.level}</div>
                 </div>
               </div>
-              <div className="text-xs text-muted-foreground flex items-center gap-1"><Clock size={12} /> 65 min</div>
+              <div className="text-xs text-muted-foreground flex items-center gap-1"><Clock size={12} /> {todayWorkout.duration}</div>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -322,12 +301,11 @@ function TreinosPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {exercises.map((e) => (
-                    <tr key={e.n} className="hover:bg-primary/5 transition">
-                      <td className="py-2.5 text-muted-foreground">{e.n}</td>
+                  {exercises.map((e, i) => (
+                    <tr key={e.name} className="hover:bg-primary/5 transition">
+                      <td className="py-2.5 text-muted-foreground">{i + 1}</td>
                       <td className="py-2.5">{e.name}</td>
-                      <td className="py-2.5">{e.series}</td>
-                      <td className="py-2.5">{e.reps}</td>
+                      <td className="py-2.5" colSpan={2}>{e.sets}</td>
                       <td className="py-2.5">{e.rest}</td>
                       <td className="py-2.5">
                         <input type="checkbox" className="h-4 w-4 rounded border-border accent-primary" />
@@ -355,11 +333,11 @@ function TreinosPage() {
               <div className="font-semibold">Divisão semanal</div>
             </div>
             <div className="space-y-2">
-              {divisao.map((d) => (
-                <div key={d.d} className="flex items-center gap-3 text-sm">
-                  <span className="text-xs text-muted-foreground w-8">{d.d}</span>
-                  <span className={`text-xs font-bold rounded-md px-2 py-1 w-10 text-center ${d.color}`}>{d.tag}</span>
-                  <span className="flex-1 truncate">{d.label}</span>
+              {plan.map((w, i) => (
+                <div key={`${w.name}-${i}`} className="flex items-center gap-3 text-sm">
+                  <span className="text-xs text-muted-foreground w-8">{WEEK_LABELS[i]}</span>
+                  <span className={`text-xs font-bold rounded-md px-2 py-1 w-10 text-center ${w.rest ? "bg-muted text-foreground" : "bg-primary/30 text-primary-glow"}`}>{w.tag}</span>
+                  <span className="flex-1 truncate">{w.focus}</span>
                 </div>
               ))}
             </div>

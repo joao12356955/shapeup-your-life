@@ -32,6 +32,7 @@ import {
   Plus,
 } from "lucide-react";
 import { consumeWelcome, logout, useCurrentUser, initialsOf } from "@/lib/user-store";
+import { workoutForDay, planLabel } from "@/lib/workout-split";
 
 import {
   LineChart,
@@ -124,58 +125,8 @@ const SAMPLE_WEIGHT: { d: string; kg: number }[] = [
 ];
 
 
-const WORKOUT_SPLIT = [
-  { name: "Descanso ativo", focus: "Mobilidade • Alongamento", duration: "30 min", level: "Recuperação", rest: true, exercises: [
-    { name: "Alongamento dinâmico", sets: "3 x 30s", rest: "20s" },
-    { name: "Caminhada leve", sets: "20 min", rest: "-" },
-    { name: "Mobilidade de quadril", sets: "3 x 10", rest: "30s" },
-  ] },
-  { name: "Treino A", focus: "Peito • Ombro • Tríceps", duration: "60 min", level: "Intermediário", exercises: [
-    { name: "Supino reto", sets: "4 x 10", rest: "75s" },
-    { name: "Supino inclinado halteres", sets: "4 x 10", rest: "60s" },
-    { name: "Desenvolvimento militar", sets: "4 x 10", rest: "75s" },
-    { name: "Elevação lateral", sets: "3 x 15", rest: "45s" },
-    { name: "Tríceps corda", sets: "4 x 12", rest: "45s" },
-    { name: "Tríceps francês", sets: "3 x 12", rest: "60s" },
-  ] },
-  { name: "Treino B", focus: "Costas • Bíceps • Posterior", duration: "60 min", level: "Avançado", exercises: [
-    { name: "Puxada frente", sets: "4 x 12", rest: "60s" },
-    { name: "Remada curvada", sets: "4 x 10", rest: "75s" },
-    { name: "Remada baixa", sets: "3 x 12", rest: "60s" },
-    { name: "Pulldown corda", sets: "3 x 15", rest: "45s" },
-    { name: "Rosca direta", sets: "4 x 10", rest: "60s" },
-    { name: "Rosca martelo", sets: "3 x 12", rest: "45s" },
-    { name: "Stiff", sets: "4 x 12", rest: "75s" },
-  ] },
-  { name: "Treino C", focus: "Pernas • Glúteo • Panturrilha", duration: "70 min", level: "Avançado", exercises: [
-    { name: "Agachamento livre", sets: "4 x 10", rest: "90s" },
-    { name: "Leg press", sets: "4 x 12", rest: "75s" },
-    { name: "Cadeira extensora", sets: "3 x 15", rest: "45s" },
-    { name: "Mesa flexora", sets: "3 x 12", rest: "45s" },
-    { name: "Elevação de quadril", sets: "4 x 12", rest: "60s" },
-    { name: "Panturrilha em pé", sets: "4 x 20", rest: "30s" },
-  ] },
-  { name: "Treino A", focus: "Peito • Ombro • Tríceps", duration: "60 min", level: "Intermediário", exercises: [
-    { name: "Supino reto", sets: "4 x 10", rest: "75s" },
-    { name: "Crucifixo halteres", sets: "3 x 12", rest: "60s" },
-    { name: "Desenvolvimento halteres", sets: "4 x 10", rest: "75s" },
-    { name: "Tríceps testa", sets: "4 x 12", rest: "60s" },
-  ] },
-  { name: "Treino B", focus: "Costas • Bíceps", duration: "55 min", level: "Intermediário", exercises: [
-    { name: "Barra fixa", sets: "4 x AMRAP", rest: "90s" },
-    { name: "Remada cavalinho", sets: "4 x 10", rest: "75s" },
-    { name: "Pulldown", sets: "3 x 12", rest: "60s" },
-    { name: "Rosca scott", sets: "3 x 12", rest: "60s" },
-  ] },
-  { name: "Cardio & Core", focus: "HIIT • Abdômen", duration: "40 min", level: "Moderado", exercises: [
-    { name: "Corrida intervalada", sets: "10 x 1min", rest: "1min" },
-    { name: "Prancha", sets: "3 x 45s", rest: "30s" },
-    { name: "Abdominal remador", sets: "4 x 15", rest: "30s" },
-    { name: "Mountain climbers", sets: "4 x 40s", rest: "20s" },
-  ] },
-];
 
-const workoutForDay = (dayIdx: number) => WORKOUT_SPLIT[dayIdx % 7];
+
 
 
 function Dashboard() {
@@ -209,10 +160,10 @@ function Dashboard() {
     return d;
   });
 
-  const todaysWorkout = workoutForDay(dayOfWeek);
+  const todaysWorkout = workoutForDay(dayOfWeek, user?.objetivo);
   const tomorrow = new Date(today);
   tomorrow.setDate(todayNum + 1);
-  const tomorrowsWorkout = workoutForDay(tomorrow.getDay());
+  const tomorrowsWorkout = workoutForDay(tomorrow.getDay(), user?.objetivo);
   const tomorrowLabel = tomorrow.toLocaleDateString("pt-BR", { weekday: "long" });
 
   const hasSample = !!user?.hasSampleData;
@@ -478,7 +429,8 @@ function Dashboard() {
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
           {/* Plano de hoje */}
           <div className="rounded-2xl bg-gradient-card border border-border p-5 shadow-card">
-            <h2 className="font-semibold mb-4">Seu plano de hoje</h2>
+            <h2 className="font-semibold">Seu plano de hoje</h2>
+            <p className="text-xs text-muted-foreground mb-4">{planLabel(user?.objetivo)}</p>
             <div className="space-y-3">
               {[
                 {

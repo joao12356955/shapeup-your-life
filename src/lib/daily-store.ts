@@ -154,6 +154,85 @@ export function useDailyLogs(email?: string) {
   return { logs, updateDay };
 }
 
+/* ------------------------------------------------------------------ */
+/* refeições personalizadas (o usuário pode criar as suas)             */
+/* ------------------------------------------------------------------ */
+
+export type FoodOption = Omit<MealEntry, "id" | "slot">;
+export type CustomFoods = Partial<Record<MealSlot, FoodOption[]>>;
+
+const FOODS_KEY = "shapeup:foods";
+const FOODS_EVENT = "shapeup:foods-changed";
+
+function foodsKey(email: string) {
+  return `${FOODS_KEY}:${email}`;
+}
+
+function readFoods(email: string): CustomFoods {
+  if (typeof window === "undefined") return {};
+  try {
+    return JSON.parse(localStorage.getItem(foodsKey(email)) || "{}") as CustomFoods;
+  } catch {
+    return {};
+  }
+}
+
+function writeFoods(email: string, foods: CustomFoods) {
+  localStorage.setItem(foodsKey(email), JSON.stringify(foods));
+  window.dispatchEvent(new Event(FOODS_EVENT));
+}
+
+/** Custom foods created by the user, merged with the built-in suggestions. */
+export function useCustomFoods(email?: string) {
+  const [foods, setFoods] = useState<CustomFoods>({});
+
+  useEffect(() => {
+    if (!email) return;
+    const refresh = () => setFoods(readFoods(email));
+    refresh();
+    window.addEventListener(FOODS_EVENT, refresh);
+    window.addEventListener("storage", refresh);
+    return () => {
+      window.removeEventListener(FOODS_EVENT, refresh);
+      window.removeEventListener("storage", refresh);
+    };
+  }, [email]);
+
+  const addFood = useCallback(
+    (slot: MealSlot, food: FoodOption) => {
+      if (!email) return;
+      const current = readFoods(email);
+      const list = (current[slot] ?? []).filter((f) => f.name !== food.name);
+      current[slot] = [...list, food];
+      writeFoods(email, current);
+    },
+    [email],
+  );
+
+  const removeFood = useCallback(
+    (slot: MealSlot, name: string) => {
+      if (!email) return;
+      const current = readFoods(email);
+      current[slot] = (current[slot] ?? []).filter((f) => f.name !== name);
+      writeFoods(email, current);
+    },
+    [email],
+  );
+
+  const optionsFor = useCallback(
+    (slot: MealSlot): FoodOption[] => [...MEAL_OPTIONS[slot], ...(foods[slot] ?? [])],
+    [foods],
+  );
+
+  const isCustom = useCallback(
+    (slot: MealSlot, name: string) => (foods[slot] ?? []).some((f) => f.name === name),
+    [foods],
+  );
+
+  return { foods, addFood, removeFood, optionsFor, isCustom };
+}
+
+
 
 export function weekKeys(today = new Date()) {
   const start = new Date(today);

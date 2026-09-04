@@ -429,7 +429,8 @@ function Dashboard() {
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
           {/* Plano de hoje */}
           <div className="rounded-2xl bg-gradient-card border border-border p-5 shadow-card">
-            <h2 className="font-semibold mb-4">Seu plano de hoje</h2>
+            <h2 className="font-semibold">Seu plano de hoje</h2>
+            <p className="text-xs text-muted-foreground mb-4">{planLabel(user?.objetivo)}</p>
             <div className="space-y-3">
               {[
                 {

@@ -32,6 +32,7 @@ import {
   Plus,
 } from "lucide-react";
 import { consumeWelcome, logout, useCurrentUser, initialsOf } from "@/lib/user-store";
+import { workoutForDay, planLabel } from "@/lib/workout-split";
 
 import {
   LineChart,

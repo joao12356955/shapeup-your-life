@@ -18,6 +18,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { Sidebar } from "@/components/shapeup/Sidebar";
 import { toast } from "sonner";
 import { useCurrentUser, initialsOf, logout } from "@/lib/user-store";
+import { splitFor } from "@/lib/workout-split";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -84,8 +85,6 @@ const typeDot: Record<EventType, string> = {
   outro: "bg-yellow-400",
 };
 
-const SAMPLE_WORKOUTS = ["Treino A", "Treino B", "Treino C", "Descanso", "Treino D1", "Treino D2", "Cardio"];
-
 const addDays = (base: Date, days: number) => {
   const d = new Date(base);
   d.setDate(base.getDate() + days);
@@ -119,15 +118,14 @@ function CalendarioPage() {
   const monthLabel = today.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
   const SELECTED = today.getDate();
 
+  const plan = splitFor(user?.objetivo);
   const eventsByDay: Record<number, Ev[]> = {};
+  for (let d = 1; d <= daysInMonth; d++) {
+    const date = new Date(year, month, d);
+    const w = plan[date.getDay()]!;
+    if (!w.rest) eventsByDay[d] = [{ label: w.name, type: "treino" }];
+  }
   if (hasSample) {
-    for (let d = 1; d <= daysInMonth; d++) {
-      const date = new Date(year, month, d);
-      const dow = date.getDay();
-      if (dow !== 0) {
-        eventsByDay[d] = [{ label: SAMPLE_WORKOUTS[dow], type: "treino" }];
-      }
-    }
     const wk = SELECTED;
     eventsByDay[wk] = [...(eventsByDay[wk] || []), { label: "Workshop Nutrição", type: "evento" }];
   }

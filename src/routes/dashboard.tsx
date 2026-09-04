@@ -160,10 +160,10 @@ function Dashboard() {
     return d;
   });
 
-  const todaysWorkout = workoutForDay(dayOfWeek);
+  const todaysWorkout = workoutForDay(dayOfWeek, user?.objetivo);
   const tomorrow = new Date(today);
   tomorrow.setDate(todayNum + 1);
-  const tomorrowsWorkout = workoutForDay(tomorrow.getDay());
+  const tomorrowsWorkout = workoutForDay(tomorrow.getDay(), user?.objetivo);
   const tomorrowLabel = tomorrow.toLocaleDateString("pt-BR", { weekday: "long" });
 
   const hasSample = !!user?.hasSampleData;

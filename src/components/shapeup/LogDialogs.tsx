@@ -11,8 +11,8 @@ import {
 } from "@/components/ui/dialog";
 import {
   BOTTLE_ML,
-  MEAL_OPTIONS,
   MEAL_SLOTS,
+  useCustomFoods,
   WATER_GOAL_BOTTLES,
   WATER_GOAL_ML,
   type DayLog,

@@ -106,7 +106,7 @@ export function WaterDialog({ open, onOpenChange, day, onSave }: BaseProps) {
 const emptyForm = { name: "", kcal: "", carbs: "", protein: "", fat: "" };
 
 export function MealDialog({ open, onOpenChange, day, onSave }: BaseProps) {
-  const { user } = useCurrentUser();
+  const user = useCurrentUser();
   const { addFood, removeFood, optionsFor, isCustom } = useCustomFoods(user?.email);
   const [selected, setSelected] = useState<MealEntry[]>(day.meals);
   const [formSlot, setFormSlot] = useState<MealSlot | null>(null);

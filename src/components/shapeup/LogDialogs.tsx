@@ -102,17 +102,39 @@ export function WaterDialog({ open, onOpenChange, day, onSave }: BaseProps) {
   );
 }
 
+const emptyForm = { name: "", kcal: "", carbs: "", protein: "", fat: "" };
+
 export function MealDialog({ open, onOpenChange, day, onSave }: BaseProps) {
+  const { user } = useCurrentUser();
+  const { addFood, removeFood, optionsFor, isCustom } = useCustomFoods(user?.email);
   const [selected, setSelected] = useState<MealEntry[]>(day.meals);
+  const [formSlot, setFormSlot] = useState<MealSlot | null>(null);
+  const [form, setForm] = useState(emptyForm);
 
   const toggle = (slot: MealSlot, name: string) => {
     const id = `${slot}::${name}`;
     setSelected((prev) => {
       if (prev.some((m) => m.id === id)) return prev.filter((m) => m.id !== id);
-      const opt = MEAL_OPTIONS[slot].find((o) => o.name === name)!;
+      const opt = optionsFor(slot).find((o) => o.name === name)!;
       return [...prev, { id, slot, ...opt }];
     });
   };
+
+  const submitFood = (slot: MealSlot) => {
+    const name = form.name.trim();
+    const num = (v: string) => Math.max(0, Math.round(Number(v.replace(",", ".")) || 0));
+    if (!name) return;
+    addFood(slot, {
+      name,
+      kcal: num(form.kcal),
+      carbs: num(form.carbs),
+      protein: num(form.protein),
+      fat: num(form.fat),
+    });
+    setForm(emptyForm);
+    setFormSlot(null);
+  };
+
 
   return (
     <Dialog

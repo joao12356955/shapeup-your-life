@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Droplet, Minus, Plus, Scale, UtensilsCrossed, Check } from "lucide-react";
+import { Droplet, Minus, Plus, Scale, Trash2, UtensilsCrossed, Check, X } from "lucide-react";
+import { useCurrentUser } from "@/lib/user-store";
 import {
   Dialog,
   DialogContent,

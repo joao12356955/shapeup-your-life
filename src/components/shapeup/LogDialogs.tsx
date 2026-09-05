@@ -158,34 +158,105 @@ export function MealDialog({ open, onOpenChange, day, onSave }: BaseProps) {
         <div className="space-y-4 max-h-[55vh] overflow-y-auto pr-1">
           {MEAL_SLOTS.map((slot) => (
             <div key={slot}>
-              <div className="text-xs font-semibold text-muted-foreground mb-2">{slot}</div>
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-xs font-semibold text-muted-foreground">{slot}</div>
+                <button
+                  onClick={() => {
+                    setForm(emptyForm);
+                    setFormSlot(formSlot === slot ? null : slot);
+                  }}
+                  className="text-xs font-medium text-primary-glow hover:underline flex items-center gap-1"
+                >
+                  {formSlot === slot ? <X size={12} /> : <Plus size={12} />}
+                  {formSlot === slot ? "Cancelar" : "Nova refeição"}
+                </button>
+              </div>
+
+              {formSlot === slot && (
+                <div className="mb-2 rounded-xl border border-primary/40 bg-secondary/40 p-3 space-y-2">
+                  <input
+                    value={form.name}
+                    maxLength={80}
+                    onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                    placeholder="Nome da refeição"
+                    className="w-full rounded-lg bg-background/60 border border-border px-3 py-2 text-sm outline-none focus:border-primary"
+                  />
+                  <div className="grid grid-cols-4 gap-2">
+                    {(["kcal", "carbs", "protein", "fat"] as const).map((k) => (
+                      <input
+                        key={k}
+                        type="number"
+                        min={0}
+                        value={form[k]}
+                        onChange={(e) => setForm((f) => ({ ...f, [k]: e.target.value }))}
+                        placeholder={
+                          k === "kcal" ? "kcal" : k === "carbs" ? "Carb g" : k === "protein" ? "Prot g" : "Gord g"
+                        }
+                        className="w-full rounded-lg bg-background/60 border border-border px-2 py-2 text-xs outline-none focus:border-primary"
+                      />
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => submitFood(slot)}
+                    disabled={!form.name.trim()}
+                    className={`w-full ${btn} disabled:opacity-50`}
+                  >
+                    Adicionar à lista
+                  </button>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {MEAL_OPTIONS[slot].map((o) => {
+                {optionsFor(slot).map((o) => {
                   const active = selected.some((m) => m.id === `${slot}::${o.name}`);
+                  const custom = isCustom(slot, o.name);
                   return (
-                    <button
+                    <div
                       key={o.name}
-                      onClick={() => toggle(slot, o.name)}
-                      className={`text-left flex items-start gap-2 rounded-xl border p-3 transition ${
+                      className={`relative rounded-xl border transition ${
                         active
                           ? "border-primary bg-primary/15"
                           : "border-border bg-secondary/40 hover:border-primary/50"
                       }`}
                     >
-                      <div
-                        className={`mt-0.5 h-4 w-4 rounded flex items-center justify-center shrink-0 ${
-                          active ? "bg-gradient-primary" : "border border-border"
-                        }`}
+                      <button
+                        onClick={() => toggle(slot, o.name)}
+                        className="w-full text-left flex items-start gap-2 p-3 pr-8"
                       >
-                        {active && <Check size={12} />}
-                      </div>
-                      <div className="min-w-0">
-                        <div className="text-sm font-medium">{o.name}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {o.kcal} kcal • C {o.carbs}g • P {o.protein}g • G {o.fat}g
+                        <div
+                          className={`mt-0.5 h-4 w-4 rounded flex items-center justify-center shrink-0 ${
+                            active ? "bg-gradient-primary" : "border border-border"
+                          }`}
+                        >
+                          {active && <Check size={12} />}
                         </div>
-                      </div>
-                    </button>
+                        <div className="min-w-0">
+                          <div className="text-sm font-medium">
+                            {o.name}
+                            {custom && (
+                              <span className="ml-2 text-[10px] uppercase tracking-wide text-primary-glow">
+                                sua
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {o.kcal} kcal • C {o.carbs}g • P {o.protein}g • G {o.fat}g
+                          </div>
+                        </div>
+                      </button>
+                      {custom && (
+                        <button
+                          aria-label={`Excluir ${o.name}`}
+                          onClick={() => {
+                            removeFood(slot, o.name);
+                            setSelected((prev) => prev.filter((m) => m.id !== `${slot}::${o.name}`));
+                          }}
+                          className="absolute top-2 right-2 text-muted-foreground hover:text-destructive"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      )}
+                    </div>
                   );
                 })}
               </div>

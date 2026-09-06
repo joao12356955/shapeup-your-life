@@ -247,7 +247,7 @@ export function useCustomFoods(email?: string) {
     [foods],
   );
 
-  return { foods, addFood, removeFood, optionsFor, isCustom };
+  return { foods, addFood, updateFood, removeFood, optionsFor, isCustom };
 }
 
 

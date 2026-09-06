@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { Droplet, Minus, Plus, Scale, Trash2, UtensilsCrossed, Check, X } from "lucide-react";
+import { Droplet, Minus, Pencil, Plus, Scale, Search, Trash2, UtensilsCrossed, Check, X } from "lucide-react";
 import { useCurrentUser } from "@/lib/user-store";
+import { FOOD_BASE, FOOD_CATEGORIES } from "@/lib/food-base";
+
 import {
   Dialog,
   DialogContent,

@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { Droplet, Minus, Plus, Scale, Trash2, UtensilsCrossed, Check, X } from "lucide-react";
+import { Droplet, Minus, Pencil, Plus, Scale, Search, Trash2, UtensilsCrossed, Check, X } from "lucide-react";
 import { useCurrentUser } from "@/lib/user-store";
+import { FOOD_BASE, FOOD_CATEGORIES } from "@/lib/food-base";
+
 import {
   Dialog,
   DialogContent,
@@ -107,10 +109,50 @@ const emptyForm = { name: "", kcal: "", carbs: "", protein: "", fat: "" };
 
 export function MealDialog({ open, onOpenChange, day, onSave }: BaseProps) {
   const user = useCurrentUser();
-  const { addFood, removeFood, optionsFor, isCustom } = useCustomFoods(user?.email);
+  const { addFood, updateFood, removeFood, optionsFor, isCustom } = useCustomFoods(user?.email);
   const [selected, setSelected] = useState<MealEntry[]>(day.meals);
   const [formSlot, setFormSlot] = useState<MealSlot | null>(null);
+  const [editing, setEditing] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [cat, setCat] = useState(FOOD_CATEGORIES[0]);
+  const [query, setQuery] = useState("");
+
+  const results = FOOD_BASE.filter((f) => {
+    const q = query.trim().toLowerCase();
+    if (q) return f.name.toLowerCase().includes(q);
+    return f.cat === cat;
+  }).slice(0, 40);
+
+  const openForm = (slot: MealSlot) => {
+    setForm(emptyForm);
+    setEditing(null);
+    setQuery("");
+    setFormSlot(formSlot === slot && !editing ? null : slot);
+  };
+
+  const startEdit = (slot: MealSlot, o: ReturnType<typeof optionsFor>[number]) => {
+    setFormSlot(slot);
+    setEditing(o.name);
+    setQuery("");
+    setForm({
+      name: o.name,
+      kcal: String(o.kcal),
+      carbs: String(o.carbs),
+      protein: String(o.protein),
+      fat: String(o.fat),
+    });
+  };
+
+  const addBaseFood = (f: (typeof FOOD_BASE)[number]) => {
+    const num = (v: string) => Number(v.replace(",", ".")) || 0;
+    setForm((prev) => ({
+      name: prev.name.trim() ? `${prev.name} + ${f.name}` : f.name,
+      kcal: String(Math.round(num(prev.kcal) + f.kcal)),
+      carbs: String(Math.round(num(prev.carbs) + f.carbs)),
+      protein: String(Math.round(num(prev.protein) + f.protein)),
+      fat: String(Math.round(num(prev.fat) + f.fat)),
+    }));
+  };
 
   const toggle = (slot: MealSlot, name: string) => {
     const id = `${slot}::${name}`;
@@ -125,17 +167,27 @@ export function MealDialog({ open, onOpenChange, day, onSave }: BaseProps) {
     const name = form.name.trim();
     const num = (v: string) => Math.max(0, Math.round(Number(v.replace(",", ".")) || 0));
     if (!name) return;
-    addFood(slot, {
+    const food = {
       name,
       kcal: num(form.kcal),
       carbs: num(form.carbs),
       protein: num(form.protein),
       fat: num(form.fat),
-    });
+    };
+    if (editing) {
+      updateFood(slot, editing, food);
+      setSelected((prev) =>
+        prev.map((m) =>
+          m.id === `${slot}::${editing}` ? { ...m, ...food, id: `${slot}::${food.name}` } : m,
+        ),
+      );
+    } else {
+      addFood(slot, food);
+    }
     setForm(emptyForm);
+    setEditing(null);
     setFormSlot(null);
   };
-
 
   return (
     <Dialog
@@ -161,10 +213,7 @@ export function MealDialog({ open, onOpenChange, day, onSave }: BaseProps) {
               <div className="flex items-center justify-between mb-2">
                 <div className="text-xs font-semibold text-muted-foreground">{slot}</div>
                 <button
-                  onClick={() => {
-                    setForm(emptyForm);
-                    setFormSlot(formSlot === slot ? null : slot);
-                  }}
+                  onClick={() => openForm(slot)}
                   className="text-xs font-medium text-primary-glow hover:underline flex items-center gap-1"
                 >
                   {formSlot === slot ? <X size={12} /> : <Plus size={12} />}
@@ -176,11 +225,59 @@ export function MealDialog({ open, onOpenChange, day, onSave }: BaseProps) {
                 <div className="mb-2 rounded-xl border border-primary/40 bg-secondary/40 p-3 space-y-2">
                   <input
                     value={form.name}
-                    maxLength={80}
+                    maxLength={120}
                     onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                     placeholder="Nome da refeição"
                     className="w-full rounded-lg bg-background/60 border border-border px-3 py-2 text-sm outline-none focus:border-primary"
                   />
+
+                  <div className="rounded-lg border border-border bg-background/40 p-2 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="relative flex-1">
+                        <Search
+                          size={13}
+                          className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground"
+                        />
+                        <input
+                          value={query}
+                          onChange={(e) => setQuery(e.target.value)}
+                          placeholder="Buscar alimento"
+                          className="w-full rounded-md bg-background/60 border border-border pl-7 pr-2 py-1.5 text-xs outline-none focus:border-primary"
+                        />
+                      </div>
+                      <select
+                        value={cat}
+                        onChange={(e) => setCat(e.target.value)}
+                        className="rounded-md bg-background/60 border border-border px-2 py-1.5 text-xs outline-none focus:border-primary max-w-[45%]"
+                      >
+                        {FOOD_CATEGORIES.map((c) => (
+                          <option key={c} value={c}>
+                            {c}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="max-h-40 overflow-y-auto space-y-1">
+                      {results.map((f) => (
+                        <button
+                          key={`${f.cat}-${f.name}`}
+                          onClick={() => addBaseFood(f)}
+                          className="w-full text-left rounded-md px-2 py-1.5 hover:bg-primary/15 transition"
+                        >
+                          <div className="text-xs font-medium">{f.name}</div>
+                          <div className="text-[10px] text-muted-foreground">
+                            {f.portion} • {f.kcal} kcal • C {f.carbs}g • P {f.protein}g • G {f.fat}g
+                          </div>
+                        </button>
+                      ))}
+                      {results.length === 0 && (
+                        <div className="px-2 py-3 text-xs text-muted-foreground">
+                          Nenhum alimento encontrado.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
                   <div className="grid grid-cols-4 gap-2">
                     {(["kcal", "carbs", "protein", "fat"] as const).map((k) => (
                       <input
@@ -201,7 +298,7 @@ export function MealDialog({ open, onOpenChange, day, onSave }: BaseProps) {
                     disabled={!form.name.trim()}
                     className={`w-full ${btn} disabled:opacity-50`}
                   >
-                    Adicionar à lista
+                    {editing ? "Salvar alterações" : "Adicionar à lista"}
                   </button>
                 </div>
               )}
@@ -221,7 +318,7 @@ export function MealDialog({ open, onOpenChange, day, onSave }: BaseProps) {
                     >
                       <button
                         onClick={() => toggle(slot, o.name)}
-                        className="w-full text-left flex items-start gap-2 p-3 pr-8"
+                        className="w-full text-left flex items-start gap-2 p-3 pr-14"
                       >
                         <div
                           className={`mt-0.5 h-4 w-4 rounded flex items-center justify-center shrink-0 ${
@@ -245,16 +342,25 @@ export function MealDialog({ open, onOpenChange, day, onSave }: BaseProps) {
                         </div>
                       </button>
                       {custom && (
-                        <button
-                          aria-label={`Excluir ${o.name}`}
-                          onClick={() => {
-                            removeFood(slot, o.name);
-                            setSelected((prev) => prev.filter((m) => m.id !== `${slot}::${o.name}`));
-                          }}
-                          className="absolute top-2 right-2 text-muted-foreground hover:text-destructive"
-                        >
-                          <Trash2 size={14} />
-                        </button>
+                        <div className="absolute top-2 right-2 flex items-center gap-1.5">
+                          <button
+                            aria-label={`Editar ${o.name}`}
+                            onClick={() => startEdit(slot, o)}
+                            className="text-muted-foreground hover:text-primary-glow"
+                          >
+                            <Pencil size={14} />
+                          </button>
+                          <button
+                            aria-label={`Excluir ${o.name}`}
+                            onClick={() => {
+                              removeFood(slot, o.name);
+                              setSelected((prev) => prev.filter((m) => m.id !== `${slot}::${o.name}`));
+                            }}
+                            className="text-muted-foreground hover:text-destructive"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
                       )}
                     </div>
                   );
@@ -282,6 +388,7 @@ export function MealDialog({ open, onOpenChange, day, onSave }: BaseProps) {
     </Dialog>
   );
 }
+
 
 export function WeightDialog({ open, onOpenChange, day, onSave }: BaseProps) {
   const [value, setValue] = useState(day.weightKg ? String(day.weightKg) : "");

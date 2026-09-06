@@ -209,6 +209,23 @@ export function useCustomFoods(email?: string) {
     [email],
   );
 
+  const updateFood = useCallback(
+    (slot: MealSlot, oldName: string, food: FoodOption) => {
+      if (!email) return;
+      const current = readFoods(email);
+      const list = current[slot] ?? [];
+      const idx = list.findIndex((f) => f.name === oldName);
+      if (idx === -1) current[slot] = [...list, food];
+      else {
+        const next = [...list];
+        next[idx] = food;
+        current[slot] = next.filter((f, i) => i === idx || f.name !== food.name);
+      }
+      writeFoods(email, current);
+    },
+    [email],
+  );
+
   const removeFood = useCallback(
     (slot: MealSlot, name: string) => {
       if (!email) return;
@@ -218,6 +235,7 @@ export function useCustomFoods(email?: string) {
     },
     [email],
   );
+
 
   const optionsFor = useCallback(
     (slot: MealSlot): FoodOption[] => [...MEAL_OPTIONS[slot], ...(foods[slot] ?? [])],

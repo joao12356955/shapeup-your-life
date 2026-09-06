@@ -14,6 +14,92 @@ export type Database = {
   }
   public: {
     Tables: {
+      challenge_participants: {
+        Row: {
+          challenge_id: string
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          challenge_id: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_participants_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      challenges: {
+        Row: {
+          banner_url: string | null
+          created_at: string
+          created_by: string | null
+          description: string
+          diet_notes: string
+          end_date: string
+          id: string
+          meals_per_day: number
+          published: boolean
+          start_date: string
+          title: string
+          updated_at: string
+          workout_frequency: number
+          workout_notes: string
+          xp_reward: number
+        }
+        Insert: {
+          banner_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          diet_notes?: string
+          end_date: string
+          id?: string
+          meals_per_day?: number
+          published?: boolean
+          start_date: string
+          title: string
+          updated_at?: string
+          workout_frequency?: number
+          workout_notes?: string
+          xp_reward?: number
+        }
+        Update: {
+          banner_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          diet_notes?: string
+          end_date?: string
+          id?: string
+          meals_per_day?: number
+          published?: boolean
+          start_date?: string
+          title?: string
+          updated_at?: string
+          workout_frequency?: number
+          workout_notes?: string
+          xp_reward?: number
+        }
+        Relationships: []
+      }
       daily_logs: {
         Row: {
           created_at: string

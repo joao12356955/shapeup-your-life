@@ -20,6 +20,15 @@ import { Sidebar } from "@/components/shapeup/Sidebar";
 import { useCurrentUser, initialsOf } from "@/lib/user-store";
 import { useXp } from "@/lib/xp";
 import { useDailyLogs } from "@/lib/daily-store";
+import {
+  useChallenges,
+  joinChallenge,
+  leaveChallenge,
+  challengeProgress,
+  daysBetween,
+  fmtDate,
+  type Challenge,
+} from "@/lib/challenges";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -75,13 +84,13 @@ function UserMenu() {
   );
 }
 
-const buildStats = (workoutDays: number, xpTotal: number) => [
-  { icon: Trophy, label: "Desafios ativos", value: workoutDays > 0 ? "1" : "0", hint: "Participe e evolua" },
+const buildStats = (workoutDays: number, xpTotal: number, ativosCount: number, concluidosCount: number) => [
+  { icon: Trophy, label: "Desafios ativos", value: String(ativosCount), hint: "Participe e evolua" },
   {
     icon: Check,
     label: "Desafios concluídos",
-    value: String(Math.floor(workoutDays / 30)),
-    hint: workoutDays >= 30 ? "Parabéns pela dedicação!" : "Seu primeiro está em andamento",
+    value: String(concluidosCount),
+    hint: concluidosCount > 0 ? "Parabéns pela dedicação!" : "Seu primeiro está em andamento",
   },
   {
     icon: Flame,
@@ -97,48 +106,44 @@ const buildStats = (workoutDays: number, xpTotal: number) => [
   },
 ];
 
-const ativos = [
-  {
-    name: "Desafio 30 Dias",
-    desc: "30 dias de disciplina para transformar seu corpo e mente.",
-    start: "01/06/2024",
-    end: "30/06/2024",
-    progress: 90,
-    progressLabel: "27 / 30 dias",
-    reward: "+500 XP",
-  },
-  {
-    name: "Desafio 75 HARD",
-    desc: "75 dias de foco total: treino, dieta, leitura e disciplina.",
-    start: "25/05/2024",
-    end: "07/08/2024",
-    progress: 30,
-    progressLabel: "23 / 75 dias",
-    reward: "+1.000 XP",
-  },
-];
-
-const disponiveis = [
-  { name: "Desafio da Academia", desc: "Seja o aluno mais dedicado da sua academia.", days: "14 dias", type: "Competitivo", xp: "+300 XP" },
-  { name: "Desafio de Casais", desc: "Evoluam juntos e fortaleçam seu vínculo.", days: "21 dias", type: "Dupla", xp: "+500 XP" },
-  { name: "Desafio 7 Dias", desc: "Uma semana para criar hábitos imbatíveis.", days: "7 dias", type: "Iniciante", xp: "+150 XP" },
-  { name: "Desafio Cardio", desc: "Queime calorias e melhore seu condicionamento.", days: "10 dias", type: "Cardio", xp: "+250 XP" },
-];
-
-// 30-day calendar: 23 done, 1 today, rest pending
-const dayStatus = (n: number): "done" | "today" | "pending" => {
-  if (n <= 22) return "done";
-  if (n === 23) return "today";
-  return "pending";
-};
-
 function DesafiosPage() {
   const user = useCurrentUser();
   const xp = useXp(user?.email);
   const { logs } = useDailyLogs(user?.email);
+  const { challenges, joined, reload } = useChallenges();
   const workoutDays = Object.values(logs).filter((day) => day.workoutDone).length;
-  const stats = buildStats(workoutDays, xp.total);
-  const ativosDoUsuario = workoutDays > 0 ? [{ ...ativos[0], progress: Math.min(100, Math.round((workoutDays / 30) * 100)), progressLabel: `${Math.min(30, workoutDays)} / 30 dias` }] : [];
+  const hoje = new Date().toISOString().slice(0, 10);
+
+  const publicados = (challenges ?? []).filter((c) => c.published);
+  const meus = publicados.filter((c) => joined.includes(c.id));
+  const ativosDoUsuario = meus.filter((c) => c.end_date >= hoje);
+  const concluidos = meus.filter((c) => c.end_date < hoje);
+  const disponiveis = publicados.filter((c) => !joined.includes(c.id) && c.end_date >= hoje);
+  const stats = buildStats(workoutDays, xp.total, ativosDoUsuario.length, concluidos.length);
+
+  const entrar = async (c: Challenge) => {
+    const err = await joinChallenge(c.id);
+    if (err) {
+      toast.error("Não foi possível participar", { description: err });
+      return;
+    }
+    toast.success(`Você entrou no ${c.title}! 🏆`, {
+      description: `Marcamos ${fmtDate(c.start_date)} até ${fmtDate(c.end_date)} no seu calendário.`,
+    });
+    void reload();
+  };
+
+  const sair = async (c: Challenge) => {
+    const err = await leaveChallenge(c.id);
+    if (err) {
+      toast.error("Não foi possível sair", { description: err });
+      return;
+    }
+    toast("Você saiu do desafio.");
+    void reload();
+  };
+
+  const foco = ativosDoUsuario[0] ?? meus[0] ?? null;
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar />
@@ -232,48 +237,65 @@ function DesafiosPage() {
                 Você ainda não participa de nenhum desafio. Escolha um abaixo para começar.
               </p>
             )}
-            {ativosDoUsuario.map((a) => (
-              <div key={a.name} className="rounded-xl bg-secondary/40 border border-border p-4 hover:border-primary/50 transition">
+            {ativosDoUsuario.map((a) => {
+              const prog = challengeProgress(a);
+              return (
+              <div key={a.id} className="rounded-xl bg-secondary/40 border border-border p-4 hover:border-primary/50 transition">
                 <div className="flex gap-4">
-                  <div className="h-24 w-32 shrink-0 rounded-lg bg-gradient-to-br from-primary/40 via-primary/20 to-background border border-primary/30 flex items-center justify-center">
-                    <Dumbbell className="text-primary-glow" size={36} />
+                  <div className="h-24 w-32 shrink-0 overflow-hidden rounded-lg bg-gradient-to-br from-primary/40 via-primary/20 to-background border border-primary/30 flex items-center justify-center">
+                    {a.banner_url ? (
+                      <img src={a.banner_url} alt={`Banner do ${a.title}`} className="h-full w-full object-cover" loading="lazy" />
+                    ) : (
+                      <Dumbbell className="text-primary-glow" size={36} />
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <div className="flex items-center gap-2">
-                          <h3 className="font-semibold">{a.name}</h3>
-                          <span className="text-[10px] uppercase tracking-wider rounded-full bg-primary/20 text-primary-glow px-2 py-0.5">Em andamento</span>
+                          <h3 className="font-semibold">{a.title}</h3>
+                          <span className="text-[10px] uppercase tracking-wider rounded-full bg-primary/20 text-primary-glow px-2 py-0.5">
+                            {a.start_date > new Date().toISOString().slice(0, 10) ? "Começa em breve" : "Em andamento"}
+                          </span>
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1">{a.desc}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{a.description}</p>
+                        <p className="text-[11px] text-muted-foreground mt-1">
+                          {a.workout_frequency} treinos/semana • {a.meals_per_day} refeições/dia
+                        </p>
                       </div>
-                      <ChevronRight size={16} className="text-muted-foreground shrink-0" />
+                      <button
+                        onClick={() => void sair(a)}
+                        className="text-[11px] rounded-lg border border-border px-2.5 py-1 shrink-0 hover:border-destructive/60 hover:text-destructive transition"
+                      >
+                        Sair
+                      </button>
                     </div>
                     <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
                       <div>
                         <div className="text-muted-foreground">Iniciado em</div>
-                        <div className="font-medium">{a.start}</div>
+                        <div className="font-medium">{fmtDate(a.start_date)}</div>
                       </div>
                       <div>
                         <div className="text-muted-foreground">Termina em</div>
-                        <div className="font-medium">{a.end}</div>
+                        <div className="font-medium">{fmtDate(a.end_date)}</div>
                       </div>
                       <div className="md:col-span-1">
                         <div className="text-muted-foreground">Progresso</div>
                         <div className="mt-1 h-1.5 rounded-full bg-secondary overflow-hidden">
-                          <div className="h-full bg-gradient-primary" style={{ width: `${a.progress}%` }} />
+                          <div className="h-full bg-gradient-primary" style={{ width: `${prog.pct}%` }} />
                         </div>
-                        <div className="text-[10px] text-muted-foreground mt-1">{a.progressLabel}</div>
+                        <div className="text-[10px] text-muted-foreground mt-1">{prog.elapsed} / {prog.total} dias</div>
                       </div>
                       <div className="text-right">
                         <div className="text-muted-foreground">Recompensa</div>
-                        <div className="text-success font-semibold">{a.reward}</div>
+                        <div className="text-success font-semibold">+{a.xp_reward} XP</div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
 
           <div className="space-y-4">

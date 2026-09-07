@@ -84,13 +84,13 @@ function UserMenu() {
   );
 }
 
-const buildStats = (workoutDays: number, xpTotal: number) => [
-  { icon: Trophy, label: "Desafios ativos", value: workoutDays > 0 ? "1" : "0", hint: "Participe e evolua" },
+const buildStats = (workoutDays: number, xpTotal: number, ativosCount: number, concluidosCount: number) => [
+  { icon: Trophy, label: "Desafios ativos", value: String(ativosCount), hint: "Participe e evolua" },
   {
     icon: Check,
     label: "Desafios concluídos",
-    value: String(Math.floor(workoutDays / 30)),
-    hint: workoutDays >= 30 ? "Parabéns pela dedicação!" : "Seu primeiro está em andamento",
+    value: String(concluidosCount),
+    hint: concluidosCount > 0 ? "Parabéns pela dedicação!" : "Seu primeiro está em andamento",
   },
   {
     icon: Flame,

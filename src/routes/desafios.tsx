@@ -237,48 +237,65 @@ function DesafiosPage() {
                 Você ainda não participa de nenhum desafio. Escolha um abaixo para começar.
               </p>
             )}
-            {ativosDoUsuario.map((a) => (
-              <div key={a.name} className="rounded-xl bg-secondary/40 border border-border p-4 hover:border-primary/50 transition">
+            {ativosDoUsuario.map((a) => {
+              const prog = challengeProgress(a);
+              return (
+              <div key={a.id} className="rounded-xl bg-secondary/40 border border-border p-4 hover:border-primary/50 transition">
                 <div className="flex gap-4">
-                  <div className="h-24 w-32 shrink-0 rounded-lg bg-gradient-to-br from-primary/40 via-primary/20 to-background border border-primary/30 flex items-center justify-center">
-                    <Dumbbell className="text-primary-glow" size={36} />
+                  <div className="h-24 w-32 shrink-0 overflow-hidden rounded-lg bg-gradient-to-br from-primary/40 via-primary/20 to-background border border-primary/30 flex items-center justify-center">
+                    {a.banner_url ? (
+                      <img src={a.banner_url} alt={`Banner do ${a.title}`} className="h-full w-full object-cover" loading="lazy" />
+                    ) : (
+                      <Dumbbell className="text-primary-glow" size={36} />
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <div className="flex items-center gap-2">
-                          <h3 className="font-semibold">{a.name}</h3>
-                          <span className="text-[10px] uppercase tracking-wider rounded-full bg-primary/20 text-primary-glow px-2 py-0.5">Em andamento</span>
+                          <h3 className="font-semibold">{a.title}</h3>
+                          <span className="text-[10px] uppercase tracking-wider rounded-full bg-primary/20 text-primary-glow px-2 py-0.5">
+                            {a.start_date > new Date().toISOString().slice(0, 10) ? "Começa em breve" : "Em andamento"}
+                          </span>
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1">{a.desc}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{a.description}</p>
+                        <p className="text-[11px] text-muted-foreground mt-1">
+                          {a.workout_frequency} treinos/semana • {a.meals_per_day} refeições/dia
+                        </p>
                       </div>
-                      <ChevronRight size={16} className="text-muted-foreground shrink-0" />
+                      <button
+                        onClick={() => void sair(a)}
+                        className="text-[11px] rounded-lg border border-border px-2.5 py-1 shrink-0 hover:border-destructive/60 hover:text-destructive transition"
+                      >
+                        Sair
+                      </button>
                     </div>
                     <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
                       <div>
                         <div className="text-muted-foreground">Iniciado em</div>
-                        <div className="font-medium">{a.start}</div>
+                        <div className="font-medium">{fmtDate(a.start_date)}</div>
                       </div>
                       <div>
                         <div className="text-muted-foreground">Termina em</div>
-                        <div className="font-medium">{a.end}</div>
+                        <div className="font-medium">{fmtDate(a.end_date)}</div>
                       </div>
                       <div className="md:col-span-1">
                         <div className="text-muted-foreground">Progresso</div>
                         <div className="mt-1 h-1.5 rounded-full bg-secondary overflow-hidden">
-                          <div className="h-full bg-gradient-primary" style={{ width: `${a.progress}%` }} />
+                          <div className="h-full bg-gradient-primary" style={{ width: `${prog.pct}%` }} />
                         </div>
-                        <div className="text-[10px] text-muted-foreground mt-1">{a.progressLabel}</div>
+                        <div className="text-[10px] text-muted-foreground mt-1">{prog.elapsed} / {prog.total} dias</div>
                       </div>
                       <div className="text-right">
                         <div className="text-muted-foreground">Recompensa</div>
-                        <div className="text-success font-semibold">{a.reward}</div>
+                        <div className="text-success font-semibold">+{a.xp_reward} XP</div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
 
           <div className="space-y-4">

@@ -20,6 +20,15 @@ import { Sidebar } from "@/components/shapeup/Sidebar";
 import { useCurrentUser, initialsOf } from "@/lib/user-store";
 import { useXp } from "@/lib/xp";
 import { useDailyLogs } from "@/lib/daily-store";
+import {
+  useChallenges,
+  joinChallenge,
+  leaveChallenge,
+  challengeProgress,
+  daysBetween,
+  fmtDate,
+  type Challenge,
+} from "@/lib/challenges";
 import { toast } from "sonner";
 import {
   DropdownMenu,

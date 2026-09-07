@@ -106,48 +106,44 @@ const buildStats = (workoutDays: number, xpTotal: number, ativosCount: number, c
   },
 ];
 
-const ativos = [
-  {
-    name: "Desafio 30 Dias",
-    desc: "30 dias de disciplina para transformar seu corpo e mente.",
-    start: "01/06/2024",
-    end: "30/06/2024",
-    progress: 90,
-    progressLabel: "27 / 30 dias",
-    reward: "+500 XP",
-  },
-  {
-    name: "Desafio 75 HARD",
-    desc: "75 dias de foco total: treino, dieta, leitura e disciplina.",
-    start: "25/05/2024",
-    end: "07/08/2024",
-    progress: 30,
-    progressLabel: "23 / 75 dias",
-    reward: "+1.000 XP",
-  },
-];
-
-const disponiveis = [
-  { name: "Desafio da Academia", desc: "Seja o aluno mais dedicado da sua academia.", days: "14 dias", type: "Competitivo", xp: "+300 XP" },
-  { name: "Desafio de Casais", desc: "Evoluam juntos e fortaleçam seu vínculo.", days: "21 dias", type: "Dupla", xp: "+500 XP" },
-  { name: "Desafio 7 Dias", desc: "Uma semana para criar hábitos imbatíveis.", days: "7 dias", type: "Iniciante", xp: "+150 XP" },
-  { name: "Desafio Cardio", desc: "Queime calorias e melhore seu condicionamento.", days: "10 dias", type: "Cardio", xp: "+250 XP" },
-];
-
-// 30-day calendar: 23 done, 1 today, rest pending
-const dayStatus = (n: number): "done" | "today" | "pending" => {
-  if (n <= 22) return "done";
-  if (n === 23) return "today";
-  return "pending";
-};
-
 function DesafiosPage() {
   const user = useCurrentUser();
   const xp = useXp(user?.email);
   const { logs } = useDailyLogs(user?.email);
+  const { challenges, joined, reload } = useChallenges();
   const workoutDays = Object.values(logs).filter((day) => day.workoutDone).length;
-  const stats = buildStats(workoutDays, xp.total);
-  const ativosDoUsuario = workoutDays > 0 ? [{ ...ativos[0], progress: Math.min(100, Math.round((workoutDays / 30) * 100)), progressLabel: `${Math.min(30, workoutDays)} / 30 dias` }] : [];
+  const hoje = new Date().toISOString().slice(0, 10);
+
+  const publicados = (challenges ?? []).filter((c) => c.published);
+  const meus = publicados.filter((c) => joined.includes(c.id));
+  const ativosDoUsuario = meus.filter((c) => c.end_date >= hoje);
+  const concluidos = meus.filter((c) => c.end_date < hoje);
+  const disponiveis = publicados.filter((c) => !joined.includes(c.id) && c.end_date >= hoje);
+  const stats = buildStats(workoutDays, xp.total, ativosDoUsuario.length, concluidos.length);
+
+  const entrar = async (c: Challenge) => {
+    const err = await joinChallenge(c.id);
+    if (err) {
+      toast.error("Não foi possível participar", { description: err });
+      return;
+    }
+    toast.success(`Você entrou no ${c.title}! 🏆`, {
+      description: `Marcamos ${fmtDate(c.start_date)} até ${fmtDate(c.end_date)} no seu calendário.`,
+    });
+    void reload();
+  };
+
+  const sair = async (c: Challenge) => {
+    const err = await leaveChallenge(c.id);
+    if (err) {
+      toast.error("Não foi possível sair", { description: err });
+      return;
+    }
+    toast("Você saiu do desafio.");
+    void reload();
+  };
+
+  const foco = ativosDoUsuario[0] ?? meus[0] ?? null;
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar />

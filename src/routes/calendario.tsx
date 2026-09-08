@@ -257,7 +257,7 @@ function CalendarioPage() {
                 <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-primary-glow" /> Treinos</span>
                 <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-destructive" /> Provas</span>
                 <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-blue-400" /> Eventos</span>
-                <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-yellow-400" /> Outros</span>
+                <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-yellow-400" /> Desafios</span>
               </div>
 
               {/* Calendar grid */}

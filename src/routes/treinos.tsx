@@ -108,7 +108,8 @@ const shortLabel = (key: string) => `${key.slice(8, 10)}/${key.slice(5, 7)}`;
 function buildWorkoutBars(
   logs: Record<string, { workoutDone?: boolean } | undefined>,
   range: RangeId,
-) {
+): { d: string; v: number; today: boolean }[] {
+
   const todayKey = dateKey();
   if (range === "semana") {
     return weekKeys().map((key) => ({

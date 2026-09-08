@@ -362,22 +362,37 @@ function DesafiosPage() {
               Ver todos <ChevronRight size={12} />
             </button>
           </div>
+          {disponiveis.length === 0 && (
+            <p className="text-sm text-muted-foreground rounded-xl bg-secondary/40 border border-dashed border-border p-6 text-center">
+              Nenhum desafio disponível no momento. Volte em breve! 🚀
+            </p>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
             {disponiveis.map((d) => (
-              <div key={d.name} className="rounded-xl bg-secondary/40 border border-border overflow-hidden hover:border-primary/50 transition">
+              <div key={d.id} className="rounded-xl bg-secondary/40 border border-border overflow-hidden hover:border-primary/50 transition">
                 <div className="h-24 bg-gradient-to-br from-primary/30 via-primary/10 to-background flex items-center justify-center border-b border-border">
-                  <Trophy className="text-primary-glow" size={32} />
+                  {d.banner_url ? (
+                    <img src={d.banner_url} alt={`Banner do ${d.title}`} className="h-full w-full object-cover" loading="lazy" />
+                  ) : (
+                    <Trophy className="text-primary-glow" size={32} />
+                  )}
                 </div>
                 <div className="p-4 space-y-2">
-                  <h3 className="font-semibold text-sm">{d.name}</h3>
-                  <p className="text-xs text-muted-foreground">{d.desc}</p>
+                  <h3 className="font-semibold text-sm">{d.title}</h3>
+                  <p className="text-xs text-muted-foreground line-clamp-3">{d.description}</p>
                   <div className="flex items-center gap-3 text-[11px] text-muted-foreground pt-1">
-                    <span>⏱ {d.days}</span>
-                    <span>👥 {d.type}</span>
+                    <span>⏱ {daysBetween(d.start_date, d.end_date)} dias</span>
+                    <span>🏋 {d.workout_frequency}x/semana</span>
+                  </div>
+                  <div className="text-[11px] text-muted-foreground">
+                    {fmtDate(d.start_date)} → {fmtDate(d.end_date)}
                   </div>
                   <div className="flex items-center justify-between pt-2">
-                    <span className="text-success font-semibold text-sm">{d.xp}</span>
-                    <button className="text-xs rounded-lg bg-gradient-primary px-3 py-1.5 font-semibold shadow-glow hover:opacity-90 transition">
+                    <span className="text-success font-semibold text-sm">+{d.xp_reward} XP</span>
+                    <button
+                      onClick={() => void entrar(d)}
+                      className="text-xs rounded-lg bg-gradient-primary px-3 py-1.5 font-semibold shadow-glow hover:opacity-90 transition"
+                    >
                       Participar
                     </button>
                   </div>
@@ -386,9 +401,10 @@ function DesafiosPage() {
             ))}
           </div>
           <div className="text-center text-xs text-muted-foreground mt-4">
-            Desafios atualizados toda semana. Participe e evolua! 🚀
+            Ao participar, o período do desafio é marcado no seu calendário. 🚀
           </div>
         </div>
+
       </main>
     </div>
   );

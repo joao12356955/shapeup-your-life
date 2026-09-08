@@ -403,15 +403,23 @@ function TreinosPage() {
           </div>
 
           <div className="rounded-2xl bg-gradient-card border border-border p-5 shadow-card">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold">Treinos por semana</h2>
-              <button className="text-xs text-muted-foreground flex items-center gap-1 rounded-md border border-border px-2 py-1">
-                Esta semana <ChevronDown size={12} />
-              </button>
+            <div className="flex items-center justify-between mb-4 gap-3">
+              <h2 className="font-semibold">
+                {range === "semana" ? "Treinos por dia" : "Treinos por semana"}
+              </h2>
+              <select
+                value={range}
+                onChange={(e) => setRange(e.target.value as RangeId)}
+                className="text-xs bg-card text-foreground rounded-md border border-border px-2 py-1 outline-none focus:border-primary"
+              >
+                {RANGES.map((r) => (
+                  <option key={r.id} value={r.id}>{r.label}</option>
+                ))}
+              </select>
             </div>
             <div className="h-56">
               <ResponsiveContainer>
-                <BarChart data={weekBars} margin={{ left: -20, right: 8, top: 8, bottom: 0 }}>
+                <BarChart data={bars} margin={{ left: -20, right: 8, top: 8, bottom: 0 }}>
                   <defs>
                     <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="oklch(0.78 0.18 320)" />
@@ -419,13 +427,25 @@ function TreinosPage() {
                     </linearGradient>
                   </defs>
                   <XAxis dataKey="d" stroke="oklch(0.6 0.03 285)" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                  <YAxis stroke="oklch(0.6 0.03 285)" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <YAxis allowDecimals={false} stroke="oklch(0.6 0.03 285)" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
                   <Tooltip contentStyle={{ background: "oklch(0.17 0.035 280)", border: "1px solid oklch(0.62 0.24 295)", borderRadius: 8, fontSize: 12 }} />
-                  <Bar dataKey="v" fill="url(#barGrad)" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="v" radius={[6, 6, 0, 0]}>
+                    {bars.map((b) => (
+                      <Cell
+                        key={b.d}
+                        fill={b.today ? "oklch(0.86 0.16 100)" : "url(#barGrad)"}
+                      />
+                    ))}
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>
+            <div className="text-[11px] text-muted-foreground mt-2 flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full" style={{ background: "oklch(0.86 0.16 100)" }} />
+              {range === "semana" ? "Hoje" : "Semana atual"}
+            </div>
           </div>
+
         </div>
       </main>
     </div>

@@ -93,11 +93,50 @@ const streakData = [
   { d: "D4", v: 4 }, { d: "D5", v: 3.5 }, { d: "D6", v: 5 }, { d: "D7", v: 4.5 },
 ];
 
-const weekBars = [
-  { d: "01/07", v: 3 }, { d: "08/07", v: 4 }, { d: "15/07", v: 3 },
-  { d: "22/07", v: 5 }, { d: "29/07", v: 4 }, { d: "05/08", v: 3 },
-  { d: "12/08", v: 4 }, { d: "19/08", v: 2 },
-];
+const RANGES = [
+  { id: "semana", label: "Esta semana" },
+  { id: "mes", label: "Este mês" },
+  { id: "trimestre", label: "Últimos 3 meses" },
+] as const;
+type RangeId = (typeof RANGES)[number]["id"];
+
+const shortLabel = (key: string) => `${key.slice(8, 10)}/${key.slice(5, 7)}`;
+
+/** Barras reais de treinos: por dia (semana) ou por semana (mês / 3 meses). */
+function buildWorkoutBars(
+  logs: Record<string, { workoutDone?: boolean } | undefined>,
+  range: RangeId,
+) {
+  const todayKey = dateKey();
+  if (range === "semana") {
+    return weekKeys().map((key) => ({
+      d: shortLabel(key),
+      v: logs[key]?.workoutDone ? 1 : 0,
+      today: key === todayKey,
+    }));
+  }
+  const weeksBack = range === "mes" ? 4 : 12;
+  const start = new Date();
+  start.setHours(12, 0, 0, 0);
+  start.setDate(start.getDate() - start.getDay() - (weeksBack - 1) * 7);
+  const bars: { d: string; v: number; today: boolean }[] = [];
+  for (let w = 0; w < weeksBack; w++) {
+    const from = new Date(start);
+    from.setDate(start.getDate() + w * 7);
+    let count = 0;
+    let isCurrent = false;
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(from);
+      d.setDate(from.getDate() + i);
+      const key = dateKey(d);
+      if (logs[key]?.workoutDone) count++;
+      if (key === todayKey) isCurrent = true;
+    }
+    bars.push({ d: shortLabel(dateKey(from)), v: count, today: isCurrent });
+  }
+  return bars;
+}
+
 
 function TreinosPage() {
   const user = useCurrentUser();

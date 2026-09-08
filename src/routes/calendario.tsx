@@ -19,6 +19,8 @@ import { Sidebar } from "@/components/shapeup/Sidebar";
 import { toast } from "sonner";
 import { useCurrentUser, initialsOf, logout } from "@/lib/user-store";
 import { splitFor } from "@/lib/workout-split";
+import { useMyChallenges } from "@/lib/challenges";
+
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -119,16 +121,32 @@ function CalendarioPage() {
   const SELECTED = today.getDate();
 
   const plan = splitFor(user?.objetivo);
+  const { mine } = useMyChallenges();
   const eventsByDay: Record<number, Ev[]> = {};
   for (let d = 1; d <= daysInMonth; d++) {
     const date = new Date(year, month, d);
     const w = plan[date.getDay()]!;
     if (!w.rest) eventsByDay[d] = [{ label: w.name, type: "treino" }];
   }
+  // Marca o período dos desafios em que o usuário entrou
+  for (const c of mine) {
+    for (let d = 1; d <= daysInMonth; d++) {
+      const key = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+      if (key < c.start_date || key > c.end_date) continue;
+      const label =
+        key === c.start_date
+          ? `Início: ${c.title}`
+          : key === c.end_date
+            ? `Fim: ${c.title}`
+            : c.title;
+      eventsByDay[d] = [...(eventsByDay[d] ?? []), { label, type: "outro" }];
+    }
+  }
   if (hasSample) {
     const wk = SELECTED;
     eventsByDay[wk] = [...(eventsByDay[wk] || []), { label: "Workshop Nutrição", type: "evento" }];
   }
+
 
   const lembretes = hasSample
     ? [

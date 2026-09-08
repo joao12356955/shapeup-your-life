@@ -142,7 +142,10 @@ function TreinosPage() {
   const user = useCurrentUser();
   const xp = useXp(user?.email);
   const { logs, updateDay } = useDailyLogs(user?.email);
+  const [range, setRange] = useState<RangeId>("semana");
+  const bars = useMemo(() => buildWorkoutBars(logs, range), [logs, range]);
   const todayKey = dateKey();
+
   const today = logs[todayKey] ?? emptyDay;
   const week = weekKeys().map((key) => ({ key, done: !!logs[key]?.workoutDone }));
   const completedThisWeek = week.filter((item) => item.done).length;

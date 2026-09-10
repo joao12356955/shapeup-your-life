@@ -375,9 +375,12 @@ function TreinosPage() {
 
           {/* Divisão semanal */}
           <div className="rounded-2xl bg-gradient-card border border-border p-5 shadow-card">
-            <div className="flex items-center gap-2 mb-4">
-              <CalendarDays size={16} className="text-primary-glow" />
-              <div className="font-semibold">Divisão semanal</div>
+            <div className="flex items-center justify-between gap-2 mb-4">
+              <div className="flex items-center gap-2">
+                <CalendarDays size={16} className="text-primary-glow" />
+                <div className="font-semibold">Divisão semanal</div>
+              </div>
+              <WorkoutPlanDialog email={user?.email} objetivo={user?.objetivo} />
             </div>
             <div className="space-y-2">
               {plan.map((w, i) => (

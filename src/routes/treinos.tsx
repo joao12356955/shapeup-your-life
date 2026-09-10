@@ -33,7 +33,9 @@ import {
 import { Sidebar } from "@/components/shapeup/Sidebar";
 import { useCurrentUser, initialsOf } from "@/lib/user-store";
 import { useXp } from "@/lib/xp";
-import { splitFor, workoutForDay, planLabel, WEEK_LABELS } from "@/lib/workout-split";
+import { planLabel, WEEK_LABELS } from "@/lib/workout-split";
+import { useWorkoutPlan } from "@/lib/workout-store";
+import { WorkoutPlanDialog } from "@/components/shapeup/WorkoutPlanDialog";
 import { dateKey, emptyDay, useDailyLogs, weekKeys } from "@/lib/daily-store";
 import { toast } from "sonner";
 import {
@@ -153,8 +155,8 @@ function TreinosPage() {
   const week = weekKeys().map((key) => ({ key, done: !!logs[key]?.workoutDone }));
   const completedThisWeek = week.filter((item) => item.done).length;
   const goal = user?.treino?.diasPorSemana ?? 5;
-  const plan = splitFor(user?.objetivo);
-  const todayWorkout = workoutForDay(new Date().getDay(), user?.objetivo);
+  const { plan } = useWorkoutPlan(user?.email, user?.objetivo);
+  const todayWorkout = plan[new Date().getDay()] ?? plan[0]!;
   const exercises = todayWorkout.exercises;
   const workoutPct = Math.min(100, Math.round((completedThisWeek / goal) * 100));
   const completedTotal = Object.entries(logs)
@@ -373,9 +375,12 @@ function TreinosPage() {
 
           {/* Divisão semanal */}
           <div className="rounded-2xl bg-gradient-card border border-border p-5 shadow-card">
-            <div className="flex items-center gap-2 mb-4">
-              <CalendarDays size={16} className="text-primary-glow" />
-              <div className="font-semibold">Divisão semanal</div>
+            <div className="flex items-center justify-between gap-2 mb-4">
+              <div className="flex items-center gap-2">
+                <CalendarDays size={16} className="text-primary-glow" />
+                <div className="font-semibold">Divisão semanal</div>
+              </div>
+              <WorkoutPlanDialog email={user?.email} objetivo={user?.objetivo} />
             </div>
             <div className="space-y-2">
               {plan.map((w, i) => (

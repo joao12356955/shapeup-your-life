@@ -155,8 +155,8 @@ function TreinosPage() {
   const week = weekKeys().map((key) => ({ key, done: !!logs[key]?.workoutDone }));
   const completedThisWeek = week.filter((item) => item.done).length;
   const goal = user?.treino?.diasPorSemana ?? 5;
-  const plan = splitFor(user?.objetivo);
-  const todayWorkout = workoutForDay(new Date().getDay(), user?.objetivo);
+  const { plan } = useWorkoutPlan(user?.email, user?.objetivo);
+  const todayWorkout = plan[new Date().getDay()] ?? plan[0]!;
   const exercises = todayWorkout.exercises;
   const workoutPct = Math.min(100, Math.round((completedThisWeek / goal) * 100));
   const completedTotal = Object.entries(logs)

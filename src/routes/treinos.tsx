@@ -33,7 +33,9 @@ import {
 import { Sidebar } from "@/components/shapeup/Sidebar";
 import { useCurrentUser, initialsOf } from "@/lib/user-store";
 import { useXp } from "@/lib/xp";
-import { splitFor, workoutForDay, planLabel, WEEK_LABELS } from "@/lib/workout-split";
+import { planLabel, WEEK_LABELS } from "@/lib/workout-split";
+import { useWorkoutPlan } from "@/lib/workout-store";
+import { WorkoutPlanDialog } from "@/components/shapeup/WorkoutPlanDialog";
 import { dateKey, emptyDay, useDailyLogs, weekKeys } from "@/lib/daily-store";
 import { toast } from "sonner";
 import {
